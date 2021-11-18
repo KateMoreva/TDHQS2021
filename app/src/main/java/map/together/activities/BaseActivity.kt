@@ -16,14 +16,14 @@ import map.together.R
 
 abstract class BaseActivity : AppCompatActivity() {
 
-    protected var mainContainer: FrameLayout? = null
-    protected var coordinator: CoordinatorLayout? = null
-    protected var toolbar: Toolbar? = null
-    protected var appbarLayout: AppBarLayout? = null
+    private var mainContainer: FrameLayout? = null
+    private var coordinator: CoordinatorLayout? = null
+    private var toolbar: Toolbar? = null
+    private var appbarLayout: AppBarLayout? = null
 
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
-        Log.d(this::class.java.canonicalName, "Base activity start onCreate")
+        Log.d(this::class.qualifiedName, "Base activity start onCreate")
         super.onCreate(savedInstanceState)
 
         setContentView(getActivityLayoutId())
@@ -31,7 +31,7 @@ abstract class BaseActivity : AppCompatActivity() {
         setupToolbar()
         setFragments()
 
-        Log.d(this::class.java.canonicalName, "Base activity end onCreate")
+        Log.d(this::class.qualifiedName, "Base activity end onCreate")
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -63,10 +63,10 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun setFragments() {
-        Log.d(this::class.java.canonicalName, "start add fragment")
+        Log.d(this::class.qualifiedName, "start add fragment")
         supportFragmentManager.beginTransaction().add(R.id.main_container, getSupportingFragment()).commit()
         supportFragmentManager.executePendingTransactions()
-        Log.d(this::class.java.canonicalName, "end add fragment")
+        Log.d(this::class.qualifiedName, "end add fragment")
     }
 
     protected open fun getToolbarTitle(): String = getString(R.string.app_name)
