@@ -1,6 +1,5 @@
 package map.together.db.entity
 
-import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
