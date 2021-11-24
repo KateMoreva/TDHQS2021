@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Карты</string>
+    <string name="email">Адрес электронной почты</string>
+    <string name="password">Пароль</string>
+    <string name="forgot_password"><u>Забыли свой пароль?</u></string>
+    <string name="login">Войти</string>
+    <string name="not_exist_acc"><u>Нет учётной записи?</u></string>
+</resources>

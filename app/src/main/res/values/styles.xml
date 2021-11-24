@@ -1,0 +1,84 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="MainTheme" parent="Theme.AppCompat.Light">
+        <item name="android:screenOrientation">portrait</item>
+        <item name="background">@color/white</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="MainTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="ActionBar" parent="Widget.AppCompat.Toolbar">
+        <item name="titleTextAppearance">@style/TextAppearance.Title</item>
+        <item name="android:background">@color/white</item>
+        <item name="contentInsetStartWithNavigation">0dp</item>
+        <item name="actionBarSize">60dp</item>
+    </style>
+
+    <style name="TextAppearance.Title" parent="android:TextAppearance">
+        <item name="android:textColor">@color/black</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.Default" parent="android:TextAppearance">
+        <item name="android:textColor">@color/black</item>
+    </style>
+
+    <style name="TextAppearance.Title.Semibold">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="RoundedCornerButton" parent="@style/Widget.AppCompat.Button.Colored">
+        <item name="android:background">@color/blue_light</item>
+        <item name="color">#0460B4</item>
+        <item name="colorButtonNormal">#1a237e</item>
+        <item name="colorControlHighlight">@color/blue</item>
+        <item name="android:stateListAnimator">@animator/button_animation</item>
+    </style>
+
+    <style name="InputHint" parent="TextAppearance.Design.Hint">
+        <item name="android:textSize">@dimen/text_size_13</item>
+    </style>
+
+    <style name="InputPasswordHint" parent="Widget.Design.TextInputLayout">
+        <item name="hintTextAppearance">@style/InputHint</item>
+        <item name="android:textColorHint">@color/gray_3</item>
+    </style>
+
+    <style name="Input">
+        <item name="android:paddingTop">8dp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:gravity">start</item>
+        <item name="android:imeOptions">actionGo</item>
+        <item name="android:textColor">@color/gray_1</item>
+        <item name="android:textColorHint">#999</item>
+        <item name="android:textSize">@dimen/text_size_17</item>
+        <item name="android:fontFamily" tools:ignore="newApi">sans-serif</item>
+    </style>
+
+    <style name="Input.Password">
+        <item name="android:imeOptions">flagNoExtractUi|actionGo</item>
+        <item name="android:inputType">textPassword|textNoSuggestions</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingBottom">-2dp</item>
+    </style>
+
+    <style name="MainTheme.NoActionBar.TextShadow">
+        <item name="android:shadowColor">@color/text_shadow</item>
+        <item name="android:shadowDx">@integer/integer_1</item>
+        <item name="android:shadowDy">@integer/integer_1</item>
+        <item name="android:shadowRadius">@integer/integer_2</item>
+    </style>
+</resources>

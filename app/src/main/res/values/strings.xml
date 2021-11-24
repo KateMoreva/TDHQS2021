@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Map together</string>
+    <string name="login_title" translatable="false">Your\nown\ngym</string>
+    <string name="email">Email address</string>
+    <string name="password">Password</string>
+    <string name="forgot_password"><u>Forgot your password?</u></string>
+    <string name="login">Log in</string>
+    <string name="not_exist_acc"><u>Don’t have an account?</u></string>
+</resources>
