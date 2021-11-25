@@ -11,6 +11,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.internal.synchronized
 import kotlinx.coroutines.launch
+import map.together.db.converter.DateConverter
 import map.together.db.dao.CategoryDao
 import map.together.db.dao.LayerDao
 import map.together.db.dao.LayerMapDao
@@ -30,7 +31,6 @@ import map.together.db.entity.PlaceLayerEntity
 import map.together.db.entity.UserEntity
 import map.together.db.entity.UserMapEntity
 import map.together.db.generators.InitialDataGenerator
-import map.together.db.converter.DateConverter
 
 @Database(
         entities = [

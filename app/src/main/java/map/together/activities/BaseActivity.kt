@@ -7,8 +7,8 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.db.AppDatabase
-import map.together.utils.logger.Logger
 import map.together.lifecycle.Router
+import map.together.utils.logger.Logger
 
 abstract class BaseActivity : AppCompatActivity() {
 
