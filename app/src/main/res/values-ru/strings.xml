@@ -6,4 +6,75 @@
     <string name="forgot_password"><u>Забыли свой пароль?</u></string>
     <string name="login">Войти</string>
     <string name="not_exist_acc"><u>Нет учётной записи?</u></string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="change_user_name">Изменить имя</string>
+    <string name="user_name">Имя</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="registration">Регистрация</string>
+    <string name="add_workout">Добавить тренировку</string>
+    <string name="action_add">Добавить</string>
+    <string name="add_to_bookmarks">Добавить в закладки</string>
+    <string name="exercise_type">Тип упражнения</string>
+
+    <string name="choose_exercise_type">Выберите тип упражнения</string>
+    <string name="enter_exercise_name">Название упражнения</string>
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="exercise_elements">Элементы упражнения</string>
+    <string name="exercise">Упражнение</string>
+    <string name="parameter_name">Имя параметра</string>
+    <string name="value">Значение</string>
+    <string name="workout">Тренировка</string>
+    <string name="settings">Настройки</string>
+    <string name="enter_workout_name">Название тренировки</string>
+    <string name="drawer_item_settings">Настройки</string>
+    <string name="account_settings">Настройки аакаунта</string>
+    <string name="drawer_item_bookmarks">Закладки</string>
+    <string name="drawer_item_favourites">Избранное</string>
+    <string name="drawer_item_search">Найти тренировку</string>
+
+    <string name="image">Фото</string>
+    <string name="change_imnage">Изменить ваше фото</string>
+    <string name="remember">Запомнить</string>
+    <string name="error">Ошибка</string>
+    <string name="close">Закрыть</string>
+    <string name="quit">Выход</string>
+    <string name="quit_confirm_msg">Вы действительно хотите выйти из аккаунта?</string>
+    <string name="successfully">Успешно</string>
+    <string name="user_exist">Пользователь уже существует</string>
+    <string name="failed_registr">Не удалось зарегистрироваться, попробуйте ещё раз позже.</string>
+    <string name="failed_login">Не удалось войти, попробуйте ещё раз позже.</string>
+    <string name="failed_change_user_data">Не удалось изменить данные, попробуйте ещё раз позже.</string>
+    <string name="incorrect_email">Некорректный адрес эл.почты</string>
+    <string name="incorrect_password">Некорректный пароль</string>
+    <string name="incorrect_confirm_passowrd">Пароли не совпадают</string>
+    <string name="incorrect_first_name">Некорректное имя</string>
+    <string name="incorrect_email_or_password">Неправильная эл. почта или пароль.</string>
+    <string name="cannot_login">Не удалось войти.</string>
+    <string name="cannot_sign_up">Не удалось зарегистрироваться.</string>
+    <string name="server_not_available">Сервер недоступен.</string>
+
+    <string name="preference_account_settings">Аккаунт</string>
+    <string name="preference_account_settings_summary">Настройки аккаунта</string>
+    <string name="preference_delete_account">Удалить аккаунт</string>
+    <string name="preference_delete_account_summary">Этот аккаунт будет удалён безвозвратно</string>
+    <string name="preference_exit">Выйти</string>
+    <string name="preference_exit_summary">Выйти из этого аккаунта</string>
+    <string name="preference_say_error">Сообщить об ошибке</string>
+    <string name="preference_say_error_summary">Пожалуйста, сообщите нам об ошибке</string>
+    <string name="preference_edit_user_name">Имя</string>
+    <string name="preference_change_avatar">Фото</string>
+    <string name="preference_change_avatar_summary">Сменить фотографию</string>
+    <string name="preference_personal_data_category">Личные данные</string>
+    <string name="star_required_text">* - Обязательные поля</string>
+
+    <string name="drawer_item_save">Сохранить данные</string>
+    <string name="data_saving">Сохраняю данные…</string>
+    <string name="share">Поделиться</string>
+    <string name="choose_all">Выбрать все</string>
+    <string name="profile">Профиль</string>
+    <string name="next">Далее</string>
+    <string name="remove">Удалить</string>
+    <string name="prev">Назад</string>
+
 </resources>

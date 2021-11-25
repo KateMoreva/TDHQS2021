@@ -1,4 +1,4 @@
-package training.journal.db.generators
+package map.together.db.generators
 
 import android.content.Context
 import map.together.db.entity.CategoryEntity

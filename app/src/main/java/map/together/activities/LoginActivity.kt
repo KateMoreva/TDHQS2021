@@ -5,5 +5,5 @@ import map.together.fragments.LoginFragment
 
 class LoginActivity : BaseNoAppbarActivity() {
 
-    override fun getSupportingFragment(): Fragment = LoginFragment()
+    fun getSupportingFragment(): Fragment = LoginFragment()
 }

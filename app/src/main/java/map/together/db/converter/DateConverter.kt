@@ -1,4 +1,4 @@
-package training.journal.db.converter
+package map.together.db.converter
 
 import androidx.room.TypeConverter
 import java.util.*

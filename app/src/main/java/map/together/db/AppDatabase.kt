@@ -29,8 +29,8 @@ import map.together.db.entity.PlaceEntity
 import map.together.db.entity.PlaceLayerEntity
 import map.together.db.entity.UserEntity
 import map.together.db.entity.UserMapEntity
-import training.journal.db.converter.DateConverter
-import training.journal.db.generators.InitialDataGenerator
+import map.together.db.generators.InitialDataGenerator
+import map.together.db.converter.DateConverter
 
 @Database(
         entities = [
