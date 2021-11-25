@@ -49,7 +49,7 @@ abstract class AppbarActivity : DrawerActivity() {
 
     protected abstract fun getToolbarView(): Toolbar
 
-    protected fun getToolbarTitle(): String = getString(R.string.app_name)
+    protected open fun getToolbarTitle(): String = getString(R.string.app_name)
 
     override fun canOpenNavMenuFromToolbar(): Boolean = true
 }

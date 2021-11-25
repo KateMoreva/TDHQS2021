@@ -40,7 +40,7 @@ object AuthRepository {
                         getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_TOKEN, token).apply()
                         getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_INFO_KEY, Gson().toJson(user)).apply()
                     }
-                    router?.showMainPage()
+//                    router?.showMainPage()
                     finish()
                 }
             }

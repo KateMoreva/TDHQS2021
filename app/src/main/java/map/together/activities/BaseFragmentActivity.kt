@@ -38,7 +38,8 @@ open class BaseFragmentActivity : AppbarActivity() {
         ft.replace(R.id.main_container, fragment)
         ft.addToBackStack(null)
         ft.setCustomAnimations(
-                android.R.animator.fade_in, android.R.animator.fade_out)
+            android.R.animator.fade_in, android.R.animator.fade_out
+        )
         ft.commit()
     }
 
@@ -52,7 +53,6 @@ open class BaseFragmentActivity : AppbarActivity() {
     }
 
     override fun getActivityLayoutId() = R.layout.activity_base_fragment
-
 
     override fun getToolbarView(): Toolbar = base_toolbar
 }

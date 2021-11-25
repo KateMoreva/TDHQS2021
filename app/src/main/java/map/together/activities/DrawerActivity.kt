@@ -41,6 +41,7 @@ abstract class DrawerActivity : BaseActivity() {
                     EXIT_ITEM_ID -> {
                         buildExitDialog()
                     }
+//                    SETTINGS_ITEM_ID -> router?.showSettingsPage()
                 }
                 closeNavMenu()
                 true
@@ -67,6 +68,7 @@ abstract class DrawerActivity : BaseActivity() {
 
         val settingsItem = PrimaryDrawerItem().apply {
             name = StringHolder(R.string.drawer_item_settings)
+//            icon = ImageHolder(R.drawable.ic_settings)
             identifier = SETTINGS_ITEM_ID
             isSelectable = false
         }

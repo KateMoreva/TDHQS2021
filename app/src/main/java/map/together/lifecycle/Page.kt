@@ -1,7 +1,8 @@
 package map.together.lifecycle
 
-import map.together.activities.LoginActivity
-import map.together.activities.MainActivity
+import map.together.activities.WelcomeActivity
+import map.together.activities.auth.LoginActivity
+import map.together.activities.auth.RegistrationActivity
 import map.together.fragments.BaseFragment
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -17,7 +18,11 @@ sealed class Page : Serializable {
         }
 
         object Main : Activity() {
-            override val clazz = MainActivity::class
+            override val clazz = WelcomeActivity::class
+        }
+
+        object Registration : Activity() {
+            override val clazz = RegistrationActivity::class
         }
     }
 
