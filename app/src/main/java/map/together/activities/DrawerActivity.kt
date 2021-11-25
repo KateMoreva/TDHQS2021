@@ -33,22 +33,8 @@ abstract class DrawerActivity : BaseActivity() {
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        drawerController = DrawerController(root_drawer, slider)
-        setupItems()
-        slider.apply {
-            onDrawerItemClickListener = { _, item, _ ->
-                when (item.identifier) {
-                    EXIT_ITEM_ID -> {
-                        buildExitDialog()
-                    }
-//                    SETTINGS_ITEM_ID -> router?.showSettingsPage()
-                }
-                closeNavMenu()
-                true
-            }
-        }
-        attachCurrentUserToSlider()
-        CurrentUserRepository.currentUser.observe(this, Observer { attachCurrentUserToSlider() })
+//        attachCurrentUserToSlider()
+//        CurrentUserRepository.currentUser.observe(this, Observer { attachCurrentUserToSlider() })
     }
 
     private fun buildExitDialog() {
@@ -79,20 +65,8 @@ abstract class DrawerActivity : BaseActivity() {
             isSelectable = false
         }
 
-        slider.addItems(
-                DividerDrawerItem(),
-                settingsItem,
-                exitItem
-        )
     }
 
-    override fun onBackPressed() {
-        if (root_drawer.isDrawerOpen(slider)) {
-            root_drawer.closeDrawer(slider)
-        } else {
-            super.onBackPressed()
-        }
-    }
 
     fun openNavMenu() {
         drawerController?.openMenu()
@@ -110,17 +84,17 @@ abstract class DrawerActivity : BaseActivity() {
         drawerController?.removeMenuListener(listener)
     }
 
-    private fun attachCurrentUserToSlider() {
-        val userInfo = CurrentUserRepository.currentUser.value
-        userInfo?.let {
-            when {
-                it.pictureUrlStr != null -> profile.icon = ImageHolder(it.pictureUrlStr)
-                else -> profile.icon = null
-            }
-            profile.name = StringHolder(it.userName)
-            profile.description = StringHolder(it.email)
-        }
-    }
+//    private fun attachCurrentUserToSlider() {
+//        val userInfo = CurrentUserRepository.currentUser.value
+//        userInfo?.let {
+//            when {
+//                it.pictureUrlStr != null -> profile.icon = ImageHolder(it.pictureUrlStr)
+//                else -> profile.icon = null
+//            }
+//            profile.name = StringHolder(it.userName)
+//            profile.description = StringHolder(it.email)
+//        }
+//    }
 
     protected open fun canOpenNavMenuFromToolbar(): Boolean = false
 }

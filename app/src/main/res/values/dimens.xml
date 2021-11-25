@@ -36,4 +36,6 @@
 
     <dimen name="header_icon_size">80dp</dimen>
     <dimen name="superset_corner_radius">16dp</dimen>
+    <dimen name="padding_250">250</dimen>
+    <dimen name="padding_300">300</dimen>
 </resources>

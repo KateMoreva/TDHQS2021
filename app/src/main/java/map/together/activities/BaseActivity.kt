@@ -12,7 +12,6 @@ import map.together.utils.logger.Logger
 
 abstract class BaseActivity : AppCompatActivity() {
 
-
     var router: Router? = null
         private set
 

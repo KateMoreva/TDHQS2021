@@ -2,6 +2,7 @@ package map.together.activities.auth
 
 import android.os.Bundle
 import com.afollestad.materialdialogs.MaterialDialog
+import com.yandex.mapkit.MapKitFactory
 import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.android.synthetic.main.activity_login.email_et
 import kotlinx.android.synthetic.main.activity_login.password_et
@@ -28,16 +29,18 @@ class LoginActivity : BaseActivity() {
         }
 
         confirm_button.setOnClickListener {
-            val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
-                email_et.text.toString(),
-                password_et.text.toString()
-            )
-            taskContainer.add(
-                Api.login(token).subscribe(
-                    { onResponse(it, token) },
-                    { onFail(it) }
-                )
-            )
+            MapKitFactory.setApiKey("91d7da16-2d86-4367-9ee8-4092731bbd2f")
+            router?.showMainPage();
+//            val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
+//                email_et.text.toString(),
+//                password_et.text.toString()
+//            )
+//            taskContainer.add(
+//                Api.login(token).subscribe(
+//                    { onResponse(it, token) },
+//                    { onFail(it) }
+//                )
+//            )
         }
     }
 

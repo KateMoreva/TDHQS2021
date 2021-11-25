@@ -77,4 +77,8 @@
     <string name="next">Далее</string>
     <string name="remove">Удалить</string>
     <string name="prev">Назад</string>
+    <string name="zoom_in_text" translatable="false">zoom_in</string>
+    <string name="zoom_out_text" translatable="false">zoom_out</string>
+    <string name="line_point_text" translatable="false">line_point</string>
+    <string name="search_button_text" translatable="false">Search_button</string>
 </resources>
