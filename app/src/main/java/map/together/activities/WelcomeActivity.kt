@@ -24,7 +24,7 @@ class WelcomeActivity : BaseActivity() {
                 Logger.d(this, "successfully login from storage")
             } else {
                 taskContainer.add(
-                    Api.login(token).subscribe(
+                    Api.login().subscribe(
                         {
                             if (it.code() == HttpURLConnection.HTTP_OK) {
                                 AuthRepository.doOnLogin(

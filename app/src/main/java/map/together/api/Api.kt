@@ -48,8 +48,8 @@ object Api {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-    fun login(token: String): Single<Response<UserDto>> =
-        api.loginRequest(token)
+    fun login(): Single<Response<UserDto>> =
+        api.loginRequest()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
@@ -65,8 +65,13 @@ object Api {
         return Single.just(response)
     }
 
-    fun changeUserData(id: Long, nameDto: Any, token: String): Single<Response<UserDto>> =
-        api.changeUserData(id, token, nameDto)
+    fun changeUserData(
+        userName: String,
+        passwordHash: String,
+        oldPassword: String,
+        picture: Any
+    ): Single<Response<UserDto>> =
+        api.changeUserData(userName, passwordHash, oldPassword, picture)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 }
