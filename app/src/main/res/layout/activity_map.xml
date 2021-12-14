@@ -25,6 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:movable="true"
         app:layout_constraintLeft_toLeftOf="parent">
 
         <ImageButton
@@ -62,6 +63,8 @@
         android:layout_marginTop="@dimen/padding_50"
         android:contentDescription="@string/line_point_text"
         android:minHeight="48dp"
+        android:translationZ="5dp"
+        app:layout_anchor="@+id/mapview"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="@id/zoom_in_id"
@@ -72,6 +75,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/zoom_in_text"
+        app:layout_anchor="@+id/mapview"
+        android:translationZ="5dp"
         app:layout_constraintTop_toBottomOf="@id/line_point"
         app:layout_constraintBottom_toTopOf="@id/zoom_out_id"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -83,6 +88,8 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/zoom_out_text"
         android:minHeight="48dp"
+        android:translationZ="5dp"
+        app:layout_anchor="@+id/mapview"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:srcCompat="@drawable/ic_zoom_out" />

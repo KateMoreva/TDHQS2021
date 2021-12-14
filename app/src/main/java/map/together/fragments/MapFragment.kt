@@ -1,14 +1,9 @@
 package map.together.fragments
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EdgeEffect
-import android.widget.EditText
-import android.widget.ImageButton
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -16,10 +11,8 @@ import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.mapview.MapView
 import kotlinx.android.synthetic.main.fragment_map.*
 import map.together.R
-import map.together.utils.logger.Logger
 
 
 private val listener = object : InputListener {
