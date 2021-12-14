@@ -8,6 +8,7 @@
         android:id="@+id/appbar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:liftOnScroll="true">
 
@@ -24,7 +25,7 @@
         android:id="@+id/mapview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/appbar_layout"
         app:movable="true"
         app:layout_constraintLeft_toLeftOf="parent">
 
@@ -34,8 +35,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="50dp"
+            android:layout_marginStart="@dimen/padding_10"
+            android:layout_marginTop="@dimen/padding_60"
             android:background="#00FFFFFF"
             android:contentDescription="@string/search_button_text"
             android:minWidth="32dp"
@@ -46,8 +47,8 @@
             android:id="@+id/search_text_field"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding_50"
-            android:layout_marginTop="@dimen/padding_50"
+            android:layout_marginLeft="@dimen/padding_60"
+            android:layout_marginTop="@dimen/padding_60"
             android:ems="10"
             android:inputType="text"
             android:text=""
@@ -60,15 +61,17 @@
         android:id="@+id/line_point"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/padding_50"
         android:contentDescription="@string/line_point_text"
         android:minHeight="48dp"
         android:translationZ="5dp"
         app:layout_anchor="@+id/mapview"
+        android:background="@null"
+        android:layout_marginTop="@dimen/padding_100"
+        android:layout_marginStart="@dimen/padding_10"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintBottom_toTopOf="@id/zoom_in_id"
-        app:srcCompat="@drawable/ic_line_point" />
+        app:srcCompat="@drawable/ic_baseline_show_chart_30" />
 
     <ImageButton
         android:id="@+id/zoom_in_id"
@@ -77,10 +80,12 @@
         android:contentDescription="@string/zoom_in_text"
         app:layout_anchor="@+id/mapview"
         android:translationZ="5dp"
+        android:background="@null"
+        android:layout_marginStart="@dimen/padding_10"
         app:layout_constraintTop_toBottomOf="@id/line_point"
         app:layout_constraintBottom_toTopOf="@id/zoom_out_id"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:srcCompat="@drawable/ic_zoom_in" />
+        app:srcCompat="@drawable/ic_baseline_add_30" />
 
     <ImageButton
         android:id="@+id/zoom_out_id"
@@ -89,9 +94,42 @@
         android:contentDescription="@string/zoom_out_text"
         android:minHeight="48dp"
         android:translationZ="5dp"
+        android:background="@null"
         app:layout_anchor="@+id/mapview"
+        android:layout_marginStart="@dimen/padding_10"
+        app:layout_constraintTop_toBottomOf="@id/zoom_in_id"
+        app:layout_constraintBottom_toTopOf="@id/layers"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:srcCompat="@drawable/ic_baseline_remove_30" />
+
+    <ImageButton
+        android:id="@+id/layers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/zoom_out_text"
+        android:minHeight="48dp"
+        android:translationZ="5dp"
+        app:layout_anchor="@+id/mapview"
+        android:background="@null"
+        android:layout_marginBottom="@dimen/padding_100"
+        android:layout_marginStart="@dimen/padding_10"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:srcCompat="@drawable/ic_zoom_out" />
+        app:srcCompat="@drawable/ic_baseline_layers_30" />
+
+    <ImageButton
+        android:id="@+id/menu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/zoom_out_text"
+        android:minHeight="48dp"
+        android:translationZ="5dp"
+        app:layout_anchor="@+id/mapview"
+        android:background="@null"
+        android:layout_marginBottom="@dimen/padding_10"
+        android:layout_marginEnd="@dimen/padding_10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:srcCompat="@drawable/ic_baseline_menu_24" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
