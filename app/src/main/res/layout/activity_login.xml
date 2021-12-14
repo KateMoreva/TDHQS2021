@@ -6,7 +6,7 @@
 
     <ImageView
         android:id="@+id/icon"
-        android:src="@drawable/map_together"
+        android:src="@drawable/map_together_with_text"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/padding_10"

@@ -3,4 +3,4 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:scaleType="centerCrop"
-    android:src="@drawable/map_together"></ImageView>
+    android:src="@drawable/map_together_with_text"></ImageView>
