@@ -66,6 +66,7 @@ dependencies {
     api 'com.google.dagger:dagger-android:2.35.1'
     api 'com.google.dagger:dagger-android-support:2.27'
     kapt 'com.google.dagger:dagger-android-processor:2.27'
+    implementation 'com.google.code.gson:gson:2.8.9'
 
     implementation 'com.google.android.material:material:1.4.0'
 
