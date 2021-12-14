@@ -2,6 +2,9 @@ package map.together.activities
 
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -10,6 +13,7 @@ import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.item_menu.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 
@@ -89,6 +93,13 @@ class MapActivity : BaseFragmentActivity() {
                 search_text_field.visibility = View.INVISIBLE
             }
         })
+//
+//        menu.setOnClickListener {
+//            val bottomSheet = bottom_sheet
+//            bottomSheet.visibility = View.VISIBLE
+//            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet!!)
+//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+//        }
     }
 
     override fun onStop() {
