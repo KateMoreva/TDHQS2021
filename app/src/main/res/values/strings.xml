@@ -81,4 +81,5 @@
     <string name="zoom_out_text" translatable="false">zoom_out</string>
     <string name="line_point_text" translatable="false">line_point</string>
     <string name="search_button_text" translatable="false">Search_button</string>
+    <string name="Done">Готово</string>
 </resources>
