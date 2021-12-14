@@ -18,7 +18,7 @@ class Router(private val activity: Activity) {
     }
 
     fun showMainPage() {
-        showPage(Page.Fragment.MainMap)
+        showPage(Page.Activity.Main)
     }
 
     fun showRegistrationPage() {
