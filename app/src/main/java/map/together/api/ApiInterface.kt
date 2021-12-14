@@ -18,11 +18,6 @@ import retrofit2.http.Path
  */
 interface ApiInterface {
 
-    /**
-     * @GET("path/path...")
-     * fun getUserTrainings(userId: String): Single<TrainingDto>
-     */
-
     @Headers("Content-Type: application/json")
     @POST("/register")
     fun createUserRequest(@Body userSignUpDto: UserSignUpDto): Single<Response<UserDto>>
