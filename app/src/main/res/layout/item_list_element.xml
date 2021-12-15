@@ -43,7 +43,7 @@
         android:textSize="@dimen/text_size_17" />
 
 
-    <Button
+    <ImageButton
         android:id="@+id/unread_messages_number"
         android:layout_width="30dp"
         android:layout_height="30dp"

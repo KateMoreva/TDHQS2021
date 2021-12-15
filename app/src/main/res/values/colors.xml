@@ -7,10 +7,16 @@
     <color name="blue_light">#72CAB1</color>
     <color name="green">#27AA66</color>
     <color name="white">#FFFFFF</color>
+    <color name="transparent">#00000000</color>
 
     <color name="gray_1">#333333</color>
     <color name="gray_2">#666666</color>
     <color name="gray_3">#999999</color>
+    <color name="gray_4">#EFEFEF</color>
 
     <color name="text_shadow">#7F000000</color>
+
+    <color name="background">#FAFAFA</color>
+
+    <color name="dusty_blue">#CDF0E8</color>
 </resources>

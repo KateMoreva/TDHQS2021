@@ -82,4 +82,7 @@
     <string name="line_point_text" translatable="false">line_point</string>
     <string name="search_button_text" translatable="false">Search_button</string>
     <string name="Done">Готово</string>
+    <string name="hide_all">Скрыть все </string>
+    <string name="demonstrate_all">Показать всем</string>
+    <string name="show_all">Показать все</string>
 </resources>

@@ -76,5 +76,8 @@
     <string name="next">Далее</string>
     <string name="remove">Удалить</string>
     <string name="prev">Назад</string>
+    <string name="hide_all">Скрыть все </string>
+    <string name="demonstrate_all">Показать всем</string>
+    <string name="show_all">Показать все</string>
 
 </resources>
