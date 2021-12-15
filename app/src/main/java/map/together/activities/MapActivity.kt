@@ -1,46 +1,26 @@
 package map.together.activities
 
+import android.graphics.PointF
 import android.os.Bundle
 import android.view.View
-import androidx.annotation.DrawableRes
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
+import com.yandex.mapkit.layers.GeoObjectTapEvent
+import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata
+import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectCollection
-import com.yandex.mapkit.map.PlacemarkMapObject
-import kotlinx.android.synthetic.main.activity_map.*
-import kotlinx.coroutines.InternalCoroutinesApi
-import com.yandex.runtime.image.ImageProvider
-import map.together.R
-import com.yandex.mapkit.map.GeoObjectSelectionMetadata
-
-import com.yandex.mapkit.layers.GeoObjectTapEvent
-import com.yandex.mapkit.layers.GeoObjectTapListener
-import map.together.utils.logger.Logger
-import com.yandex.mapkit.ZoomRange
-
-import kotlin.reflect.jvm.internal.impl.types.checker.ClassicTypeSystemContext.DefaultImpls.projection
-
-import com.yandex.mapkit.layers.LayerOptions
-
-import android.R.style
-import android.graphics.PointF
-import com.yandex.mapkit.layers.Layer
-import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.Rect
 import com.yandex.mapkit.map.RotationType
-import com.yandex.mapkit.tiles.TileProvider
-
-import com.yandex.mapkit.resource_url_provider.ResourceUrlProvider
-import java.io.BufferedReader
-import java.io.IOException
-import java.io.InputStream
-import java.io.InputStreamReader
-import java.lang.StringBuilder
+import com.yandex.runtime.image.ImageProvider
+import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import map.together.R
 
 
 class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener {
