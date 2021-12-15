@@ -81,4 +81,11 @@
         <item name="android:shadowDy">@integer/integer_1</item>
         <item name="android:shadowRadius">@integer/integer_2</item>
     </style>
+
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/gray_3</item>
+        <item name="colorPrimaryDark">@color/green</item>
+        <item name="colorAccent">@color/gray_2</item>
+    </style>
 </resources>
