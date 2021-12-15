@@ -40,6 +40,16 @@
         app:layout_constraintBottom_toTopOf="@id/open_map"
         app:layout_constraintStart_toEndOf="@id/create_button" />
 
+    <ImageButton
+        android:id="@+id/hide"
+        android:background="@drawable/material_drawer_ico_menu_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/padding_20"
+        android:layout_marginRight="@dimen/padding_20" />
+
     <TextView
         android:id="@+id/open_map"
         android:layout_width="wrap_content"
