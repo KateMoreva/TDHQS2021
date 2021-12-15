@@ -32,9 +32,27 @@ import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.viewholders.LayerViewHolder
+import com.yandex.mapkit.search.SearchOptions
+
+import com.yandex.mapkit.map.VisibleRegionUtils
+import com.yandex.mapkit.search.SearchManager
+import com.yandex.mapkit.search.Session
+import android.widget.Toast
+
+import com.yandex.runtime.network.NetworkError
+
+import com.yandex.runtime.network.RemoteError
+
+import com.yandex.mapkit.GeoObjectCollection
+import com.yandex.mapkit.search.Response
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManagerType
+import map.together.utils.logger.Logger
+import kotlin.math.roundToInt
 
 
-class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener {
+class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
+    Session.SearchListener {
 
     private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
     private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
@@ -44,6 +62,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener 
     var prevPolyline: Polyline = Polyline()
     var mapObjects: MapObjectCollection? = null
     var isLinePointClick = false
+    private var searchManager: SearchManager? = null
+    private var searchSession: Session? = null
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -57,12 +77,28 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener 
 
 
     override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
+        var objName = geoObjectTapEvent.geoObject.name
+        var disc = geoObjectTapEvent.geoObject.descriptionText
+        var metadata = geoObjectTapEvent.geoObject
+        if (objName != null) {
+            Logger.d(this, objName)
+        }
+        if (disc != null) {
+            Logger.d(this, disc)
+        }
+        if (metadata != null) {
+            Logger.d(this, metadata)
+        }
         val selectionMetadata = geoObjectTapEvent
             .geoObject
             .metadataContainer
             .getItem(GeoObjectSelectionMetadata::class.java)
         if (selectionMetadata != null) {
             mapview.map.selectGeoObject(selectionMetadata.id, selectionMetadata.layerId)
+            var geo = geoObjectTapEvent.geoObject.geometry[0].point
+            if (geo != null) {
+                mapview.map.mapObjects.addPlacemark(geo)
+            }
         }
         return selectionMetadata != null
     }
@@ -71,6 +107,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
+        SearchFactory.initialize(this);
+        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
         search_text_field.visibility = View.INVISIBLE
         mapview.map.move(
             CameraPosition(Point(59.9408455, 30.3131542), 11.0f, 0.0f, 0.0f),
@@ -206,6 +244,42 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener 
 //        }
     }
 
+    private fun submitQuery(query: String) {
+        searchSession = searchManager?.submit(
+            query,
+            VisibleRegionUtils.toPolygon(mapview.map.visibleRegion),
+            SearchOptions(),
+            this
+        )
+    }
+
+    override fun onSearchResponse(response: Response) {
+
+        val mapObjects: MapObjectCollection = mapview.getMap().getMapObjects()
+        mapObjects.clear()
+        for (searchResult in response.getCollection().getChildren()) {
+            val naa = searchResult.obj!!.name
+            val mm = searchResult.obj!!.descriptionText
+            val resultLocation = searchResult.obj!!.geometry[0].point
+            if (resultLocation != null) {
+                mapObjects.addPlacemark(
+                    resultLocation,
+                    ImageProvider.fromResource(this, R.drawable.search_result)
+                )
+            }
+        }
+    }
+
+    override fun onSearchError(error: com.yandex.runtime.Error) {
+        var errorMessage = getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = getString(R.string.network_error_message)
+        }
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onStop() {
         // Activity onStop call must be passed to both MapView and MapKit instance.
         mapview.onStop()
@@ -238,22 +312,13 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener 
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
-        p0.mapObjects.addPlacemark(p1)
+//        p0.mapObjects.addPlacemark(p1)
         //НЕ РОБИТ!
-        p0.mapObjects.addPlacemark(
+        val y = mapview.map.cameraPosition.zoom.roundToInt()
+        searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
+        mapview.getMap().getMapObjects().addPlacemark(
             p1,
-            ImageProvider.fromResource(this, R.drawable.ic_baseline_location_on_24), IconStyle(
-                PointF(p1.latitude.toFloat(), p1.longitude.toFloat()),
-                RotationType.NO_ROTATION,
-                1F,
-                false,
-                true,
-                1F,
-                Rect(
-                    PointF(p1.latitude.toFloat(), p1.longitude.toFloat()),
-                    PointF(p1.latitude.toFloat(), p1.longitude.toFloat())
-                )
-            )
+            ImageProvider.fromResource(this, R.drawable.search_result)
         )
     }
 }
