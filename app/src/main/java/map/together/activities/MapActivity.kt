@@ -38,6 +38,7 @@ import com.yandex.mapkit.map.VisibleRegionUtils
 import com.yandex.mapkit.search.SearchManager
 import com.yandex.mapkit.search.Session
 import android.widget.Toast
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 
 import com.yandex.runtime.network.NetworkError
 
@@ -47,6 +48,7 @@ import com.yandex.mapkit.GeoObjectCollection
 import com.yandex.mapkit.search.Response
 import com.yandex.mapkit.search.SearchFactory
 import com.yandex.mapkit.search.SearchManagerType
+import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import map.together.utils.logger.Logger
 import kotlin.math.roundToInt
 
@@ -98,6 +100,13 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             var geo = geoObjectTapEvent.geoObject.geometry[0].point
             if (geo != null) {
                 mapview.map.mapObjects.addPlacemark(geo)
+                val tagBottomSheetBehavior = from(tag_edit_menu)
+                if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED) or !tagBottomSheetBehavior.state.equals(
+                        STATE_EXPANDED
+                    )
+                )
+                    tagBottomSheetBehavior.isDraggable = true
+                tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
             }
         }
         return selectionMetadata != null
@@ -194,6 +203,29 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                 }
                 resizable_layers_menu.layoutParams = layoutParams
             }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+        })
+
+
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        tagBottomSheetBehavior.setState(STATE_HIDDEN);
+
+        tagBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val layoutParams = tag_edit_menu.layoutParams
+                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                if (newState == STATE_EXPANDED) {
+                    layoutParams.height = fullHeight - getNavigationBarHeight()
+                    tagBottomSheetBehavior.isDraggable = false
+                } else if (newState == STATE_HALF_EXPANDED) {
+                    layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
+                }
+                tag_edit_menu.layoutParams = layoutParams
+            }
+
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
             }
@@ -202,12 +234,12 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         val layers = mutableListOf(LayerItem("1", "Слой 1", true), LayerItem("2", "Слой 2", false))
         val layersList = ItemsList(layers)
         val adapter = LayersAdapter(
-                holderType = LayerViewHolder::class,
-                layoutId = R.layout.item_layer,
-                dataSource = layersList,
-                onClick = { layer ->
-                    print("Layer $layer clicked")
-                    layer.isVisible = !layer.isVisible
+            holderType = LayerViewHolder::class,
+            layoutId = R.layout.item_layer,
+            dataSource = layersList,
+            onClick = { layer ->
+                print("Layer $layer clicked")
+                layer.isVisible = !layer.isVisible
                 },
                 onRemove = {
                     // todo: check that user can delete this layer and delete it
@@ -308,7 +340,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         return if (realHeight > usableHeight) realHeight - usableHeight else 0
     }
     override fun onMapTap(p0: Map, p1: Point) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
@@ -319,6 +351,10 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         mapview.getMap().getMapObjects().addPlacemark(
             p1,
             ImageProvider.fromResource(this, R.drawable.search_result)
+
         )
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        tagBottomSheetBehavior.isDraggable = true
+        tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
     }
 }
