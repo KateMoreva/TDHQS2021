@@ -99,7 +99,7 @@
         app:layout_constraintTop_toBottomOf="@id/input_layout_password" />
 
     <Button
-        android:id="@+id/login_button"
+        android:id="@+id/confirm_button"
         style="@style/RoundedCornerButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -120,8 +120,8 @@
         android:text="@string/not_exist_acc"
         android:textColor="@color/white"
         android:textSize="@dimen/text_size_18"
-        app:layout_constraintLeft_toLeftOf="@id/login_button"
-        app:layout_constraintRight_toRightOf="@id/login_button"
-        app:layout_constraintTop_toBottomOf="@id/login_button" />
+        app:layout_constraintLeft_toLeftOf="@id/confirm_button"
+        app:layout_constraintRight_toRightOf="@id/confirm_button"
+        app:layout_constraintTop_toBottomOf="@id/confirm_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

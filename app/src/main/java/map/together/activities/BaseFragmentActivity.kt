@@ -3,6 +3,7 @@ package map.together.activities
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
+import com.yandex.mapkit.MapKitFactory
 import kotlinx.android.synthetic.main.activity_base.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
@@ -38,7 +39,8 @@ open class BaseFragmentActivity : AppbarActivity() {
         ft.replace(R.id.main_container, fragment)
         ft.addToBackStack(null)
         ft.setCustomAnimations(
-                android.R.animator.fade_in, android.R.animator.fade_out)
+            android.R.animator.fade_in, android.R.animator.fade_out
+        )
         ft.commit()
     }
 
@@ -50,9 +52,20 @@ open class BaseFragmentActivity : AppbarActivity() {
             Logger.e(this, "Fragment stack is empty!")
         }
     }
+//
+//    override fun onStop() {
+//        // Activity onStop call must be passed to both MapView and MapKit instance.
+//        MapKitFactory.getInstance().onStop()
+//        super.onStop()
+//    }
+//
+//    override fun onStart() {
+//        // Activity onStart call must be passed to both MapView and MapKit instance.
+//        super.onStart()
+//        MapKitFactory.getInstance().onStart()
+//    }
 
     override fun getActivityLayoutId() = R.layout.activity_base_fragment
-
 
     override fun getToolbarView(): Toolbar = base_toolbar
 }
