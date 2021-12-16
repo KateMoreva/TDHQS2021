@@ -36,7 +36,7 @@
         android:layout_margin="@dimen/dimens_8dp"
         app:srcCompat="@drawable/ic_baseline_remove_red_eye_24"/>
 
-    <TextView
+    <EditText
         android:id="@+id/layer_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -47,7 +47,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/visibility_img"
         android:layout_marginHorizontal="@dimen/dimens_8dp"
-        android:translationZ="3dp"
         android:textColor="@color/black"
         />
 

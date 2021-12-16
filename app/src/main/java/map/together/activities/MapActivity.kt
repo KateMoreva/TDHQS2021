@@ -133,7 +133,11 @@ class MapActivity : BaseFragmentActivity() {
             }
         })
 
-        val layers = mutableListOf(LayerItem("1", "Слой 1", true), LayerItem("2", "Слой 2", false))
+        val layers = mutableListOf(
+                LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
+                LayerItem("1", "Слой 1", true, 2, false),
+                LayerItem("2", "Слой 2", false, 2, false)
+        )
         val layersList = ItemsList(layers)
         val adapter = LayersAdapter(
                 holderType = LayerViewHolder::class,
@@ -147,6 +151,13 @@ class MapActivity : BaseFragmentActivity() {
                     // todo: check that user can delete this layer and delete it
                    layersList.remove(it)
                 },
+                onChangeCommonLayer = {
+                    layersList.items.forEach {
+                        if (it.ownerId != 0L)
+                            it.disabled = !it.disabled
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
+                }
         )
         layers_list.adapter = adapter
         val layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -156,7 +167,8 @@ class MapActivity : BaseFragmentActivity() {
             show_all_card.visibility = View.VISIBLE
             hide_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = false
+                if (!it.disabled)
+                    it.isVisible = false
             }
             layersList.rangeUpdate(0, layersList.size())
         }
@@ -165,24 +177,47 @@ class MapActivity : BaseFragmentActivity() {
             hide_all_card.visibility = View.VISIBLE
             show_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = true
+                if (!it.disabled)
+                    it.isVisible = true
             }
             layersList.rangeUpdate(0, layersList.size())
         }
 
         add_layer_btn.setOnClickListener {
-            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true)
+            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true, userId)
             layersList.addLast(newLayer)
             layers_list.smoothScrollToPosition(layersList.size() - 1)
         }
 
-//
-//        menu.setOnClickListener {
-//            val bottomSheet = bottom_sheet
-//            bottomSheet.visibility = View.VISIBLE
-//            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet!!)
-//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-//        }
+        demonstrate_card.setOnClickListener {
+            stop_demonstrate_card.visibility = View.VISIBLE
+            demonstrate_card.visibility = View.INVISIBLE
+            // TODO: send these layers to server and wait for WS notification
+            val itemsToDemonstrate = layersList.items.filter { it.isVisible }
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = true
+            }
+            layersList.items[0].disabled = false
+            layersList.items[0].isVisible = true
+            layersList.items[0].title = "Демонстрационный слой"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.setOnClickListener {
+            demonstrate_card.visibility = View.VISIBLE
+            stop_demonstrate_card.visibility = View.INVISIBLE
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = false
+            }
+            layersList.items[0].disabled = true
+            layersList.items[0].isVisible = false
+            layersList.items[0].title = "Нажмите \"Показать всем\" для демонстрации"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.visibility = View.INVISIBLE
     }
 
     override fun onStop() {

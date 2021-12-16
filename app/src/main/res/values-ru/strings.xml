@@ -79,5 +79,6 @@
     <string name="hide_all">Скрыть все </string>
     <string name="demonstrate_all">Показать всем</string>
     <string name="show_all">Показать все</string>
+    <string name="stop_the_demonstration">Остановить показ</string>
 
 </resources>

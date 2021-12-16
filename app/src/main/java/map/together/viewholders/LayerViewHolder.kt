@@ -1,8 +1,8 @@
 package map.together.viewholders
 
 import android.view.View
+import android.widget.EditText
 import android.widget.ImageView
-import android.widget.TextView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.item_layer.view.*
@@ -14,23 +14,41 @@ class LayerViewHolder (
 ) : BaseViewHolder<LayerItem>(itemView) {
     private var visibilityImage: ImageView = itemView.visibility_img
     private var visibilityCheckbox: MaterialCardView = itemView.layer_background_btn
-    private var title: TextView = itemView.layer_title
+    private var title: EditText = itemView.layer_title
     private var removeBtn: FloatingActionButton = itemView.remove_layer
     private var item: LayerItem? = null
 
     override fun bind(item: LayerItem) {
-        title.text = item.title
-        setLayerVisibility(item.isVisible)
         this.item = item
+        title.setText(item.title)
+        setLayerVisibility()
+        setLayerEditable()
+        visibilityCheckbox.isEnabled = !item.disabled
+        if (item.disabled) {
+            title.setTextColor(itemView.context.getColor(R.color.gray_3))
+        } else {
+            title.setTextColor(itemView.context.getColor(R.color.gray_1))
+        }
     }
 
-    private fun setLayerVisibility(checked: Boolean) {
-        if (checked) {
+    private fun setLayerVisibility() {
+        if (item!!.isVisible) {
             visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.dusty_blue))
             visibilityImage.setImageResource(R.drawable.ic_baseline_remove_red_eye_24)
         } else {
             visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.white))
             visibilityImage.setImageResource(R.drawable.ic_baseline_panorama_fish_eye_24)
+        }
+    }
+
+    private fun setLayerEditable() {
+        title.isEnabled = item!!.editable
+        removeBtn.isEnabled = item!!.editable
+        title.isClickable = item!!.editable
+        if (item!!.editable) {
+            removeBtn.visibility = View.VISIBLE
+        } else {
+            removeBtn.visibility = View.INVISIBLE
         }
     }
 
@@ -41,7 +59,7 @@ class LayerViewHolder (
     fun setOnChangeVisibilityClickListener(onClick: (View) -> Unit) {
         visibilityCheckbox.setOnClickListener{
             onClick.invoke(it)
-            setLayerVisibility(item!!.isVisible)
+            setLayerVisibility()
         }
     }
 }
