@@ -145,16 +145,34 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent" />
 
-    <!-- подключение нижнего экрана -->
-    <include layout="@layout/item_menu" />
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/hideable_layout_menu"
+    <!--    <androidx.coordinatorlayout.widget.CoordinatorLayout-->
+    <!--        android:id="@+id/hideable_main_menu"-->
+    <!--        xmlns:tools="http://schemas.android.com/tools"-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="match_parent"-->
+    <!--        tools:context="com.androidsample.BottomSheetActivity"-->
+    <!--        android:translationZ="5dp">-->
+    <!--        <include layout="@layout/item_menu" />-->
+    <!--    </androidx.coordinatorlayout.widget.CoordinatorLayout>-->
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/hideable_teg_menu"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.androidsample.BottomSheetActivity"
         android:translationZ="5dp">
+
+        <include layout="@layout/category_on_tap_fragment" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/hideable_layout_menu"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context="com.androidsample.BottomSheetActivity"
+        android:translationZ="5dp">
+
         <include layout="@layout/item_layers_menu" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

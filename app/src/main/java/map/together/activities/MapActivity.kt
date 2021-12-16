@@ -1,50 +1,104 @@
 package map.together.activities
 
+
 import android.content.Context
 import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
+import com.yandex.mapkit.layers.GeoObjectTapEvent
+import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
+import com.yandex.mapkit.map.MapObjectCollection
+import com.yandex.mapkit.map.VisibleRegionUtils
+import com.yandex.mapkit.search.Response
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManager
+import com.yandex.mapkit.search.SearchManagerType
+import com.yandex.mapkit.search.SearchOptions
+import com.yandex.mapkit.search.Session
+import com.yandex.runtime.image.ImageProvider
+import com.yandex.runtime.network.NetworkError
+import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
+import map.together.dto.db.PlaceDto
 import map.together.items.ItemsList
 import map.together.items.LayerItem
+import map.together.utils.logger.Logger
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.viewholders.LayerViewHolder
+import kotlin.math.roundToInt
 
 
-class MapActivity : BaseFragmentActivity() {
+class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
+    Session.SearchListener {
 
+    val currentUserID = 0L
+
+    val currentPlaces: MutableList<PlaceDto> = ArrayList()
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
-
     var isLinePointClick = false
+    private var searchManager: SearchManager? = null
+    private var searchSession: Session? = null
+    var geoSearch = false
 
-    private val listener = object : InputListener {
+    private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
         override fun onMapTap(p0: Map, p1: Point) {
             polyline.points.add(p1)
-            p0.mapObjects.clear()
+            p0.mapObjects.addPlacemark(p1)
             p0.mapObjects.addPolyline(Polyline(polyline.points))
         }
+    }
+
+    override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
+        val selectionMetadata = geoObjectTapEvent
+            .geoObject
+            .metadataContainer
+            .getItem(GeoObjectSelectionMetadata::class.java)
+        if (selectionMetadata != null) {
+            mapview.map.selectGeoObject(selectionMetadata.id, selectionMetadata.layerId)
+            var geo = geoObjectTapEvent.geoObject.geometry[0].point
+            if (geo != null) {
+                val y = mapview.map.maxZoom.roundToInt()
+                searchSession = searchManager!!.submit(geo, y, SearchOptions(), this)
+                geoSearch = true
+                showTagMenu()
+            }
+        }
+        return selectionMetadata != null
     }
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
+        SearchFactory.initialize(this);
+        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
         search_text_field.visibility = View.INVISIBLE
         mapview.map.move(
             CameraPosition(Point(59.9408455, 30.3131542), 11.0f, 0.0f, 0.0f),
@@ -77,6 +131,8 @@ class MapActivity : BaseFragmentActivity() {
                 null
             )
         })
+        mapview.map.addTapListener(this)
+        mapview.map.addInputListener(this)
 
         line_point.setOnClickListener(fun(_: View) {
             if (isLinePointClick) {
@@ -85,9 +141,9 @@ class MapActivity : BaseFragmentActivity() {
             isLinePointClick = !isLinePointClick
             if (isLinePointClick) {
                 polyline = Polyline(ArrayList<Point>())
-                mapview.map.addInputListener(listener)
+                mapview.map.addInputListener(polylineListener)
             } else {
-                mapview.map.removeInputListener(listener)
+                mapview.map.removeInputListener(polylineListener)
                 mapview.map.mapObjects.clear()
             }
         })
@@ -128,6 +184,26 @@ class MapActivity : BaseFragmentActivity() {
                 }
                 resizable_layers_menu.layoutParams = layoutParams
             }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+        })
+
+
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        tagBottomSheetBehavior.setState(STATE_HIDDEN);
+
+        tagBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val layoutParams = tag_edit_menu.layoutParams
+                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                if (newState == STATE_HALF_EXPANDED) {
+                    layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
+                }
+                tag_edit_menu.layoutParams = layoutParams
+            }
+
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
 
             }
@@ -218,6 +294,90 @@ class MapActivity : BaseFragmentActivity() {
         }
 
         stop_demonstrate_card.visibility = View.INVISIBLE
+
+    }
+
+    private fun submitQuery(query: String) {
+        searchSession = searchManager?.submit(
+            query,
+            VisibleRegionUtils.toPolygon(mapview.map.visibleRegion),
+            SearchOptions(),
+            this
+        )
+    }
+
+    override fun onSearchResponse(response: Response) {
+
+        val mapObjects: MapObjectCollection = mapview.getMap().getMapObjects()
+        if (geoSearch) {
+            val searchRes = response.getCollection().getChildren()
+            val addres = searchRes[0].obj!!.name
+            val desc = searchRes[0].obj!!.descriptionText
+            category_on_tap_adress_id.setText(addres, TextView.BufferType.EDITABLE)
+            category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
+            var plName = category_on_tap_place_name_id.text.toString()
+            if (plName == "Place name" && addres != null) {
+                plName = addres
+            }
+
+            category_on_tap_save_changes_id.setOnClickListener {
+                val resultLocation = searchRes[0].obj!!.geometry[0].point
+
+                if (resultLocation != null) {
+                    currentPlaces.add(
+                        PlaceDto(
+                            -1,
+                            plName,
+                            currentUserID,
+                            resultLocation.latitude.toString(),
+                            resultLocation.longitude.toString()
+                        )
+                    )
+                    mapObjects.addPlacemark(
+                        resultLocation,
+                        ImageProvider.fromBitmap(drawSimpleBitmap(" "))
+                    )
+                }
+
+                val tagBottomSheetBehavior = from(tag_edit_menu)
+                tagBottomSheetBehavior.setState(STATE_HIDDEN)
+            }
+            geoSearch = false
+        } else {
+            for (searchResult in response.getCollection().getChildren()) {
+                //Normal
+            }
+        }
+    }
+
+    fun drawSimpleBitmap(number: String): Bitmap {
+        val source =
+            BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
+        val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(bitmap)
+        // отрисовка плейсмарка
+//        var paint = Paint();
+//        paint.setColor(Color.GREEN);
+//        paint.setStyle(Paint.Style.FILL);
+//        canvas.drawCircle((source.height / 2).toFloat(), (source.width / 2).toFloat(), (source.width / 2).toFloat() / 2, paint);
+//         отрисовка текста
+//        paint.setColor(Color.WHITE);
+//        paint.setAntiAlias(true);
+//        paint.setTextSize(9F);
+//        paint.setTextAlign(Paint.Align.CENTER);
+//        canvas.drawText(number, (source.height / 2).toFloat(),
+//            (source.width / 2).toFloat() - ((paint.descent() + paint.ascent()) / 2), paint);
+        return bitmap;
+    }
+
+    override fun onSearchError(error: com.yandex.runtime.Error) {
+        var errorMessage = getString(R.string.unknown_error_message)
+        if (error is RemoteError) {
+            errorMessage = getString(R.string.remote_error_message)
+        } else if (error is NetworkError) {
+            errorMessage = getString(R.string.network_error_message)
+        }
+        Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 
     override fun onStop() {
@@ -237,7 +397,7 @@ class MapActivity : BaseFragmentActivity() {
     override fun getActivityLayoutId() = R.layout.activity_map
 
     fun convertDpToPixels(context: Context, dp: Int) =
-            (dp * context.resources.displayMetrics.density).toInt()
+        (dp * context.resources.displayMetrics.density).toInt()
 
     private fun getNavigationBarHeight(): Int {
         val metrics = DisplayMetrics()
@@ -246,5 +406,38 @@ class MapActivity : BaseFragmentActivity() {
         windowManager.defaultDisplay.getRealMetrics(metrics)
         val realHeight = metrics.heightPixels
         return if (realHeight > usableHeight) realHeight - usableHeight else 0
+    }
+
+    override fun onMapTap(p0: Map, p1: Point) {
+        ///TODO: Обработка попадания на тэг
+        val w = 46
+        val h = 46
+        for (plase in currentPlaces) {
+            if (p1.latitude.roundToInt() == plase.latitude.toDouble()
+                    .roundToInt() && p1.longitude.roundToInt() == plase.longitude.toDouble()
+                    .roundToInt()
+            ) {
+                Logger.d("HEHE")
+            }
+        }
+
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        tagBottomSheetBehavior.setState(STATE_HIDDEN)
+    }
+
+    override fun onMapLongTap(p0: Map, p1: Point) {
+        val y = mapview.map.maxZoom.roundToInt()
+        searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
+        geoSearch = true
+        mapview.map.deselectGeoObject()
+        showTagMenu()
+    }
+
+    private fun showTagMenu() {
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
+            tagBottomSheetBehavior.isDraggable = true
+            tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+        }
     }
 }
