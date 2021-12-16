@@ -450,4 +450,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
         }
     }
+
+    override fun getToolbarTitle(): String = getString(R.string.app_name)
+
+    override fun canOpenNavMenuFromToolbar(): Boolean = false
 }
