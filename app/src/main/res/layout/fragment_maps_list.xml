@@ -6,7 +6,7 @@
     android:layout_height="match_parent">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+        android:id="@+id/maps_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="75dp"
@@ -26,7 +26,7 @@
         android:layout_marginBottom="19dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recyclerView"
+        app:layout_constraintTop_toBottomOf="@+id/maps_list"
         app:layout_constraintVertical_bias="0.0"
         app:srcCompat="@drawable/ic_add_circle" />
 </androidx.constraintlayout.widget.ConstraintLayout>
