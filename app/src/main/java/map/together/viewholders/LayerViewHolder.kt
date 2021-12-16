@@ -32,11 +32,18 @@ class LayerViewHolder (
     }
 
     private fun setLayerVisibility() {
-        if (item!!.isVisible) {
+        if (item!!.selected) {
             visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.dusty_blue))
+        } else {
+            if (item!!.isVisible) {
+                visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.white))
+            } else {
+                visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.gray_4))
+            }
+        }
+        if (item!!.isVisible) {
             visibilityImage.setImageResource(R.drawable.ic_baseline_remove_red_eye_24)
         } else {
-            visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.white))
             visibilityImage.setImageResource(R.drawable.ic_baseline_panorama_fish_eye_24)
         }
     }

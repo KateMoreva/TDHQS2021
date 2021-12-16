@@ -9,4 +9,5 @@ data class LayerItem(
         var ownerId: Long?,
         var editable: Boolean = true,
         var disabled: Boolean = false,
+        var selected: Boolean = false,
 ): WithId

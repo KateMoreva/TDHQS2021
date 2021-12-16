@@ -65,6 +65,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = false
+    var selectedLayerId: String = ""
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -221,7 +222,16 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                 dataSource = layersList,
                 onClick = { layer ->
                     print("Layer $layer clicked")
-                    layer.isVisible = !layer.isVisible
+                    if (layer.isVisible && selectedLayerId != layer.id) {
+                        layersList.items.forEach {
+                            it.selected = false
+                        }
+                        layer.selected = true
+                        selectedLayerId = layer.id
+                    } else {
+                        layer.isVisible = !layer.isVisible
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
                 },
                 onRemove = {
                     // todo: check that user can delete this layer and delete it
@@ -243,7 +253,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             show_all_card.visibility = View.VISIBLE
             hide_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                if (!it.disabled)
+                if (!it.disabled && it.ownerId != 0L)
                     it.isVisible = false
             }
             layersList.rangeUpdate(0, layersList.size())
@@ -253,7 +263,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             hide_all_card.visibility = View.VISIBLE
             show_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                if (!it.disabled)
+                if (!it.disabled && it.ownerId != 0L)
                     it.isVisible = true
             }
             layersList.rangeUpdate(0, layersList.size())
