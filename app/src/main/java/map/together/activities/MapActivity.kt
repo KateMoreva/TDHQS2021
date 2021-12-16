@@ -70,7 +70,6 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         override fun onMapLongTap(p0: Map, p1: Point) {}
         override fun onMapTap(p0: Map, p1: Point) {
             polyline.points.add(p1)
-            p0.mapObjects.clear()
             p0.mapObjects.addPlacemark(p1)
             p0.mapObjects.addPolyline(Polyline(polyline.points))
         }
@@ -267,6 +266,10 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             val desc = searchRes[0].obj!!.descriptionText
             category_on_tap_adress_id.setText(addres, TextView.BufferType.EDITABLE)
             category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
+            var plName = category_on_tap_place_name_id.text.toString()
+            if (plName == "Place name" && addres != null) {
+                plName = addres
+            }
 
             category_on_tap_save_changes_id.setOnClickListener {
                 val resultLocation = searchRes[0].obj!!.geometry[0].point
@@ -275,7 +278,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                     currentPlaces.add(
                         PlaceDto(
                             -1,
-                            category_on_tap_place_name_id.text.toString(),
+                            plName,
                             currentUserID,
                             resultLocation.latitude.toString(),
                             resultLocation.longitude.toString()
@@ -377,11 +380,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         val y = mapview.map.maxZoom.roundToInt()
         searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
         geoSearch = true
-//        mapview.getMap().getMapObjects().addPlacemark(
-//            p1,
-//            ImageProvider.fromResource(this, R.drawable.search_result)
-//
-//        )
+        mapview.map.deselectGeoObject()
         showTagMenu()
     }
 
