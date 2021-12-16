@@ -12,6 +12,7 @@ import map.together.activities.BaseActivity
 import map.together.api.Api
 import map.together.api.ApiUtils
 import map.together.dto.UserDto
+import map.together.model.UserInfo
 import map.together.repository.AuthRepository
 import map.together.repository.CurrentUserRepository
 import map.together.utils.logger.Logger
@@ -29,7 +30,14 @@ class LoginActivity : BaseActivity() {
         }
 
         confirm_button.setOnClickListener {
-            MapKitFactory.setApiKey("91d7da16-2d86-4367-9ee8-4092731bbd2f")
+            if (!is_mapkit_initialized) {
+                MapKitFactory.setApiKey("91d7da16-2d86-4367-9ee8-4092731bbd2f")
+                is_mapkit_initialized = true
+            }
+            AuthRepository.doOnLogin(
+                this, "", false,
+                UserInfo(2, "0", "vano", "i.kotov2000@gmail.com", null)
+            )
             router?.showMainPage();
 //            val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
 //                email_et.text.toString(),
@@ -98,4 +106,8 @@ class LoginActivity : BaseActivity() {
     }
 
     override fun getActivityLayoutId() = R.layout.activity_login
+
+    companion object {
+        var is_mapkit_initialized = false
+    }
 }

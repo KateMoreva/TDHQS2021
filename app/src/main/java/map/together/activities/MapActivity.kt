@@ -2,12 +2,15 @@ package map.together.activities
 
 
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -50,13 +53,32 @@ import map.together.items.LayerItem
 import map.together.utils.logger.Logger
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.viewholders.LayerViewHolder
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import map.together.db.entity.*
+import map.together.repository.CurrentUserRepository
+import map.together.utils.RoleEnum
+import java.lang.Exception
+
 import kotlin.math.roundToInt
 
 
 class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
 
-    val currentUserID = 0L
+    companion object {
+        const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
+        private var last_map_id: Long  = -1
+        fun get_last_map(): Long
+        {
+            return last_map_id
+        }
+    }
+
+    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
+    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
 
     val currentPlaces: MutableList<PlaceDto> = ArrayList()
     var polyline: Polyline = Polyline()
@@ -93,6 +115,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         return selectionMetadata != null
     }
 
+    val user_id = CurrentUserRepository.currentUser.value!!.id;
+
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,7 +129,30 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             Animation(Animation.Type.SMOOTH, 1F),
             null
         )
+        last_map_id = getSharedPreferences(applicationContext.packageName, 0).getLong(
+            SHARED_PREFERENCE_LAST_MAP_ID, 0)
+        var map: MapEntity
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                map = database!!.mapDao().getById(last_map_id)
+                Log.e(applicationContext.packageName, map.id.toString())
+            } catch (ex: Exception) {
 
+                    Log.e(applicationContext.packageName,user_id.toString())
+                    Log.e(applicationContext.packageName,database!!.userDao().getAll()[0].id.toString())
+                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", user_id))
+                    val place_id = database!!.placeDao().getAll()[0].id
+                    last_map_id = database!!.mapDao().insert(
+                        MapEntity(
+                            getString(R.string.new_map_name), place_id,
+                            main_malyer_id, user_id))
+                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
+                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
+                    map = database!!.mapDao().getById(last_map_id)
+                    database!!.userMapDao().insert(UserMapEntity(user_id, last_map_id, RoleEnum.ADMIN))
+                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
+            }
+        }
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
             mapview.map.move(
@@ -279,7 +326,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                         PlaceDto(
                             -1,
                             plName,
-                            currentUserID,
+                            user_id,
                             resultLocation.latitude.toString(),
                             resultLocation.longitude.toString()
                         )
