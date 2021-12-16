@@ -28,7 +28,6 @@ class LayerViewHolder (
         if (checked) {
             visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.dusty_blue))
             visibilityImage.setImageResource(R.drawable.ic_baseline_remove_red_eye_24)
-
         } else {
             visibilityCheckbox.background?.setTint(itemView.context.getColor(R.color.white))
             visibilityImage.setImageResource(R.drawable.ic_baseline_panorama_fish_eye_24)

@@ -145,6 +145,7 @@ class MapActivity : BaseFragmentActivity() {
                 },
                 onRemove = {
                     // todo: check that user can delete this layer and delete it
+                   layersList.remove(it)
                 },
         )
         layers_list.adapter = adapter
@@ -167,6 +168,12 @@ class MapActivity : BaseFragmentActivity() {
                 it.isVisible = true
             }
             layersList.rangeUpdate(0, layersList.size())
+        }
+
+        add_layer_btn.setOnClickListener {
+            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true)
+            layersList.addLast(newLayer)
+            layers_list.smoothScrollToPosition(layersList.size() - 1)
         }
 
 //
