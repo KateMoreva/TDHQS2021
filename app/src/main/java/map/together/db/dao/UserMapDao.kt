@@ -19,6 +19,9 @@ interface UserMapDao {
     @Query("SELECT * FROM UserMapEntity WHERE mapId = :mapId")
     fun getByMapId(mapId: Long): List<UserMapEntity>
 
+    @Query("SELECT * FROM UserMapEntity WHERE mapId = :mapId and userId = :userId")
+    fun getByMapIdAndUserId(mapId: Long, userId: Long): UserMapEntity
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(userMap: UserMapEntity): Long
 
