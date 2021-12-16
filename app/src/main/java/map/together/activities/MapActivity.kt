@@ -65,6 +65,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = false
+    var selectedLayerId: String = ""
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -209,19 +210,40 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             }
         })
 
-        val layers = mutableListOf(LayerItem("1", "Слой 1", true), LayerItem("2", "Слой 2", false))
+        val layers = mutableListOf(
+                LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
+                LayerItem("1", "Слой 1", true, 2, false),
+                LayerItem("2", "Слой 2", false, 2, false)
+        )
         val layersList = ItemsList(layers)
         val adapter = LayersAdapter(
-            holderType = LayerViewHolder::class,
-            layoutId = R.layout.item_layer,
-            dataSource = layersList,
-            onClick = { layer ->
-                print("Layer $layer clicked")
-                layer.isVisible = !layer.isVisible
-            },
-            onRemove = {
-                // todo: check that user can delete this layer and delete it
-            },
+                holderType = LayerViewHolder::class,
+                layoutId = R.layout.item_layer,
+                dataSource = layersList,
+                onClick = { layer ->
+                    print("Layer $layer clicked")
+                    if (layer.isVisible && selectedLayerId != layer.id) {
+                        layersList.items.forEach {
+                            it.selected = false
+                        }
+                        layer.selected = true
+                        selectedLayerId = layer.id
+                    } else {
+                        layer.isVisible = !layer.isVisible
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
+                },
+                onRemove = {
+                    // todo: check that user can delete this layer and delete it
+                   layersList.remove(it)
+                },
+                onChangeCommonLayer = {
+                    layersList.items.forEach {
+                        if (it.ownerId != 0L)
+                            it.disabled = !it.disabled
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
+                }
         )
         layers_list.adapter = adapter
         val layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -231,7 +253,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             show_all_card.visibility = View.VISIBLE
             hide_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = false
+                if (!it.disabled && it.ownerId != 0L)
+                    it.isVisible = false
             }
             layersList.rangeUpdate(0, layersList.size())
         }
@@ -240,11 +263,47 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             hide_all_card.visibility = View.VISIBLE
             show_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = true
+                if (!it.disabled && it.ownerId != 0L)
+                    it.isVisible = true
             }
             layersList.rangeUpdate(0, layersList.size())
         }
 
+        add_layer_btn.setOnClickListener {
+            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true, userId)
+            layersList.addLast(newLayer)
+            layers_list.smoothScrollToPosition(layersList.size() - 1)
+        }
+
+        demonstrate_card.setOnClickListener {
+            stop_demonstrate_card.visibility = View.VISIBLE
+            demonstrate_card.visibility = View.INVISIBLE
+            // TODO: send these layers to server and wait for WS notification
+            val itemsToDemonstrate = layersList.items.filter { it.isVisible }
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = true
+            }
+            layersList.items[0].disabled = false
+            layersList.items[0].isVisible = true
+            layersList.items[0].title = "Демонстрационный слой"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.setOnClickListener {
+            demonstrate_card.visibility = View.VISIBLE
+            stop_demonstrate_card.visibility = View.INVISIBLE
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = false
+            }
+            layersList.items[0].disabled = true
+            layersList.items[0].isVisible = false
+            layersList.items[0].title = "Нажмите \"Показать всем\" для демонстрации"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.visibility = View.INVISIBLE
 
     }
 

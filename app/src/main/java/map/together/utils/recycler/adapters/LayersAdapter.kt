@@ -13,6 +13,7 @@ class LayersAdapter(
         dataSource: ItemsList<LayerItem>,
         private val onClick: (LayerItem) -> Unit = {},
         private val onRemove: (LayerItem) -> Unit = {},
+        private val onChangeCommonLayer: (LayerItem) -> Unit = {},
 ) : BaseListAdapter<LayerItem>(holderType, layoutId, dataSource, onClick) {
 
     override fun onBindViewHolder(holder: BaseViewHolder<LayerItem>, position: Int) {
@@ -25,6 +26,9 @@ class LayersAdapter(
         }
         layerHolder.setOnChangeVisibilityClickListener {
             onClick.invoke(item)
+            if (item.ownerId == 0L) {
+                onChangeCommonLayer(item)
+            }
         }
     }
 }

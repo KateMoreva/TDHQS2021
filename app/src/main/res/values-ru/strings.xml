@@ -84,6 +84,7 @@
     <string name="hide_all">Скрыть все </string>
     <string name="demonstrate_all">Показать всем</string>
     <string name="show_all">Показать все</string>
+    <string name="stop_the_demonstration">Остановить показ</string>
 
     <string name="not_found_error_message">Not found</string>
     <string name="network_error_message">Network error</string>
