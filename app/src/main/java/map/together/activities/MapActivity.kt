@@ -1,14 +1,23 @@
 package map.together.activities
 
+
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.PointF
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.view.View
+import android.widget.TextView
+import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
+import com.google.android.material.bottomsheet.BottomSheetBehavior.from
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
@@ -17,55 +26,45 @@ import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.CameraPosition
 import com.yandex.mapkit.map.GeoObjectSelectionMetadata
-import com.yandex.mapkit.map.IconStyle
 import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.map.MapObjectCollection
-import com.yandex.mapkit.map.Rect
-import com.yandex.mapkit.map.RotationType
+import com.yandex.mapkit.map.VisibleRegionUtils
+import com.yandex.mapkit.search.Response
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManager
+import com.yandex.mapkit.search.SearchManagerType
+import com.yandex.mapkit.search.SearchOptions
+import com.yandex.mapkit.search.Session
 import com.yandex.runtime.image.ImageProvider
+import com.yandex.runtime.network.NetworkError
+import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
+import map.together.dto.db.PlaceDto
 import map.together.items.ItemsList
 import map.together.items.LayerItem
+import map.together.utils.logger.Logger
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.viewholders.LayerViewHolder
-import com.yandex.mapkit.search.SearchOptions
-
-import com.yandex.mapkit.map.VisibleRegionUtils
-import com.yandex.mapkit.search.SearchManager
-import com.yandex.mapkit.search.Session
-import android.widget.Toast
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-
-import com.yandex.runtime.network.NetworkError
-
-import com.yandex.runtime.network.RemoteError
-
-import com.yandex.mapkit.GeoObjectCollection
-import com.yandex.mapkit.search.Response
-import com.yandex.mapkit.search.SearchFactory
-import com.yandex.mapkit.search.SearchManagerType
-import kotlinx.android.synthetic.main.category_on_tap_fragment.*
-import map.together.utils.logger.Logger
 import kotlin.math.roundToInt
 
 
 class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
 
-    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
-    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
+    val currentUserID = 0L
 
-    val currentPlaces: MutableList<Point> = ArrayList()
+    val currentPlaces: MutableList<PlaceDto> = ArrayList()
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
-    var mapObjects: MapObjectCollection? = null
     var isLinePointClick = false
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
+    var geoSearch = false
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -77,20 +76,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         }
     }
 
-
     override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
-        var objName = geoObjectTapEvent.geoObject.name
-        var disc = geoObjectTapEvent.geoObject.descriptionText
-        var metadata = geoObjectTapEvent.geoObject
-        if (objName != null) {
-            Logger.d(this, objName)
-        }
-        if (disc != null) {
-            Logger.d(this, disc)
-        }
-        if (metadata != null) {
-            Logger.d(this, metadata)
-        }
         val selectionMetadata = geoObjectTapEvent
             .geoObject
             .metadataContainer
@@ -99,14 +85,10 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             mapview.map.selectGeoObject(selectionMetadata.id, selectionMetadata.layerId)
             var geo = geoObjectTapEvent.geoObject.geometry[0].point
             if (geo != null) {
-                mapview.map.mapObjects.addPlacemark(geo)
-                val tagBottomSheetBehavior = from(tag_edit_menu)
-                if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED) or !tagBottomSheetBehavior.state.equals(
-                        STATE_EXPANDED
-                    )
-                )
-                    tagBottomSheetBehavior.isDraggable = true
-                tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+                val y = mapview.map.maxZoom.roundToInt()
+                searchSession = searchManager!!.submit(geo, y, SearchOptions(), this)
+                geoSearch = true
+                showTagMenu()
             }
         }
         return selectionMetadata != null
@@ -217,10 +199,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = tag_edit_menu.layoutParams
                 val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
-                if (newState == STATE_EXPANDED) {
-                    layoutParams.height = fullHeight - getNavigationBarHeight()
-                    tagBottomSheetBehavior.isDraggable = false
-                } else if (newState == STATE_HALF_EXPANDED) {
+                if (newState == STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
                 tag_edit_menu.layoutParams = layoutParams
@@ -240,10 +219,10 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             onClick = { layer ->
                 print("Layer $layer clicked")
                 layer.isVisible = !layer.isVisible
-                },
-                onRemove = {
-                    // todo: check that user can delete this layer and delete it
-                },
+            },
+            onRemove = {
+                // todo: check that user can delete this layer and delete it
+            },
         )
         layers_list.adapter = adapter
         val layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -267,13 +246,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             layersList.rangeUpdate(0, layersList.size())
         }
 
-//
-//        menu.setOnClickListener {
-//            val bottomSheet = bottom_sheet
-//            bottomSheet.visibility = View.VISIBLE
-//            val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet!!)
-//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-//        }
+
     }
 
     private fun submitQuery(query: String) {
@@ -288,18 +261,61 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     override fun onSearchResponse(response: Response) {
 
         val mapObjects: MapObjectCollection = mapview.getMap().getMapObjects()
-        mapObjects.clear()
-        for (searchResult in response.getCollection().getChildren()) {
-            val naa = searchResult.obj!!.name
-            val mm = searchResult.obj!!.descriptionText
-            val resultLocation = searchResult.obj!!.geometry[0].point
-            if (resultLocation != null) {
-                mapObjects.addPlacemark(
-                    resultLocation,
-                    ImageProvider.fromResource(this, R.drawable.search_result)
-                )
+        if (geoSearch) {
+            val searchRes = response.getCollection().getChildren()
+            val addres = searchRes[0].obj!!.name
+            val desc = searchRes[0].obj!!.descriptionText
+            category_on_tap_adress_id.setText(addres, TextView.BufferType.EDITABLE)
+            category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
+
+            category_on_tap_save_changes_id.setOnClickListener {
+                val resultLocation = searchRes[0].obj!!.geometry[0].point
+
+                if (resultLocation != null) {
+                    currentPlaces.add(
+                        PlaceDto(
+                            -1,
+                            category_on_tap_place_name_id.text.toString(),
+                            currentUserID,
+                            resultLocation.latitude.toString(),
+                            resultLocation.longitude.toString()
+                        )
+                    )
+                    mapObjects.addPlacemark(
+                        resultLocation,
+                        ImageProvider.fromBitmap(drawSimpleBitmap(" "))
+                    )
+                }
+
+                val tagBottomSheetBehavior = from(tag_edit_menu)
+                tagBottomSheetBehavior.setState(STATE_HIDDEN)
+            }
+            geoSearch = false
+        } else {
+            for (searchResult in response.getCollection().getChildren()) {
+                //Normal
             }
         }
+    }
+
+    fun drawSimpleBitmap(number: String): Bitmap {
+        val source =
+            BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
+        val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
+        val canvas = Canvas(bitmap)
+        // отрисовка плейсмарка
+//        var paint = Paint();
+//        paint.setColor(Color.GREEN);
+//        paint.setStyle(Paint.Style.FILL);
+//        canvas.drawCircle((source.height / 2).toFloat(), (source.width / 2).toFloat(), (source.width / 2).toFloat() / 2, paint);
+//         отрисовка текста
+//        paint.setColor(Color.WHITE);
+//        paint.setAntiAlias(true);
+//        paint.setTextSize(9F);
+//        paint.setTextAlign(Paint.Align.CENTER);
+//        canvas.drawText(number, (source.height / 2).toFloat(),
+//            (source.width / 2).toFloat() - ((paint.descent() + paint.ascent()) / 2), paint);
+        return bitmap;
     }
 
     override fun onSearchError(error: com.yandex.runtime.Error) {
@@ -329,7 +345,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     override fun getActivityLayoutId() = R.layout.activity_map
 
     fun convertDpToPixels(context: Context, dp: Int) =
-            (dp * context.resources.displayMetrics.density).toInt()
+        (dp * context.resources.displayMetrics.density).toInt()
 
     private fun getNavigationBarHeight(): Int {
         val metrics = DisplayMetrics()
@@ -339,22 +355,41 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
         val realHeight = metrics.heightPixels
         return if (realHeight > usableHeight) realHeight - usableHeight else 0
     }
-    override fun onMapTap(p0: Map, p1: Point) {
 
+    override fun onMapTap(p0: Map, p1: Point) {
+        ///TODO: Обработка попадания на тэг
+        val w = 46
+        val h = 46
+        for (plase in currentPlaces) {
+            if (p1.latitude.roundToInt() == plase.latitude.toDouble()
+                    .roundToInt() && p1.longitude.roundToInt() == plase.longitude.toDouble()
+                    .roundToInt()
+            ) {
+                Logger.d("HEHE")
+            }
+        }
+
+        val tagBottomSheetBehavior = from(tag_edit_menu)
+        tagBottomSheetBehavior.setState(STATE_HIDDEN)
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
-//        p0.mapObjects.addPlacemark(p1)
-        //НЕ РОБИТ!
-        val y = mapview.map.cameraPosition.zoom.roundToInt()
+        val y = mapview.map.maxZoom.roundToInt()
         searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
-        mapview.getMap().getMapObjects().addPlacemark(
-            p1,
-            ImageProvider.fromResource(this, R.drawable.search_result)
+        geoSearch = true
+//        mapview.getMap().getMapObjects().addPlacemark(
+//            p1,
+//            ImageProvider.fromResource(this, R.drawable.search_result)
+//
+//        )
+        showTagMenu()
+    }
 
-        )
+    private fun showTagMenu() {
         val tagBottomSheetBehavior = from(tag_edit_menu)
-        tagBottomSheetBehavior.isDraggable = true
-        tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+        if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
+            tagBottomSheetBehavior.isDraggable = true
+            tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+        }
     }
 }
