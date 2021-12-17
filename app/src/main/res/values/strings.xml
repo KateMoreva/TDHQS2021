@@ -89,7 +89,7 @@
     <string name="member">Участник</string>
     <string name="members">участников</string>
     <string name="tag_remove_alert">Вы дествительно хотите удалить место \'%s\'?</string>
-
+    <string name="load_media" translatable="false">Upload photos or animations</string>
     <string name="not_found_error_message">Not found</string>
     <string name="network_error_message">Network error</string>
     <string name="remote_error_message">Remote server error</string>
