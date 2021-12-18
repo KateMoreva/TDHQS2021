@@ -1,11 +1,12 @@
 package map.together.lifecycle
 
 import map.together.activities.MapActivity
-import map.together.activities.WelcomeActivity
 import map.together.activities.auth.LoginActivity
 import map.together.activities.auth.RegistrationActivity
 import map.together.fragments.BaseFragment
-import map.together.fragments.MapFragment
+import map.together.fragments.SettingsCategoriesFragment
+import map.together.fragments.SettingsProfileFragment
+import map.together.fragments.SettingsFragment
 import java.io.Serializable
 import kotlin.reflect.KClass
 
@@ -32,8 +33,16 @@ sealed class Page : Serializable {
 
         abstract val clazz: KClass<out BaseFragment>
 
-        object MainMap : Fragment() {
-            override val clazz = MapFragment::class
+        object Settings : Fragment() {
+            override val clazz = SettingsFragment::class
+        }
+
+        object SettingsProfile : Fragment() {
+            override val clazz = SettingsProfileFragment::class
+        }
+
+        object SettingsCategories : Fragment() {
+            override val clazz = SettingsCategoriesFragment::class
         }
 
     }

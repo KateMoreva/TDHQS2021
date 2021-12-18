@@ -8,34 +8,24 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-import com.google.android.material.bottomsheet.BottomSheetBehavior.from
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.GeoObjectSelectionMetadata
-import com.yandex.mapkit.map.InputListener
+import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.map.MapObjectCollection
-import com.yandex.mapkit.map.VisibleRegionUtils
-import com.yandex.mapkit.search.Response
-import com.yandex.mapkit.search.SearchFactory
-import com.yandex.mapkit.search.SearchManager
-import com.yandex.mapkit.search.SearchManagerType
-import com.yandex.mapkit.search.SearchOptions
-import com.yandex.mapkit.search.Session
+import com.yandex.mapkit.search.*
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
@@ -53,7 +43,7 @@ import map.together.viewholders.LayerViewHolder
 import kotlin.math.roundToInt
 
 
-class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
+class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
 
     val currentUserID = 0L
@@ -305,6 +295,21 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
+    }
+
+    override fun getToolbarView(): Toolbar = base_toolbar
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        println("On create options menu")
+        menuInflater.inflate(R.menu.map_menu, menu)
+
+        val settingsBtn: MenuItem? = menu?.findItem(R.id.settings_btn)
+        settingsBtn?.setOnMenuItemClickListener {
+            println("Open settings fragment!")
+            router?.showSettingsPage()
+            true
+        }
+        return true
     }
 
     private fun submitQuery(query: String) {

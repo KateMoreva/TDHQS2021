@@ -4,9 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import map.together.activities.BaseFragmentActivity
-import map.together.activities.MapActivity
-import map.together.lifecycle.Page.Companion.LAYER_ID_KEY
-import map.together.lifecycle.Page.Companion.MAP_ID_KEY
 import map.together.lifecycle.Page.Companion.PAGE_KEY
 import map.together.utils.logger.Logger
 import kotlin.reflect.full.createInstance
@@ -25,12 +22,16 @@ class Router(private val activity: Activity) {
         showPage(Page.Activity.Registration)
     }
 
+    fun showSettingsPage() {
+        showPage(Page.Fragment.Settings)
+    }
 
-    fun showMapPage(mapId: Long, layerId: Long?) {
-        val mapIdBoundle = Bundle(2)
-        mapIdBoundle.putLong(MAP_ID_KEY, mapId)
-        layerId?.or(0L)?.let { mapIdBoundle.putLong(LAYER_ID_KEY, it) }
-        showPage(Page.Fragment.MainMap, mapIdBoundle)
+    fun showSettingsProfilePage() {
+        showPage(Page.Fragment.SettingsProfile)
+    }
+
+    fun showSettingsCategoriesPage() {
+        showPage(Page.Fragment.SettingsCategories)
     }
 
 
@@ -62,7 +63,7 @@ class Router(private val activity: Activity) {
     }
 
     private fun showActivityWithFragment(page: Page.Fragment, bundle: Bundle?) {
-        val intent = Intent(activity, MapActivity::class.java)
+        val intent = Intent(activity, BaseFragmentActivity::class.java)
         intent.putExtra(PAGE_KEY, page)
         bundle?.let { intent.putExtras(it) }
         activity.startActivity(intent)
