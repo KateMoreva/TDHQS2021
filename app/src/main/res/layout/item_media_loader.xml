@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/exercise_image_switcher"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/edit_content_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dimens_8dp"
+        android:clickable="true"
+        android:contentDescription="edit"
+        android:tint="@color/black"
+        app:backgroundTint="@color/white"
+        app:fabSize="mini"
+        app:layout_constraintBottom_toBottomOf="@id/exercise_image_switcher"
+        app:layout_constraintEnd_toEndOf="@id/exercise_image_switcher"
+        app:srcCompat="@drawable/ic_add_circle" />
+
+    <TextView
+        android:id="@+id/no_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="@id/exercise_image_switcher"
+        app:layout_constraintBottom_toBottomOf="@id/exercise_image_switcher"
+        app:layout_constraintStart_toStartOf="@id/exercise_image_switcher"
+        app:layout_constraintEnd_toEndOf="@id/exercise_image_switcher"
+        android:text="Нет фото"
+        android:drawableTop="@drawable/ic_photo_camera_black_24dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

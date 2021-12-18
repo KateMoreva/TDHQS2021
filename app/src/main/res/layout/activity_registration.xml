@@ -21,6 +21,38 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+
+    <include
+        android:id="@+id/image_include"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:minHeight="@dimen/padding_40"
+        app:layout_constraintTop_toBottomOf="@id/login_title_tv"
+        app:layout_constraintBottom_toTopOf="@id/input_layout_email"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/input_user_name"
+        layout="@layout/item_media_loader" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_user_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/padding_40"
+        android:layout_marginRight="20dp"
+        android:background="@color/white"
+        android:textColorHint="@color/gray_3"
+        app:layout_constraintLeft_toRightOf="@id/image_include"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/login_title_tv">
+
+        <AutoCompleteTextView
+            android:id="@+id/user_name_et"
+            style="@style/Input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/user_name" />
+    </com.google.android.material.textfield.TextInputLayout>
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_layout_email"
         android:layout_width="0dp"
@@ -31,7 +63,7 @@
         app:layout_constraintBottom_toTopOf="@id/input_layout_password"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/login_title_tv">
+        app:layout_constraintTop_toBottomOf="@id/image_include">
 
         <AutoCompleteTextView
             android:id="@+id/email_et"
@@ -88,7 +120,7 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="@dimen/padding_40"
         android:background="@color/white"
-        app:layout_constraintBottom_toTopOf="@id/input_user_name"
+        app:layout_constraintBottom_toTopOf="@id/cancel_button"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/input_layout_password">
@@ -111,36 +143,15 @@
         app:layout_constraintRight_toLeftOf="@id/input_layout_confirm_password"
         app:layout_constraintTop_toTopOf="@id/input_layout_confirm_password" />
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_user_name"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/padding_40"
-        android:layout_marginRight="20dp"
-        android:background="@color/white"
-        android:textColorHint="@color/gray_3"
-        app:layout_constraintBottom_toBottomOf="@id/confirm_button"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/input_layout_confirm_password">
-
-        <AutoCompleteTextView
-            android:id="@+id/user_name_et"
-            style="@style/Input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/user_name" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <TextView
         android:id="@+id/user_name_required"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/star_required"
         android:textColor="@color/red"
-        app:layout_constraintBottom_toBottomOf="@id/input_user_name"
-        app:layout_constraintRight_toLeftOf="@id/input_user_name"
-        app:layout_constraintTop_toTopOf="@id/input_user_name" />
+        app:layout_constraintBottom_toBottomOf="@id/input_layout_confirm_password"
+        app:layout_constraintRight_toLeftOf="@id/input_layout_confirm_password"
+        app:layout_constraintTop_toTopOf="@id/input_layout_confirm_password" />
 
     <TextView
         android:id="@+id/star_required_filed_tv"
@@ -150,8 +161,8 @@
         android:text="* "
         android:textSize="@dimen/text_size_15"
         app:layout_constraintBottom_toTopOf="@id/confirm_button"
-        app:layout_constraintLeft_toLeftOf="@id/input_user_name"
-        app:layout_constraintTop_toBottomOf="@id/input_user_name" />
+        app:layout_constraintLeft_toLeftOf="@id/input_layout_confirm_password"
+        app:layout_constraintTop_toBottomOf="@id/input_layout_confirm_password" />
 
     <TextView
         android:id="@+id/required_filed_tv"
@@ -161,7 +172,7 @@
         android:textSize="@dimen/text_size_15"
         app:layout_constraintBottom_toTopOf="@id/confirm_button"
         app:layout_constraintLeft_toRightOf="@id/star_required_filed_tv"
-        app:layout_constraintTop_toBottomOf="@id/input_user_name" />
+        app:layout_constraintTop_toBottomOf="@id/input_layout_confirm_password" />
 
     <Button
         android:id="@+id/confirm_button"
@@ -175,7 +186,7 @@
         android:textSize="@dimen/text_size_14"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toRightOf="@id/cancel_button"
-        app:layout_constraintRight_toRightOf="@id/input_user_name"
+        app:layout_constraintRight_toRightOf="@id/input_layout_confirm_password"
         app:layout_constraintTop_toBottomOf="@id/required_filed_tv"
         tools:text="Подтвердить" />
 
@@ -190,7 +201,7 @@
         android:text="@string/cancel"
         android:textSize="@dimen/text_size_14"
         app:layout_constraintBottom_toBottomOf="@id/confirm_button"
-        app:layout_constraintLeft_toLeftOf="@id/input_user_name"
+        app:layout_constraintLeft_toLeftOf="@id/input_layout_confirm_password"
         app:layout_constraintRight_toLeftOf="@id/confirm_button"
         app:layout_constraintTop_toTopOf="@id/confirm_button" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,14 +1,19 @@
 package map.together.activities.auth
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.activity_registration.*
+import kotlinx.android.synthetic.main.item_media_loader.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
 import map.together.api.Api
 import map.together.dto.UserDto
+import map.together.fragments.MediaLoaderWrapper
+import map.together.items.ItemsList
+import map.together.items.MediaItem
 import map.together.model.UserSignUpInfo
 import map.together.toast.ToastUtils
 import map.together.utils.auth.AuthorizationHelper
@@ -18,11 +23,24 @@ import retrofit2.Response
 import java.net.HttpURLConnection
 
 class RegistrationActivity : BaseActivity() {
+    private val userIcons: ItemsList<MediaItem> = ItemsList(mutableListOf())
+    private var mediaLoader: MediaLoaderWrapper? = null
+
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cancel_button.setOnClickListener { finish() }
+
+
+        mediaLoader = MediaLoaderWrapper(
+            this,
+            exercise_image_switcher,
+            edit_content_btn,
+            no_content,
+            userIcons
+        )
+
         confirm_button.setOnClickListener {
             resetRequiredTips()
             val userSignUpInfo = UserSignUpInfo(
@@ -57,6 +75,12 @@ class RegistrationActivity : BaseActivity() {
             }
         }
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        mediaLoader?.onActivityResult(requestCode, resultCode, data)
+    }
+
 
     private fun onResponse(response: Response<UserDto>) {
         when (response.code()) {
