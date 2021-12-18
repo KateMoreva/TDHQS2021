@@ -4,6 +4,7 @@ import map.together.activities.MapActivity
 import map.together.activities.auth.LoginActivity
 import map.together.activities.auth.RegistrationActivity
 import map.together.fragments.BaseFragment
+import map.together.fragments.ProfileFragment
 import map.together.fragments.SettingsFragment
 import java.io.Serializable
 import kotlin.reflect.KClass
@@ -33,6 +34,10 @@ sealed class Page : Serializable {
 
         object Settings : Fragment() {
             override val clazz = SettingsFragment::class
+        }
+
+        object SettingsProfile : Fragment() {
+            override val clazz = ProfileFragment::class
         }
 
     }

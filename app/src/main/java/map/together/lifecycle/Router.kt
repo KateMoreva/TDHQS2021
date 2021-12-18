@@ -30,6 +30,10 @@ class Router(private val activity: Activity) {
         showPage(Page.Fragment.Settings)
     }
 
+    fun showSettingsProfilePage() {
+        showPage(Page.Fragment.SettingsProfile)
+    }
+
 
     private fun showPage(page: Page, bundle: Bundle? = null) {
         Logger.d(this, "showPage $page")

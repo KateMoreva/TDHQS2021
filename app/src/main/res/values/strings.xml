@@ -102,4 +102,6 @@
     <string name="change_categories">Изменить категории</string>
     <string name="bug_report">Отчёт об ошибке</string>
     <string name="about_app">О приложении</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="delete_account">Удалить аккаунт</string>
 </resources>
