@@ -51,5 +51,5 @@ abstract class AppbarActivity : DrawerActivity() {
 
     protected open fun getToolbarTitle(): String = getString(R.string.app_name)
 
-    override fun canOpenNavMenuFromToolbar(): Boolean = true
+    override fun canOpenNavMenuFromToolbar(): Boolean = false
 }

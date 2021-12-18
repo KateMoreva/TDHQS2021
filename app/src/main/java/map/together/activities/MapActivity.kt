@@ -10,34 +10,24 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HALF_EXPANDED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_HIDDEN
-import com.google.android.material.bottomsheet.BottomSheetBehavior.from
+import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.MapKitFactory
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
-import com.yandex.mapkit.map.CameraPosition
-import com.yandex.mapkit.map.GeoObjectSelectionMetadata
-import com.yandex.mapkit.map.InputListener
+import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.map.MapObjectCollection
-import com.yandex.mapkit.map.VisibleRegionUtils
-import com.yandex.mapkit.search.Response
-import com.yandex.mapkit.search.SearchFactory
-import com.yandex.mapkit.search.SearchManager
-import com.yandex.mapkit.search.SearchManagerType
-import com.yandex.mapkit.search.SearchOptions
-import com.yandex.mapkit.search.Session
+import com.yandex.mapkit.search.*
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
@@ -54,7 +44,7 @@ import map.together.viewholders.LayerViewHolder
 import kotlin.math.roundToInt
 
 
-class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
+class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
 
     val currentUserID = 0L
@@ -67,6 +57,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = false
+    var selectedLayerId: String = ""
     var selectedObjectAddress = ""
 
     private val polylineListener = object : InputListener {
@@ -215,19 +206,40 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             }
         })
 
-        val layers = mutableListOf(LayerItem("1", "Слой 1", true), LayerItem("2", "Слой 2", false))
+        val layers = mutableListOf(
+                LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
+                LayerItem("1", "Слой 1", true, 2, false),
+                LayerItem("2", "Слой 2", false, 2, false)
+        )
         val layersList = ItemsList(layers)
         val adapter = LayersAdapter(
-            holderType = LayerViewHolder::class,
-            layoutId = R.layout.item_layer,
-            dataSource = layersList,
-            onClick = { layer ->
-                print("Layer $layer clicked")
-                layer.isVisible = !layer.isVisible
-            },
-            onRemove = {
-                // todo: check that user can delete this layer and delete it
-            },
+                holderType = LayerViewHolder::class,
+                layoutId = R.layout.item_layer,
+                dataSource = layersList,
+                onClick = { layer ->
+                    print("Layer $layer clicked")
+                    if (layer.isVisible && selectedLayerId != layer.id) {
+                        layersList.items.forEach {
+                            it.selected = false
+                        }
+                        layer.selected = true
+                        selectedLayerId = layer.id
+                    } else {
+                        layer.isVisible = !layer.isVisible
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
+                },
+                onRemove = {
+                    // todo: check that user can delete this layer and delete it
+                   layersList.remove(it)
+                },
+                onChangeCommonLayer = {
+                    layersList.items.forEach {
+                        if (it.ownerId != 0L)
+                            it.disabled = !it.disabled
+                    }
+                    layersList.rangeUpdate(0, layersList.size())
+                }
         )
         layers_list.adapter = adapter
         val layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -237,7 +249,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             show_all_card.visibility = View.VISIBLE
             hide_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = false
+                if (!it.disabled && it.ownerId != 0L)
+                    it.isVisible = false
             }
             layersList.rangeUpdate(0, layersList.size())
         }
@@ -246,12 +259,63 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             hide_all_card.visibility = View.VISIBLE
             show_all_card.visibility = View.INVISIBLE
             layersList.items.forEach {
-                it.isVisible = true
+                if (!it.disabled && it.ownerId != 0L)
+                    it.isVisible = true
             }
             layersList.rangeUpdate(0, layersList.size())
         }
 
+        add_layer_btn.setOnClickListener {
+            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true, userId)
+            layersList.addLast(newLayer)
+            layers_list.smoothScrollToPosition(layersList.size() - 1)
+        }
 
+        demonstrate_card.setOnClickListener {
+            stop_demonstrate_card.visibility = View.VISIBLE
+            demonstrate_card.visibility = View.INVISIBLE
+            // TODO: send these layers to server and wait for WS notification
+            val itemsToDemonstrate = layersList.items.filter { it.isVisible }
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = true
+            }
+            layersList.items[0].disabled = false
+            layersList.items[0].isVisible = true
+            layersList.items[0].title = "Демонстрационный слой"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.setOnClickListener {
+            demonstrate_card.visibility = View.VISIBLE
+            stop_demonstrate_card.visibility = View.INVISIBLE
+            layersList.items.forEach {
+                if (it.ownerId != 0L)
+                    it.disabled = false
+            }
+            layersList.items[0].disabled = true
+            layersList.items[0].isVisible = false
+            layersList.items[0].title = "Нажмите \"Показать всем\" для демонстрации"
+            layersList.rangeUpdate(0, layersList.size())
+        }
+
+        stop_demonstrate_card.visibility = View.INVISIBLE
+
+    }
+
+    override fun getToolbarView(): Toolbar = base_toolbar
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        println("On create options menu")
+        menuInflater.inflate(R.menu.map_menu, menu)
+
+        val settingsBtn: MenuItem? = menu?.findItem(R.id.settings_btn)
+        settingsBtn?.setOnMenuItemClickListener {
+            println("Open settings fragment!")
+            router?.showSettingsPage()
+            true
+        }
+        return true
     }
 
     private fun submitQuery(query: String) {
@@ -447,4 +511,8 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
             tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
         }
     }
+
+    override fun getToolbarTitle(): String = getString(R.string.app_name)
+
+    override fun canOpenNavMenuFromToolbar(): Boolean = false
 }

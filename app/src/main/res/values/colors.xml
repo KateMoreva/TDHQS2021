@@ -12,7 +12,9 @@
     <color name="gray_1">#333333</color>
     <color name="gray_2">#666666</color>
     <color name="gray_3">#999999</color>
-    <color name="gray_4">#EFEFEF</color>
+    <color name="gray_4">#EEEEEE</color>
+
+    <color name="very_strange_color">#00FFFFFF</color>
 
     <color name="text_shadow">#7F000000</color>
 

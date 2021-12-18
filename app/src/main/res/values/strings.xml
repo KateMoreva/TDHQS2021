@@ -98,4 +98,12 @@
     <string name="map_remove_alert">Вы уверены, что хотите удалить карту \'%s\'</string>
     <string name="map_leave_alert">Вы уверены, что хотите покинуть карту \'%s\'</string>
 
+    <string name="stop_the_demonstration">Остановить показ</string>
+    <string name="account">Аккаунт</string>
+    <string name="change_categories">Изменить категории</string>
+    <string name="bug_report">Отчёт об ошибке</string>
+    <string name="about_app">О приложении</string>
+    <string name="change_password">Изменить пароль</string>
+    <string name="delete_account">Удалить аккаунт</string>
+    <string name="empty_categories_list">Здесь будут твои категории.\nНажми на плюсик, чтобы создать новую</string>
 </resources>
