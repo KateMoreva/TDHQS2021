@@ -67,7 +67,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = false
-    var selectedObjectAdress = ""
+    var selectedObjectAddress = ""
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -278,7 +278,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                 if (plName == "Place name" && address != null) {
                     plName = address
                 }
-                selectedObjectAdress = address.toString()
+                selectedObjectAddress = address.toString()
                 checkPlaceMarked()
                 category_on_tap_save_changes_id.setOnClickListener {
                     val resultLocation = searchRes[0].obj!!.geometry[0].point
@@ -324,7 +324,7 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
                                     ImageProvider.fromBitmap(drawSimpleBitmap(category))
                                 )
                             }
-                            selectedObjectAdress = ""
+                            selectedObjectAddress = ""
                             hideTagMenu()
                         }
                     }
@@ -415,9 +415,9 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
     }
 
     private fun checkPlaceMarked() {
-        if (selectedObjectAdress.isNotEmpty()) {
+        if (selectedObjectAddress.isNotEmpty()) {
             for (place in currentAddress) {
-                if (place == selectedObjectAdress) {
+                if (place == selectedObjectAddress) {
                     category_on_tap_save_changes_id.setText(resources.getText(R.string.delete))
                 }
             }
