@@ -77,7 +77,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 .getItem(GeoObjectSelectionMetadata::class.java)
             if (selectionMetadata != null) {
                 mapview.map.selectGeoObject(selectionMetadata.id, selectionMetadata.layerId)
-                var geo = geoObjectTapEvent.geoObject.geometry[0].point
+                val geo = geoObjectTapEvent.geoObject.geometry[0].point
                 if (geo != null) {
                     val y = mapview.map.maxZoom.roundToInt()
                     geoSearch = true
