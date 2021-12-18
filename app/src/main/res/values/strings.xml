@@ -98,4 +98,8 @@
     <string name="map_leave_alert">Вы уверены, что хотите покинуть карту \'%s\'</string>
 
     <string name="stop_the_demonstration">Остановить показ</string>
+    <string name="account">Аккаунт</string>
+    <string name="change_categories">Изменить категории</string>
+    <string name="bug_report">Отчёт об ошибке</string>
+    <string name="about_app">О приложении</string>
 </resources>
