@@ -8,6 +8,9 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -305,6 +308,18 @@ class MapActivity : BaseFragmentActivity(), GeoObjectTapListener, InputListener,
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        println("On create options menu")
+        menuInflater.inflate(R.menu.map_menu, menu)
+
+        val settingsBtn: MenuItem? = menu?.findItem(R.id.settings_btn)
+        settingsBtn?.setOnMenuItemClickListener {
+            println("Open settings fragment!")
+            true
+        }
+        return true
     }
 
     private fun submitQuery(query: String) {
