@@ -3,7 +3,7 @@ package map.together.fragments
 
 import map.together.R
 
-class ProfileFragment : BaseFragment() {
+class SettingsProfileFragment : BaseFragment() {
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_profile
 

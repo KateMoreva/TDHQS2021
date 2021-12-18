@@ -4,10 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import map.together.activities.BaseFragmentActivity
-import map.together.activities.MapActivity
-import map.together.activities.WelcomeActivity
-import map.together.lifecycle.Page.Companion.LAYER_ID_KEY
-import map.together.lifecycle.Page.Companion.MAP_ID_KEY
 import map.together.lifecycle.Page.Companion.PAGE_KEY
 import map.together.utils.logger.Logger
 import kotlin.reflect.full.createInstance
@@ -32,6 +28,10 @@ class Router(private val activity: Activity) {
 
     fun showSettingsProfilePage() {
         showPage(Page.Fragment.SettingsProfile)
+    }
+
+    fun showSettingsCategoriesPage() {
+        showPage(Page.Fragment.SettingsCategories)
     }
 
 

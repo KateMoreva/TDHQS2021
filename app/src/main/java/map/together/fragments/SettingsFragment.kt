@@ -16,5 +16,9 @@ class SettingsFragment : BaseFragment() {
         account_button_id?.setOnClickListener {
             (activity as? BaseFragmentActivity)?.router?.showSettingsProfilePage()
         }
+        change_category_button_id?.setOnClickListener {
+            (activity as? BaseFragmentActivity)?.router?.showSettingsCategoriesPage()
+        }
+
     }
 }

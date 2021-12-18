@@ -98,4 +98,5 @@
     <string name="about_app">О приложении</string>
     <string name="change_password">Изменить пароль</string>
     <string name="delete_account">Удалить аккаунт</string>
+    <string name="empty_categories_list">Здесь будут твои категории.\nНажми на плюсик, чтобы создать новую</string>
 </resources>
