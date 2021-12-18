@@ -14,11 +14,7 @@ class CategoryViewHolder(
 
     override fun bind(item: CategoryItem) {
         title.text = item.title
-        setLayerVisibility(item.isVisible)
         this.item = item
     }
 
-    private fun setLayerVisibility(checked: Boolean) {
-
-    }
 }

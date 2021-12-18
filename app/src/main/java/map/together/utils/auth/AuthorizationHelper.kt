@@ -7,7 +7,7 @@ object AuthorizationHelper {
 
     private const val EMAIL_PATTERN = "^[_A-Za-z0-9-+]+(.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(.[A-Za-z0-9]+)*(.[A-Za-z]{2,})$"
 
-    private const val PASSWORD_PATTERN = "[a-zA-Z0-9_/!?&*.,]{6,}"
+    private const val PASSWORD_PATTERN = "[a-zA-Z0-9_/!?&*.,]{6,40}"
 
     private const val NAME_PATTERN = "^\\S{2,}\$"
 

@@ -2,16 +2,19 @@ package map.together.fragments
 
 import android.Manifest
 import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.provider.MediaStore
 import android.view.View
 import android.widget.TextView
 import androidx.core.app.ActivityCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.card.MaterialCardView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.reactivex.disposables.Disposable
 import map.together.R
+import map.together.activities.BaseActivity
 import map.together.items.ItemsList
 import map.together.items.MediaItem
 import map.together.utils.recycler.adapters.LinearHorizontalSpacingDecoration
@@ -19,12 +22,11 @@ import map.together.utils.recycler.adapters.MediaAdapter
 import map.together.viewholders.MediaViewHolder
 
 open class MediaViewerWrapper(
-    fragment: BaseFragment,
+    activity: BaseActivity,
     mediaRecycler: RecyclerView,
+    editContentBtn: FloatingActionButton,
     private val noMediaContent: TextView,
-    private val posValue: TextView,
-    private val posCard: MaterialCardView,
-    private val mediaList: ItemsList<MediaItem>
+    private var mediaItems: ItemsList<MediaItem> = ItemsList(mutableListOf())
 ) {
     protected var mediaPosition: Int = 0
     protected var mediaCount: Int = 0
@@ -52,59 +54,34 @@ open class MediaViewerWrapper(
     }
 
     init {
-        verifyStoragePermissions(fragment.activity)
-        posCard.visibility = View.INVISIBLE
-        posValue.text = ""
-        subscribe = mediaList.sizeChangedSubject().subscribe { size ->
+        subscribe = mediaItems.sizeChangedSubject().subscribe { size ->
             if (size == 0) {
                 noMediaContent.visibility = View.VISIBLE
-                posCard.visibility = View.INVISIBLE
             } else {
                 noMediaContent.visibility = View.INVISIBLE
-                mediaCount = size
-                posValue.text = "${mediaPosition + 1}/$mediaCount"
-                posCard.visibility = View.VISIBLE
             }
         }
+        editContentBtn.setOnClickListener {
+            val intent =
+                Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
+            activity.startActivityForResult(intent, MediaItem.PICK_IMAGE_REQUEST)
+        }
+        verifyStoragePermissions(activity)
         mediaRecycler.adapter = MediaAdapter(
             MediaViewHolder::class,
             R.layout.item_media,
-            mediaList,
+            mediaItems,
             onImageClick = { mediaItem, _ ->
                 println("${mediaItem.id} clicked")
             }
         )
-        val layoutManager = LinearLayoutManager(fragment.context, RecyclerView.HORIZONTAL, false)
+        val layoutManager = LinearLayoutManager(activity, RecyclerView.HORIZONTAL, false)
         mediaRecycler.layoutManager = layoutManager
-        val spacing = fragment.resources.getDimensionPixelSize(R.dimen.dimens_16dp)
+        val spacing = activity.resources.getDimensionPixelSize(R.dimen.dimens_16dp)
         mediaRecycler.addItemDecoration(LinearHorizontalSpacingDecoration(spacing))
         val pager = PagerSnapHelper()
         pager.attachToRecyclerView(mediaRecycler)
-
-        mediaRecycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    if (mediaList.size() > 0) {
-                        mediaPosition = layoutManager.findFirstVisibleItemPosition()
-                        posValue.text = "${mediaPosition + 1}/$mediaCount"
-                        posCard.visibility = View.VISIBLE
-                    }
-                }
-            }
-        })
-    }
-
-    fun onDetach() {
-        subscribe.dispose()
-    }
-
-    fun setMediaData(data: List<String>) {
-        mediaList.setData(
-            data.mapIndexed { index, uri ->
-                MediaItem(index.toString(), uri, MediaItem.DisplayMode.FIT_CENTER)
-            }.toMutableList()
-        )
     }
 
 }
