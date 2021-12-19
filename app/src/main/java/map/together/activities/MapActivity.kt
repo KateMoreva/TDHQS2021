@@ -10,6 +10,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
@@ -25,6 +27,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.GeoObject
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
@@ -32,6 +35,7 @@ import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.search.*
+import com.yandex.mapkit.search.search_layer.SearchResultItem
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
@@ -58,6 +62,8 @@ import kotlin.math.round
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
+    val SPB = Point(59.9408455, 30.3131542)
+
     //TODO: loading from meta
     val currentUserID = 1L
     val currentMapId = 1L
@@ -77,6 +83,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     var selectedObjectId = ""
     var selectedObgect: GeoObject? = null
     var loadingObjId = -1L
+//    val searchResults: MutableList<SearchResultItem> = ArrayList()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -121,7 +128,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
         mapview.map.move(
-            CameraPosition(Point(59.9408455, 30.3131542), 11.0f, 0.0f, 0.0f),
+            CameraPosition(SPB, 11.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1F),
             null
         )
@@ -183,16 +190,52 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             } else {
                 mapview.map.removeInputListener(polylineListener)
                 mapview.map.mapObjects.clear()
+                for (obj in currentGeoObjects) {
+                    val point = obj.value.geometry[0].point
+                    if (point != null) {
+                        mapview.getMap().getMapObjects().addPlacemark(
+                            Point(point.latitude, point.longitude),
+                            ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
+                        )
+                    }
+                }
             }
         })
 
         search_button_id.setOnClickListener(fun(view: View) {
+            val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
-                val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                search_res_list.visibility = View.VISIBLE
                 imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
+                geoSearch = true
+            }
+        })
+
+        search_text_field.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                if (s.length > 3) {
+                    geoSearch = false
+//                    dynamicSearch(s.toString())
+
+                }
             }
         })
 
@@ -708,6 +751,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 //                }
 //            }
 //        }
+    }
+
+    private fun dynamicSearch(s: String) {
+        var searchOptions = SearchOptions()
+        searchOptions.searchTypes = SearchType.GEO.value
+        searchSession = searchManager!!.submit(
+            s,
+            Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this
+        )
     }
 
     private fun hideTagMenu() {
