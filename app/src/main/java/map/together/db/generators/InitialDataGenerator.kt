@@ -11,8 +11,7 @@ class InitialDataGenerator {
 
         fun getCategoryDao(context: Context): List<CategoryEntity> {
             return listOf(
-                    CategoryEntity("Без категории", 0),
-                    CategoryEntity("Любимое", 0),
+                    CategoryEntity("Без категории", null),
             )
         }
 
@@ -21,13 +20,11 @@ class InitialDataGenerator {
         }
 
         fun getLayer(context: Context): LayerEntity {
-            return LayerEntity("Мой слой", 0)
-//            LayerEntity(context.resources.getString(R.string))
+            return LayerEntity("Мой слой", null)
         }
 
         fun getMap(context: Context): MapEntity {
-            return MapEntity("Карта", 0, 0)
-//                MapEntity(context.resources.getString(R.string))
+            return MapEntity("Карта", null, null)
         }
     }
 }

@@ -7,6 +7,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import io.reactivex.disposables.CompositeDisposable
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.db.AppDatabase
+import map.together.lifecycle.AppMap
 import map.together.lifecycle.Router
 import map.together.utils.logger.Logger
 
@@ -23,10 +24,6 @@ abstract class BaseActivity : AppCompatActivity() {
 
     protected val taskContainer: CompositeDisposable = CompositeDisposable()
 
-    override fun onStart() {
-        super.onStart()
-    }
-
     @InternalCoroutinesApi
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +31,7 @@ abstract class BaseActivity : AppCompatActivity() {
         Fresco.initialize(this)
         Logger.d(this, "onCreate")
 
+        AppMap.initialize()
         router = Router(this)
         database = AppDatabase.getInstance(applicationContext)
 

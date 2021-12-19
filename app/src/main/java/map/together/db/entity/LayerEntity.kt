@@ -18,7 +18,7 @@ data class LayerEntity(
         @ColumnInfo
         var name: String,
         @ColumnInfo
-        var ownerId: Long,
+        var ownerId: Long?,
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
 )

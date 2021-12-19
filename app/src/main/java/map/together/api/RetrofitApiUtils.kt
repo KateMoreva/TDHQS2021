@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitApiUtils {
 
     // todo server url
-    private const val TRAINING_JOURNAL_URL = "http://2a4daa80501f.ngrok.io"
+    private const val IVANSON_SERVER_URL = "http://192.168.0.4:8080/"
 
     @JvmStatic
     fun createApi(): ApiInterface {
@@ -24,7 +24,7 @@ object RetrofitApiUtils {
         return Retrofit.Builder()
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .addConverterFactory(GsonConverterFactory.create())
-            .baseUrl(TRAINING_JOURNAL_URL)
+            .baseUrl(IVANSON_SERVER_URL)
             .client(okHttpClient.build())
             .build()
             .create(ApiInterface::class.java)

@@ -9,23 +9,19 @@ data class UserDto(
         @SerializedName("id")
         @Expose
         val id: Long,
-        @SerializedName("uid")
-        @Expose
-        val uid: String?,
-        @SerializedName("user_name")
+        @SerializedName("userName")
         @Expose
         var userName: String,
         @SerializedName("email")
         @Expose
         val email: String,
-        @SerializedName("avatarUrl")
+        @SerializedName("photoUrl")
         @Expose
         var pictureUrlStr: String?
 ) {
 
     fun toUserInfo(): UserInfo = UserInfo(
             id,
-            uid ?: "-1",
             userName,
             email,
             pictureUrlStr

@@ -9,7 +9,6 @@ object CurrentUserRepository {
 
     val CURRENT_USER_EMPTY: UserInfo = UserInfo(
             id = -1,
-            uid = "-1",
             userName = "userName",
             email = "email",
             pictureUrlStr = null)

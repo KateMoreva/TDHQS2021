@@ -54,6 +54,7 @@
             style="@style/Input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/test_account_email"
             android:hint="@string/email" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,6 +83,7 @@
             style="@style/Input.Password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="@string/qwerty"
             android:hint="@string/password" />
     </com.google.android.material.textfield.TextInputLayout>
 

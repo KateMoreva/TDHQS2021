@@ -18,6 +18,6 @@ data class CategoryEntity(
         @ColumnInfo
         var name: String,
         @ColumnInfo
-        var ownerId: Long,
+        var ownerId: Long?,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
 )
