@@ -48,6 +48,7 @@ import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.viewholders.LayerViewHolder
+import java.lang.Exception
 import kotlin.math.roundToInt
 
 

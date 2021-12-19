@@ -6,7 +6,6 @@ import map.together.dto.UserDto
 
 data class UserInfo(
         val id: Long,
-        val uid: String,
         val userName: String,
         val email: String,
         val pictureUrlStr: String?
@@ -28,14 +27,12 @@ data class UserInfo(
             parcel.readLong(),
             parcel.readString() ?: NAME_UNKNOWN,
             parcel.readString() ?: NAME_UNKNOWN,
-            parcel.readString() ?: NAME_UNKNOWN,
             parcel.readString()
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.apply {
             writeLong(id)
-            writeString(uid)
             writeString(userName)
             writeString(email)
             writeString(pictureUrlStr)
@@ -46,7 +43,6 @@ data class UserInfo(
 
     fun toUserDto(): UserDto = UserDto(
             id,
-            uid,
             userName,
             email,
             pictureUrlStr

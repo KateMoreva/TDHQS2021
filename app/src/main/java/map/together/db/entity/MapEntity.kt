@@ -24,9 +24,9 @@ data class MapEntity(
         @ColumnInfo
         var name: String,
         @ColumnInfo
-        var centerPlaceId: Long,
+        var centerPlaceId: Long?,
         @ColumnInfo
-        var mainLayerId: Long,
+        var mainLayerId: Long?,
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
 )

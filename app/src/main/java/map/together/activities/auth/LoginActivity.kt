@@ -29,18 +29,16 @@ class LoginActivity : BaseActivity() {
         }
 
         confirm_button.setOnClickListener {
-            MapKitFactory.setApiKey("91d7da16-2d86-4367-9ee8-4092731bbd2f")
-            router?.showMainPage();
-//            val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
-//                email_et.text.toString(),
-//                password_et.text.toString()
-//            )
-//            taskContainer.add(
-//                Api.login(token).subscribe(
-//                    { onResponse(it, token) },
-//                    { onFail(it) }
-//                )
-//            )
+            val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
+                email_et.text.toString(),
+                password_et.text.toString()
+            )
+            taskContainer.add(
+                Api.fakeLogin(token).subscribe(
+                    { onResponse(it, token) },
+                    { onFail(it) }
+                )
+            )
         }
     }
 

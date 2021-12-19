@@ -1,13 +1,11 @@
 package map.together.api
 
 import io.reactivex.Single
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Scheduler
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
 import retrofit2.Response
-import java.util.*
 
 /**
  *
@@ -48,15 +46,14 @@ object Api {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
-    fun login(): Single<Response<UserDto>> =
-        api.loginRequest()
+    fun login(token: String): Single<Response<UserDto>> =
+        api.loginRequest(token)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 
     fun fakeLogin(token: String): Single<Response<UserDto>> {
         val testUser = UserDto(
             1,
-            "uuid",
             "Testov",
             "test@test.test",
             null
@@ -74,8 +71,4 @@ object Api {
         api.changeUserData(userName, passwordHash, oldPassword, picture)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-}
-
-private fun Any.observeOn(mainThread: Scheduler?): Single<Response<UserDto>> {
-    TODO("Not yet implemented")
 }
