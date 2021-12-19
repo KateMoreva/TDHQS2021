@@ -154,6 +154,11 @@ class MapsListActivity : BaseActivity() {
 
     }
 
+    fun show_dialog()
+    {
+
+    }
+
     override fun onStop() {
         super.onStop()
         instance = null;
