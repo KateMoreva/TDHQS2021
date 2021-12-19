@@ -73,11 +73,18 @@ abstract class AppDatabase : RoomDatabase() {
                             super.onCreate(db)
                             GlobalScope.launch(Dispatchers.IO) {
                                 instance?.userDao()?.insert(InitialDataGenerator.getTestUser())
+                                instance?.userDao()?.insert(InitialDataGenerator.getTestUser2())
                                 instance?.layerDao()?.insert(InitialDataGenerator.getLayer(context))
                                 instance?.categoryDao()
                                     ?.insert(InitialDataGenerator.getCategoryDao(context))
                                 instance?.placeDao()?.insert(InitialDataGenerator.getPlace(context))
                                 instance?.mapDao()?.insert(InitialDataGenerator.getMap(context))
+                                instance?.placeLayerDao()
+                                    ?.insert(InitialDataGenerator.getPlaceLayer(context))
+                                instance?.layerMapDao()
+                                    ?.insert(InitialDataGenerator.getLayerMap(context))
+                                instance?.userMapDao()
+                                    ?.insert(InitialDataGenerator.getUserMap(context))
                             }
                             }
                     })
