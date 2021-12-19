@@ -1,6 +1,7 @@
 package map.together.activities
 
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -13,6 +14,7 @@ import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -184,9 +186,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             }
         })
 
-        search_button_id.setOnClickListener(fun(_: View) {
+        search_button_id.setOnClickListener(fun(view: View) {
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
+                val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
             }
