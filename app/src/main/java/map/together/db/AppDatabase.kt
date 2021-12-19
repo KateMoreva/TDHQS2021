@@ -72,9 +72,10 @@ abstract class AppDatabase : RoomDatabase() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
                             GlobalScope.launch(Dispatchers.IO) {
-                                InitialDataGenerator.getMap(context).let { instance?.mapDao()?.insert(it) }
-                                instance?.categoryDao()?.insert(InitialDataGenerator.getCategoryDao(context))
-                                InitialDataGenerator.getLayer(context).let { instance?.layerDao()?.insert(it) }
+                                InitialDataGenerator.getUser(context)
+                                    .let { instance?.userDao()?.insert(it) }
+                                InitialDataGenerator.getPlace(context)
+                                    .let { instance?.placeDao()?.insert(it) }
                             }
                         }
                     })

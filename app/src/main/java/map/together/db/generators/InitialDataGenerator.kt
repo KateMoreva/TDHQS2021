@@ -1,30 +1,20 @@
 package map.together.db.generators
 
 import android.content.Context
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.LayerEntity
-import map.together.db.entity.MapEntity
-import map.together.db.entity.PlaceEntity
+import map.together.db.entity.*
 
 class InitialDataGenerator {
     companion object {
 
-        fun getCategoryDao(context: Context): List<CategoryEntity> {
-            return listOf(
-                    CategoryEntity("Без категории", null),
-            )
-        }
-
         fun getPlace(context: Context): PlaceEntity {
-            return PlaceEntity("Место", 0, "", "", 1)
+            return PlaceEntity("Место", 1, "", "")
         }
 
-        fun getLayer(context: Context): LayerEntity {
-            return LayerEntity("Мой слой", null)
-        }
-
-        fun getMap(context: Context): MapEntity {
-            return MapEntity("Карта", null, null)
+        fun getUser(context: Context): List<UserEntity>{
+            return listOf(
+                UserEntity("none", "none", null, -1, 1),
+                UserEntity("vano", "i.kotov2000@gmail.com", null, -1, 2))
+//                MapEntity(context.resources.getString(R.string))
         }
     }
 }
