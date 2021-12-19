@@ -11,6 +11,11 @@ import androidx.room.PrimaryKey
                     entity = UserEntity::class,
                     parentColumns = ["id"],
                     childColumns = ["ownerId"],
+            ),
+            ForeignKey(
+                    entity = CategoryEntity::class,
+                    parentColumns = ["id"],
+                    childColumns = ["categoryId"],
             )
         ])
 data class PlaceEntity(
@@ -22,6 +27,8 @@ data class PlaceEntity(
         var latitude: String,
         @ColumnInfo
         var longitude: String,
+        @ColumnInfo
+        var categoryId: Long,
         @ColumnInfo
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
