@@ -106,4 +106,6 @@
     <string name="change_password">Изменить пароль</string>
     <string name="delete_account">Удалить аккаунт</string>
     <string name="empty_categories_list">Здесь будут твои категории.\nНажми на плюсик, чтобы создать новую</string>
+    <string name="information_about_project">The application will help you and your friends plan a common trip. \n
+     Mark your favourite places and discuss them together.</string>
 </resources>

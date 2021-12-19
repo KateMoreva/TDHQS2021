@@ -19,6 +19,9 @@ class SettingsFragment : BaseFragment() {
         change_category_button_id?.setOnClickListener {
             (activity as? BaseFragmentActivity)?.router?.showSettingsCategoriesPage()
         }
+        about_button_id?.setOnClickListener {
+            (activity as? BaseFragmentActivity)?.router?.showSettingsAboutPage()
+        }
 
     }
 }

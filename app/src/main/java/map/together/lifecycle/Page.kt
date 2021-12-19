@@ -3,6 +3,7 @@ package map.together.lifecycle
 import map.together.activities.MapActivity
 import map.together.activities.auth.LoginActivity
 import map.together.activities.auth.RegistrationActivity
+import map.together.fragments.AboutFragment
 import map.together.fragments.BaseFragment
 import map.together.fragments.SettingsCategoriesFragment
 import map.together.fragments.SettingsProfileFragment
@@ -35,6 +36,10 @@ sealed class Page : Serializable {
 
         object Settings : Fragment() {
             override val clazz = SettingsFragment::class
+        }
+
+        object SettingsAbout : Fragment() {
+            override val clazz = AboutFragment::class
         }
 
         object SettingsProfile : Fragment() {
