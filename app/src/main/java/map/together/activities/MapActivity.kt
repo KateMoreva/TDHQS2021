@@ -105,7 +105,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         SearchFactory.initialize(this);
         //TODO: LOAD places from sever
         val layerPlaces = mutableListOf<PlaceEntity>()
-        layerPlaces.add(PlaceEntity("new", 0, "59.9408455", "30.3131542", 0))
+        layerPlaces.add(PlaceEntity("new", 1, "59.9408455", "30.3131542", 1))
         drawPlaces(layerPlaces)
 
         currentPlaces.addAll(layerPlaces);
