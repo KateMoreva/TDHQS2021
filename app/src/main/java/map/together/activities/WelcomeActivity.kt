@@ -28,7 +28,7 @@ class WelcomeActivity : BaseActivity() {
                         {
                             if (it.code() == HttpURLConnection.HTTP_OK) {
                                 AuthRepository.doOnLogin(
-                                    this, token, false,
+                                    this, token, true,
                                     it.body()?.toUserInfo()
                                         ?: CurrentUserRepository.CURRENT_USER_EMPTY
                                 )

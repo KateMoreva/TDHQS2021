@@ -3,43 +3,76 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/bottom_sheet"
     android:layout_width="match_parent"
-    android:layout_height="340dp"
+    android:layout_height="240dp"
     android:background="@android:color/white"
-    android:orientation="vertical"
     app:behavior_hideable="true"
-    app:behavior_peekHeight="80dp"
-    android:visibility="gone"
-    app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <ImageButton
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/create_button"
-        android:background="@drawable/ic_baseline_map_30"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/create_map"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/open_button" />
+        app:layout_constraintEnd_toStartOf="@id/open_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:strokeWidth="1dp"
+        app:cardCornerRadius="@dimen/dimens_16dp"
+        android:theme="@style/AppTheme"
+        app:cardBackgroundColor="@color/background"
+        android:clickable="true"
+        android:layout_margin="@dimen/dimens_16dp"
+        app:layout_constraintHorizontal_weight="@integer/integer_1"
+        android:focusable="true">
 
-    <TextView
-        android:id="@+id/create_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Создать карту"
-        app:layout_constraintTop_toBottomOf="@id/create_button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/open_map"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        <TextView
+            android:id="@+id/create_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/map_create"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_size_18"
+            android:layout_marginHorizontal="@dimen/dimens_16dp"
+            android:layout_marginVertical="@dimen/dimens_4dp"
+            android:drawableTop="@drawable/ic_baseline_map_30"
+            />
 
-    <ImageButton
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/open_button"
-        android:background="@drawable/ic_baseline_folder_open_30"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toTopOf="@id/create_button"
+        app:layout_constraintBottom_toBottomOf="@id/create_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/open_map"
-        app:layout_constraintStart_toEndOf="@id/create_button" />
+        app:layout_constraintStart_toEndOf="@id/create_button"
+        app:strokeWidth="1dp"
+        app:cardCornerRadius="@dimen/dimens_16dp"
+        android:theme="@style/AppTheme"
+        app:cardBackgroundColor="@color/background"
+        android:clickable="true"
+        android:layout_margin="@dimen/dimens_16dp"
+        app:layout_constraintHorizontal_weight="@integer/integer_1"
+        android:focusable="true">
+
+        <TextView
+            android:id="@+id/open_map"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/map_open"
+            android:textColor="@color/black"
+            android:textAlignment="center"
+            android:textSize="@dimen/text_size_18"
+            android:layout_marginHorizontal="@dimen/dimens_16dp"
+            android:layout_marginVertical="@dimen/dimens_4dp"
+            android:drawableTop="@drawable/ic_baseline_folder_open_30"
+            />
+
+    </com.google.android.material.card.MaterialCardView>
+
 
     <ImageButton
         android:id="@+id/hide"
@@ -50,15 +83,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="@dimen/padding_20"
         android:layout_marginRight="@dimen/padding_20" />
-
-    <TextView
-        android:id="@+id/open_map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Открыть карту"
-        app:layout_constraintTop_toBottomOf="@id/open_button"
-        app:layout_constraintStart_toEndOf="@id/create_map"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

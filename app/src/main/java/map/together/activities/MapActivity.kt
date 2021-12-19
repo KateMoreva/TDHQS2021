@@ -34,6 +34,8 @@ import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
+import kotlinx.android.synthetic.main.item_layers_menu.layers_menu
+import kotlinx.android.synthetic.main.item_menu.*
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.dto.db.PlaceDto
@@ -298,6 +300,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             layersList.items[0].isVisible = false
             layersList.items[0].title = "Нажмите \"Показать всем\" для демонстрации"
             layersList.rangeUpdate(0, layersList.size())
+        }
+
+        val bottomSheetBehavior2 = from(bottom_sheet)
+        bottomSheetBehavior2.setState(STATE_HIDDEN);
+        menu.setOnClickListener {
+            bottomSheetBehavior2.setState(STATE_EXPANDED)
         }
 
         stop_demonstrate_card.visibility = View.INVISIBLE

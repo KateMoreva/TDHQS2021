@@ -2,10 +2,12 @@ package map.together.repository
 
 import android.content.Context
 import com.google.gson.Gson
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import map.together.activities.BaseActivity
 import map.together.db.entity.UserEntity
-import map.together.lifecycle.AppMap
 import map.together.model.UserInfo
 
 object AuthRepository {
@@ -13,7 +15,7 @@ object AuthRepository {
     const val USER_TOKEN = "user_token_key"
     const val USER_INFO_KEY = "user_info_key"
 
-    fun doOnLogin(activity: BaseActivity, token: String, needRemember: Boolean, userInfo: UserInfo) {
+    fun doOnLogin(activity: BaseActivity, token: String, needRemember: Boolean, userInfo: UserInfo, goToMain: Boolean = true, actionsAfter: () -> Unit = {}) {
         activity.apply {
             CurrentUserRepository.currentUser.value = userInfo
             GlobalScope.launch(Dispatchers.IO) {
@@ -38,8 +40,11 @@ object AuthRepository {
                         getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_TOKEN, token).apply()
                         getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_INFO_KEY, Gson().toJson(user)).apply()
                     }
-                    router?.showMainPage()
-                    finish()
+                    if (goToMain) {
+                        router?.showMainPage()
+                        finish()
+                    }
+                    actionsAfter.invoke()
                 }
             }
         }

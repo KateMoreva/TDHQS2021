@@ -105,4 +105,7 @@
     Отмечайте свои места и обсуждайте их вместе.</string>
     <string name="test_account_email">test@test.test</string>
     <string name="qwerty">qwerty</string>
+    <string name="map_open">Открыть карту</string>
+    <string name="map_create">Создать карту</string>
+    <string name="logout">Выйти из профиля</string>
 </resources>
