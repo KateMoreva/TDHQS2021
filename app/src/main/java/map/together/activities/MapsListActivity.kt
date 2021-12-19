@@ -42,7 +42,7 @@ class MapsListActivity : BaseActivity() {
             if (maps != null) {
                 maps.forEach({
                     var users: Long = 0
-                    var ownerId:Long = it.ownerId
+                    var ownerId = it.ownerId
                     try {
                         users = database.mapDao().countMembersById(it.id)
                     } catch (ex: Exception) {}

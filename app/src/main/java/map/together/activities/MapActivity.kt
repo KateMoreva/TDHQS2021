@@ -111,7 +111,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         return false
     }
 
-    val user_id = CurrentUserRepository.currentUser.value!!.id;
+    private val user_id = CurrentUserRepository.currentUser.value!!.id;
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -131,11 +131,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 map = database!!.mapDao().getById(last_map_id)
-                Log.e(applicationContext.packageName, map.id.toString())
             } catch (ex: Exception) {
-
-                    Log.e(applicationContext.packageName,user_id.toString())
-                    Log.e(applicationContext.packageName,database!!.userDao().getAll()[0].id.toString())
                     val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", user_id))
                     val place_id = database!!.placeDao().getAll()[0].id
                     last_map_id = database!!.mapDao().insert(
@@ -399,7 +395,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                                 PlaceDto(
                                     -1,
                                     plName,
-                                    currentUserID,
+                                    user_id,
                                     resultLocation.latitude.toString(),
                                     resultLocation.longitude.toString()
                                 )
@@ -419,7 +415,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                                 PlaceDto(
                                     -1,
                                     plName,
-                                    currentUserID,
+                                    user_id,
                                     resultLocation.latitude.toString(),
                                     resultLocation.longitude.toString()
                                 )

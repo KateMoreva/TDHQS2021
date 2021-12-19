@@ -28,7 +28,7 @@ data class MapEntity(
         @ColumnInfo
         var mainLayerId: Long?,
         @ColumnInfo(name = "owner")
-        var ownerId: Long,
+        var ownerId: Long?,
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
 )

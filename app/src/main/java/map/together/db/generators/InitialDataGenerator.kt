@@ -6,15 +6,24 @@ import map.together.db.entity.*
 class InitialDataGenerator {
     companion object {
 
-        fun getPlace(context: Context): PlaceEntity {
-            return PlaceEntity("Место", 1, "", "")
+        fun getCategoryDao(context: Context): List<CategoryEntity> {
+            return listOf(
+                CategoryEntity("Без категории", 0),
+                CategoryEntity("Любимое", 0),
+                CategoryEntity("Без категории", null),
+            )
         }
 
-        fun getUser(context: Context): List<UserEntity>{
-            return listOf(
-                UserEntity("none", "none", null, -1, 1),
-                UserEntity("vano", "i.kotov2000@gmail.com", null, -1, 2))
-//                MapEntity(context.resources.getString(R.string))
+        fun getPlace(context: Context): PlaceEntity {
+            return PlaceEntity("Место", 0, "", "", 1)
+        }
+
+        fun getLayer(context: Context): LayerEntity {
+            return LayerEntity("Мой слой", null)
+        }
+
+        fun getMap(context: Context): MapEntity {
+            return MapEntity("Карта", null, null, null)
         }
     }
 }
