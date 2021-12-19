@@ -66,4 +66,7 @@ class SettingsCategoriesFragment : BaseFragment() {
             category_hint_text.visibility = View.INVISIBLE
         }
     }
+
+    override fun getAppbarTitle(): Int = R.string.change_categories
+
 }
