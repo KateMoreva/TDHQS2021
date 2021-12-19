@@ -31,7 +31,7 @@ class Router(private val activity: Activity) {
     }
 
     fun showSettingsAboutPage() {
-        showPage(Page.Fragment.SettingsProfile)
+        showPage(Page.Fragment.SettingsAbout)
     }
 
     fun showSettingsCategoriesPage() {
