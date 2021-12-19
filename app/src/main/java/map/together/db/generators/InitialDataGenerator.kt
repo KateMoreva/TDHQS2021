@@ -17,7 +17,7 @@ class InitialDataGenerator {
         }
 
         fun getPlace(context: Context): PlaceEntity {
-            return PlaceEntity("Место", 0, "", "")
+            return PlaceEntity("Место", 0, "", "", 1)
         }
 
         fun getLayer(context: Context): LayerEntity {
