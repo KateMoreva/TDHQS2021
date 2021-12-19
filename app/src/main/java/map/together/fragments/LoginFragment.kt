@@ -32,4 +32,5 @@ class LoginFragment : BaseFragment() {
     }
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_login
+    override fun getAppbarTitle(): Int = R.string.login
 }

@@ -47,6 +47,10 @@ abstract class AppbarActivity : DrawerActivity() {
         }
     }
 
+    public fun setToolbarTitle(title: String) {
+        toolbar?.title = title
+    }
+
     protected abstract fun getToolbarView(): Toolbar
 
     protected open fun getToolbarTitle(): String = getString(R.string.app_name)

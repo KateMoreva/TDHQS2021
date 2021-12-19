@@ -23,4 +23,5 @@ class AboutFragment : BaseFragment() {
     }
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_about
+    override fun getAppbarTitle(): Int = R.string.about_app
 }

@@ -24,4 +24,6 @@ class SettingsFragment : BaseFragment() {
         }
 
     }
+
+    override fun getAppbarTitle(): Int = R.string.settings
 }

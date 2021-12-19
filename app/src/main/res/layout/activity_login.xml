@@ -73,7 +73,6 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="@color/white"
-        app:endIconMode="password_toggle"
         app:layout_constraintLeft_toLeftOf="@id/login_title_tv"
         app:layout_constraintRight_toRightOf="@id/login_subtitle_tv"
         app:layout_constraintTop_toBottomOf="@id/divider">

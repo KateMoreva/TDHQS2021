@@ -52,6 +52,7 @@
     <style name="InputPasswordHint" parent="Widget.Design.TextInputLayout">
         <item name="hintTextAppearance">@style/InputHint</item>
         <item name="android:textColorHint">@color/gray_3</item>
+        <item name="endIconMode">password_toggle</item>
     </style>
 
     <style name="Input">

@@ -10,6 +10,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
 import map.together.api.Api
+import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.fragments.MediaLoaderWrapper
 import map.together.items.ItemsList
@@ -19,7 +20,11 @@ import map.together.toast.ToastUtils
 import map.together.utils.auth.AuthorizationHelper
 import map.together.utils.auth.SignUpDataCorrectType
 import map.together.utils.logger.Logger
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
+import java.io.File
 import java.net.HttpURLConnection
 
 class RegistrationActivity : BaseActivity() {
@@ -48,6 +53,7 @@ class RegistrationActivity : BaseActivity() {
                 password_et.text.toString(),
                 confirm_password_et.text.toString(),
                 user_name_et.text.toString(),
+                null
             )
             when (AuthorizationHelper.checkCorrectnessInputData(userSignUpInfo)) {
                 SignUpDataCorrectType.INCORRECT_EMAIL -> {
@@ -67,18 +73,54 @@ class RegistrationActivity : BaseActivity() {
                     ToastUtils.showShortToast(this, R.string.incorrect_first_name)
                 }
                 SignUpDataCorrectType.CORRECT -> taskContainer.add(
-                    Api.createUser(userSignUpInfo.toUserSignUpDto()).subscribe(
-                        { onResponse(it) },
-                        { onFail(it) }
+                    Api.uploadImage(loadImage(mediaLoader!!.getLoadedData().firstOrNull())).subscribe(
+                            { onImageLoaderResponse(it, userSignUpInfo) },
+                            { onFail(it) }
                     )
+
                 )
             }
         }
     }
 
+    private fun loadImage(imageUrl: String?): MultipartBody.Part? {
+        if (imageUrl == null)
+            return null
+        val file = File(imageUrl)
+        val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+        return MultipartBody.Part.createFormData("image", file.name, requestFile)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         mediaLoader?.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun onImageLoaderResponse(response: Response<ImageUrlDto>, userSignUpInfo: UserSignUpInfo) {
+        when (response.code()) {
+            HttpURLConnection.HTTP_CREATED -> {
+                Logger.d(this, "img loaded successfully with code ${response.code()}")
+                userSignUpInfo.imageUrl = response.body()?.photoUrl
+                Api.createUser(userSignUpInfo.toUserSignUpDto()).subscribe(
+                        { onResponse(it) },
+                        { onFail(it) }
+                )
+            }
+            HttpURLConnection.HTTP_BAD_REQUEST -> {
+                MaterialDialog(this).show {
+                    title(R.string.cannot_sign_up)
+                    message(text = response.errorBody()?.string())
+                    negativeButton(R.string.close) {
+                        it.cancel()
+                    }
+                }
+                Logger.d(this, "fail registration ${response.code()}")
+            }
+            else -> {
+                ToastUtils.showShortToast(this, R.string.failed_registr)
+                Logger.d(this, "unsupported code ${response.code()}")
+            }
+        }
     }
 
 
@@ -92,11 +134,12 @@ class RegistrationActivity : BaseActivity() {
             HttpURLConnection.HTTP_BAD_REQUEST -> {
                 MaterialDialog(this).show {
                     title(R.string.cannot_sign_up)
-                    message(R.string.user_exist)
+                    message(text = response.errorBody()?.string())
                     negativeButton(R.string.close) {
                         it.cancel()
                     }
                 }
+                email_required.setTextColor(Color.RED)
                 Logger.d(this, "fail registration ${response.code()}")
             }
             else -> {

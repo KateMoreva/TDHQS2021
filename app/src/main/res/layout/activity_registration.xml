@@ -60,6 +60,7 @@
             style="@style/Input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="veryGoodName"
             android:hint="@string/user_name" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -80,6 +81,7 @@
             style="@style/Input"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="veryGood@good.good"
             android:hint="@string/email" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -110,6 +112,7 @@
             style="@style/Input.Password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="goodgood"
             android:hint="@string/password" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -140,6 +143,7 @@
             style="@style/Input.Password"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:text="goodgood"
             android:hint="@string/confirm_password" />
     </com.google.android.material.textfield.TextInputLayout>
 
