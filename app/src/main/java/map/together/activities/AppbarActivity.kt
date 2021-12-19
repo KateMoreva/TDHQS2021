@@ -16,6 +16,7 @@ abstract class AppbarActivity : DrawerActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+
         toolbar = getToolbarView()
         toolbar?.title = getToolbarTitle()
         setSupportActionBar(toolbar)

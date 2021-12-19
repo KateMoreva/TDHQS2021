@@ -34,9 +34,16 @@ import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import map.together.R
+import map.together.db.entity.CategoryEntity
+import map.together.db.entity.PlaceEntity
 import map.together.dto.db.PlaceDto
+import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.utils.recycler.adapters.LayersAdapter
@@ -49,7 +56,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     val currentUserID = 0L
 
-    val currentPlaces: MutableList<PlaceDto> = ArrayList()
+    val currentPlaces: MutableList<PlaceEntity> = ArrayList()
     val currentAddress: MutableList<String> = ArrayList()
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
@@ -95,7 +102,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         SearchFactory.initialize(this);
-        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
+        //TODO: LOAD places from sever
+        val layerPlaces = mutableListOf<PlaceEntity>()
+        layerPlaces.add(PlaceEntity("new", 0, "59.9408455", "30.3131542", 0))
+        drawPlaces(layerPlaces)
+
+        currentPlaces.addAll(layerPlaces);
+
+        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
         mapview.map.move(
             CameraPosition(Point(59.9408455, 30.3131542), 11.0f, 0.0f, 0.0f),
@@ -303,6 +317,47 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     }
 
+    fun drawPlaces(places: List<PlaceEntity>) {
+        for (place in places) {
+            getCategory(
+                place
+                    .categoryId
+            ) { category ->
+                if (category.colorRecourse != null) {
+                    mapview.getMap().getMapObjects().addPlacemark(
+                        Point(place.latitude.toDouble(), place.longitude.toDouble()),
+                        ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse!!))
+                    )
+                }
+            }
+        }
+    }
+
+    fun getCategory(
+        categoryId: Long, actionsAfter: (
+            CategoryItem
+        ) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val categorydao = it.categoryDao().getById(categoryId)
+                val category = fromCategory(categorydao)
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(category)
+                }
+            }
+        }
+    }
+
+    fun fromCategory(categoryEntity: CategoryEntity): CategoryItem {
+        return CategoryItem(
+            categoryEntity.id.toString(),
+            categoryEntity.name,
+            categoryEntity.colorRecourse,
+            categoryEntity.ownerId
+        )
+    }
+
     override fun getToolbarView(): Toolbar = base_toolbar
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -350,12 +405,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                         if (resultLocation != null) {
                             currentAddress.add(address.toString())
                             currentPlaces.add(
-                                PlaceDto(
-                                    -1,
+                                PlaceEntity(
                                     plName,
                                     currentUserID,
                                     resultLocation.latitude.toString(),
-                                    resultLocation.longitude.toString()
+                                    resultLocation.longitude.toString(),
+                                    1
                                 )
                             )
                             mapObjects.addPlacemark(
