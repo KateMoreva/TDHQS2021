@@ -3,8 +3,10 @@ package map.together.api
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
+import okhttp3.MultipartBody
 import retrofit2.Response
 
 /**
@@ -40,6 +42,17 @@ object Api {
      *          }
      *          .some_other_logic
      */
+
+    fun uploadImage(image: MultipartBody.Part?): Single<Response<ImageUrlDto>> {
+        if (image == null) {
+            val imageUrlDto: ImageUrlDto? = null
+            val response: Response<ImageUrlDto> = Response.success(201, imageUrlDto)
+            return Single.just(response)
+        }
+        return api.getImageUrl(image)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 
     fun createUser(userSignUpDto: UserSignUpDto): Single<Response<UserDto>> =
         api.createUserRequest(userSignUpDto)

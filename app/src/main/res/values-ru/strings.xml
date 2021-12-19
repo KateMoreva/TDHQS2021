@@ -42,6 +42,7 @@
     <string name="quit">Выход</string>
     <string name="quit_confirm_msg">Вы действительно хотите выйти из аккаунта?</string>
     <string name="successfully">Успешно</string>
+    <string name="img_loaded_successfully">Изображение загружено</string>
     <string name="user_exist">Пользователь уже существует</string>
     <string name="failed_registr">Не удалось зарегистрироваться, попробуйте ещё раз позже.</string>
     <string name="failed_login">Не удалось войти, попробуйте ещё раз позже.</string>

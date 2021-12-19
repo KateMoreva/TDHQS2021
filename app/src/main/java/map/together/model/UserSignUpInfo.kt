@@ -4,11 +4,13 @@ import android.os.Parcel
 import android.os.Parcelable
 import map.together.dto.UserSignUpDto
 
+
 data class UserSignUpInfo(
         val email: String,
         val password: String,
         val confirmPassword: String,
         val userName: String,
+        var imageUrl: String?
 ) : Parcelable {
 
     companion object CREATOR : Parcelable.Creator<UserSignUpInfo> {
@@ -28,6 +30,7 @@ data class UserSignUpInfo(
             parcel.readString() ?: NAME_UNKNOWN,
             parcel.readString() ?: NAME_UNKNOWN,
             parcel.readString() ?: NAME_UNKNOWN,
+            null
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -45,5 +48,6 @@ data class UserSignUpInfo(
             email,
             password,
             userName,
+            imageUrl
     )
 }

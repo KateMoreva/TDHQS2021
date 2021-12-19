@@ -1,12 +1,14 @@
 package map.together.api
 
 import io.reactivex.Single
+import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
 import map.together.dto.db.CategoryDto
 import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -14,6 +16,10 @@ import retrofit2.http.*
  * Your Request-methods should be here
  */
 interface ApiInterface {
+
+    @Multipart
+    @POST("/api/auth/loadImage")
+    fun getImageUrl(@Part image: MultipartBody.Part): Single<Response<ImageUrlDto>>
 
     @Headers("Content-Type: application/json")
     @POST("/api/auth/registration")
