@@ -10,7 +10,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitApiUtils {
 
     // todo server url
-    private const val IVANSON_SERVER_URL = "http://192.168.0.4:8080/"
+    const val IVANSON_SERVER_URL = "http://192.168.0.4:8080/"
 
     @JvmStatic
     fun createApi(): ApiInterface {

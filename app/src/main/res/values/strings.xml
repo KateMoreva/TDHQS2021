@@ -47,6 +47,7 @@
     <string name="user_exist">Пользователь уже существует</string>
     <string name="failed_registr">Не удалось зарегистрироваться, попробуйте ещё раз позже.</string>
     <string name="failed_login">Не удалось войти, попробуйте ещё раз позже.</string>
+    <string name="failed_response" translatable="false">Не удалось выполнить запрос, попробуйте ещё раз позже.</string>
     <string name="failed_change_user_data">Не удалось изменить данные, попробуйте ещё раз позже.</string>
     <string name="incorrect_email">Некорректный адрес эл.почты</string>
     <string name="incorrect_password">Некорректный пароль</string>
@@ -111,4 +112,7 @@
      Mark your favourite places and discuss them together.</string>
     <string name="test_account_email">test@test.test</string>
     <string name="qwerty">qwerty</string>
+    <string name="map_open">Открыть карту</string>
+    <string name="map_create">Создать карту</string>
+    <string name="logout">Выйти из профиля</string>
 </resources>

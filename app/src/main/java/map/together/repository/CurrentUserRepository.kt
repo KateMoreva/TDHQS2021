@@ -11,7 +11,7 @@ object CurrentUserRepository {
             id = -1,
             userName = "userName",
             email = "email",
-            pictureUrlStr = null)
+            photoUrl = null)
 
     var currentUser: MutableLiveData<UserInfo> = MutableLiveData()
         internal set

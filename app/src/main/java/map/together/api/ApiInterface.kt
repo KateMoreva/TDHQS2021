@@ -28,12 +28,14 @@ interface ApiInterface {
     @GET("/api/auth/login")
     fun loginRequest(@Header("Authorization") token: String): Single<Response<UserDto>>
 
+    @FormUrlEncoded
     @POST("/api/auth/profile/change")
     fun changeUserData(
-        userName: String,
-        passwordHash: String,
-        oldPassword: String,
-        picture: Any
+            @Header("Authorization") token: String,
+            @Field("userName") userName: String?,
+            @Field("passwordHash") passwordHash: String?,
+            @Field("oldPasswordHash") oldPasswordHash: String?,
+            @Field("imageUrl") imageUrl: String?
     ): Single<Response<UserDto>>
 
     @GET("/api/owner/places")

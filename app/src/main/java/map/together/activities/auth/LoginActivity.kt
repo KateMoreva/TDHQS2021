@@ -47,7 +47,7 @@ class LoginActivity : BaseActivity() {
         when (response.code()) {
             HttpURLConnection.HTTP_OK -> {
                 AuthRepository.doOnLogin(
-                    this, token, false,
+                    this, token, true,
                     response.body()?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY
                 )
                 Logger.d(this, "successfully login with code ${response.code()}")

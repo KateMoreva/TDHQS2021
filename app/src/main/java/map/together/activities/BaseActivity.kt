@@ -22,7 +22,7 @@ abstract class BaseActivity : AppCompatActivity() {
     var userId: Long? = null
         private set
 
-    protected val taskContainer: CompositeDisposable = CompositeDisposable()
+    val taskContainer: CompositeDisposable = CompositeDisposable()
 
     @InternalCoroutinesApi
     @CallSuper

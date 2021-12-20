@@ -76,12 +76,13 @@ object Api {
     }
 
     fun changeUserData(
-        userName: String,
-        passwordHash: String,
-        oldPassword: String,
-        picture: Any
+        token: String,
+        userName: String?,
+        passwordHash: String?,
+        oldPassword: String?,
+        picture: String?
     ): Single<Response<UserDto>> =
-        api.changeUserData(userName, passwordHash, oldPassword, picture)
+        api.changeUserData(token, userName, passwordHash, oldPassword, picture)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
 }

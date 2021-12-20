@@ -17,6 +17,7 @@ import map.together.items.ItemsList
 import map.together.items.MediaItem
 import map.together.model.UserSignUpInfo
 import map.together.toast.ToastUtils
+import map.together.utils.MediaLoaderWrapper.Companion.loadImage
 import map.together.utils.auth.AuthorizationHelper
 import map.together.utils.auth.SignUpDataCorrectType
 import map.together.utils.logger.Logger
@@ -83,13 +84,7 @@ class RegistrationActivity : BaseActivity() {
         }
     }
 
-    private fun loadImage(imageUrl: String?): MultipartBody.Part? {
-        if (imageUrl == null)
-            return null
-        val file = File(imageUrl)
-        val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
-        return MultipartBody.Part.createFormData("image", file.name, requestFile)
-    }
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
