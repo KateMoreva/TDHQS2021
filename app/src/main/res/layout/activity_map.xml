@@ -59,6 +59,7 @@
 
         <ImageButton
             android:id="@+id/search_text_clear"
+            android:visibility="invisible"
             android:layout_width="@dimen/text_size_25"
             android:layout_height="@dimen/text_size_25"
             android:layout_alignTop="@id/search_text_field"

@@ -207,16 +207,21 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
                 search_res_list.visibility = View.VISIBLE
+                search_text_clear.visibility = View.VISIBLE
+                search_text_field.setSelection(search_text_field.length())
                 imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
                 search_res_list.visibility = View.INVISIBLE
+                search_text_clear.visibility = View.INVISIBLE
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
                 geoSearch = true
             }
         })
         search_text_clear.setOnClickListener {
             search_text_field.setText("")
+            searchResults.clear()
+
         }
 
         search_text_field.addTextChangedListener(object : TextWatcher {
@@ -257,7 +262,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                                 searchResults.clear()
                                 val imm =
                                     getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-//                                imm.hideSoftInputFromWindow(VIEW,  0)
+                                imm.hideSoftInputFromWindow(
+                                    this@MapActivity.currentFocus?.windowToken,
+                                    0
+                                )
+                                showTagMenu()
                             }
                         },
                     )
@@ -570,13 +579,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
         var place: PlaceEntity? = null
-        for (placeEntity in currentPlaces) {
-            val plLat = placeEntity.latitude.toDouble().round(2)
-            val pLong = placeEntity.longitude.toDouble().round(2)
+        for (placeEntity in currentGeoObjects) {
+            val plLat = placeEntity.value.geometry[0].point?.latitude?.round(2)
+            val pLong = placeEntity.value.geometry[0].point?.longitude?.round(2)
             val lat = latitude.round(2)
             val log = longitude.round(2)
             if (plLat == lat && pLong == log) {
-                place = placeEntity
+                place = currentPlaces.find { plaace -> place?.id == placeEntity.key }
             }
         }
         return place
@@ -589,7 +598,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             geoSearch -> {
                 val searchRes = response.getCollection().getChildren()
                 val geoObject = searchRes[0].obj!!
-                val geoObject2 = searchRes[1].obj!!
                 val address = geoObject.name
                 val desc = geoObject.descriptionText
                 category_on_tap_adress_id.setText(address, TextView.BufferType.EDITABLE)
@@ -601,10 +609,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                     if (resultLocation != null) {
                         currentGeoObjects.put(loadingObjId, geoObject)
                     }
+                } else {
+                    selectedObjectId = address.toString()
+                    selectedObject = geoObject
+                    checkPlaceMarked()
                 }
-                selectedObjectId = address.toString()
-                selectedObject = geoObject
-                checkPlaceMarked()
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
                         if (resultLocation != null) {
@@ -664,6 +673,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 }
             }
             else -> {
+                searchResults.clear()
                 for (searchResult in response.getCollection().getChildren()) {
                     val geoObject = searchResult.obj!!
                     val address = geoObject.name

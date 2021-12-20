@@ -22,9 +22,9 @@ class SearchViewHolder(
 
     }
 
-    fun setOnItemClickListener(onClick: () -> Unit) {
+    fun setOnItemClickListener(onClick: (View) -> Unit) {
         result.setOnClickListener {
-            onClick()
+            onClick(it)
         }
     }
 }
