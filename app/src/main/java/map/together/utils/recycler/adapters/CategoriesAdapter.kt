@@ -1,8 +1,10 @@
 package map.together.utils.recycler.adapters
 
 import androidx.annotation.LayoutRes
+import map.together.R
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
+import map.together.utils.showSimpleMaterialDialog
 import map.together.viewholders.BaseViewHolder
 import map.together.viewholders.CategoryViewHolder
 import kotlin.reflect.KClass
@@ -25,7 +27,14 @@ class CategoriesAdapter(
             onEdit.invoke(item)
         }
         categoryHolder.setOnRemoveBtnClickListener {
-            onRemove.invoke(item)
+            showSimpleMaterialDialog(
+                context = holder.itemView.context,
+                title = holder.itemView.context.getString(R.string.confirmation),
+                message = holder.itemView.context.getString(R.string.delete_category_confirmation),
+                positiveButtonText = holder.itemView.context.getString(R.string.yes),
+                negativeButtonText = holder.itemView.context.getString(R.string.cancel),
+                onPositiveClicked = { onRemove.invoke(item) },
+            )
         }
     }
 }

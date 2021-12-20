@@ -10,6 +10,7 @@
     <string name="change_user_name">Изменить имя</string>
     <string name="user_name">Имя</string>
     <string name="confirm">Подтвердить</string>
+    <string name="confirmation">Подтверждение</string>
     <string name="registration">Регистрация</string>
     <string name="add_workout">Добавить тренировку</string>
     <string name="action_add">Добавить</string>
@@ -18,7 +19,7 @@
 
     <string name="choose_exercise_type">Выберите тип упражнения</string>
     <string name="enter_exercise_name">Название упражнения</string>
-    <string name="cancel">Отмена</string>
+    <string name="cancellation">Отмена</string>
     <string name="save">Сохранить</string>
     <string name="delete">Удалить</string>
     <string name="exercise_elements">Элементы упражнения</string>
@@ -100,6 +101,7 @@
     <string name="about_app">О приложении</string>
     <string name="change_password">Изменить пароль</string>
     <string name="delete_account">Удалить аккаунт</string>
+    <string name="delete_account_confirmation">Вы уверены, что хотите удалить аккаунт?</string>
     <string name="empty_categories_list">Здесь будут твои категории.\nНажми на плюсик, чтобы создать новую</string>
     <string name="information_about_project">Приложение поможет Вам и Вашим друзьям, знакомым спланировать общую поездку.\n
     Отмечайте свои места и обсуждайте их вместе.</string>
@@ -108,4 +110,13 @@
     <string name="map_open">Открыть карту</string>
     <string name="map_create">Создать карту</string>
     <string name="logout">Выйти из профиля</string>
+    <string name="edit_name">Изменение имени</string>
+    <string name="enter_new_name">Введите новое имя</string>
+
+    <string name="delete_category_confirmation">Вы уверены, что хотите удалить категорию?</string>
+
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отменить</string>
+    <string name="edit">Изменить</string>
 </resources>

@@ -202,7 +202,7 @@
         android:elevation="10dp"
         android:ellipsize="end"
         android:maxLines="1"
-        android:text="@string/cancel"
+        android:text="@string/cancellation"
         android:textSize="@dimen/text_size_14"
         app:layout_constraintBottom_toBottomOf="@id/confirm_button"
         app:layout_constraintLeft_toLeftOf="@id/input_layout_confirm_password"

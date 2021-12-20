@@ -4,7 +4,9 @@ package map.together.fragments
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageButton
 import com.bumptech.glide.Glide
+import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.fragment_setting_profile.*
 import map.together.R
 import map.together.activities.BaseActivity
@@ -17,6 +19,8 @@ import map.together.repository.CurrentUserRepository
 import map.together.utils.MediaLoaderWrapper
 import map.together.utils.MediaLoaderWrapper.Companion.loadImage
 import map.together.utils.ResponseActions
+import map.together.utils.showSimpleInputMaterialDialog
+import map.together.utils.showSimpleMaterialDialog
 import java.net.HttpURLConnection
 import javax.net.ssl.HttpsURLConnection
 
@@ -34,37 +38,82 @@ class SettingsProfileFragment : BaseFragment() {
         val photoUri = getPhotoUri()
         val mediaItem = if (photoUri == null) null else MediaItem("0", photoUri, MediaItem.DisplayMode.FIT_CENTER)
         mediaLoaderWrapper = MediaLoaderWrapper(
-                this,
-                change_user_profile_pic_button_id,
-                remove_user_profile_pic_button_id,
-                mediaItem,
-         { changeUserPhoto("") },
-        { localUrl ->
-            (activity as BaseActivity).taskContainer.add(
-                Api.uploadImage(loadImage(localUrl)).subscribe(
-                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED,
-                                {
-                                    imageUrlDto ->  changeUserPhoto(imageUrlDto?.photoUrl ?: ""
-                                ) }, HttpsURLConnection.HTTP_BAD_REQUEST) },
+            this,
+            change_user_profile_pic_button_id,
+            remove_user_profile_pic_button_id,
+            mediaItem,
+            { changeUserPhoto("") },
+            { localUrl ->
+                (activity as BaseActivity).taskContainer.add(
+                    Api.uploadImage(loadImage(localUrl)).subscribe(
+                        {
+                            ResponseActions.onResponse(it,
+                                this.requireContext(),
+                                HttpsURLConnection.HTTP_CREATED,
+                                { imageUrlDto ->
+                                    changeUserPhoto(
+                                        imageUrlDto?.photoUrl ?: ""
+                                    )
+                                },
+                                HttpsURLConnection.HTTP_BAD_REQUEST
+                            )
+                        },
                         { ResponseActions.onFail(it, this.requireContext()) }
+                    )
                 )
-            )
 
-        })
+            })
         logout_button_id.setOnClickListener {
             AuthRepository.doOnLogout(this.activity as BaseActivity)
         }
-        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName ?: "Username"
-        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email ?: "email@email.email"
+        view.findViewById<MaterialCardView>(R.id.delete_user_button_id).apply {
+            setOnClickListener {
+                showSimpleMaterialDialog(
+                    context = view.context,
+                    title = view.context.getString(R.string.confirmation),
+                    message = view.context.getString(R.string.delete_account_confirmation),
+                    positiveButtonText = view.context.getString(R.string.yes),
+                    negativeButtonText = view.context.getString(R.string.cancel),
+                    onPositiveClicked = { /* do smth */ },
+                )
+            }
+        }
+        view.findViewById<ImageButton>(R.id.change_user_name_button_id).apply {
+            setOnClickListener {
+                showSimpleInputMaterialDialog(
+                    context = view.context,
+                    title = view.context.getString(R.string.edit_name),
+                    message = view.context.getString(R.string.enter_new_name),
+                    positiveButtonText = view.context.getString(R.string.edit),
+                    negativeButtonText = view.context.getString(R.string.cancel),
+                    prefillData = user_name_text_field_id.text,
+                    maxLength = 50,
+                    inputCallback = { _, resultName ->
+                        run {
+                            user_name_text_field_id.text = resultName
+                            // todo add saving to db
+                        }
+                    }
+                )
+            }
+        }
+        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName
+            ?: "Username"
+        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email
+            ?: "email@email.email"
     }
 
     private fun changeUserPhoto(url: String) {
         val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
         (activity as BaseActivity).taskContainer.add(
             Api.changeUserData(token!!, null, null, null, url).subscribe(
-                    { ResponseActions.onResponse(it, this.requireContext(), HttpURLConnection.HTTP_OK,
-                            this::updateUser, HttpURLConnection.HTTP_BAD_REQUEST) },
-                    { ResponseActions.onFail(it, this.requireContext()) }
+                {
+                    ResponseActions.onResponse(
+                        it, this.requireContext(), HttpURLConnection.HTTP_OK,
+                        this::updateUser, HttpURLConnection.HTTP_BAD_REQUEST
+                    )
+                },
+                { ResponseActions.onFail(it, this.requireContext()) }
             )
         )
     }
