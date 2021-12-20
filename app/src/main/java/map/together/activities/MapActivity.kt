@@ -3,6 +3,8 @@ package map.together.activities
 
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
+import android.content.SharedPreferences
 import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -58,6 +60,13 @@ import map.together.items.SearchItem
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.viewholders.LayerViewHolder
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import map.together.db.entity.*
+import map.together.repository.CurrentUserRepository
+import map.together.utils.RoleEnum
 import map.together.viewholders.SearchViewHolder
 import kotlin.math.roundToInt
 import kotlin.math.round
@@ -70,6 +79,18 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     val currentUserID = 1L
     val currentMapId = 1L
     val currentLayerId = 1L
+
+    companion object {
+        const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
+        private var last_map_id: Long  = -1
+        fun get_last_map(): Long
+        {
+            return last_map_id
+        }
+    }
+
+    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
+    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
 
     val currentPlaces: MutableList<PlaceEntity> = ArrayList()
     val currentAddress: MutableMap<Long, String> = HashMap()
@@ -118,6 +139,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         return false
     }
 
+    private val user_id = CurrentUserRepository.currentUser.value!!.id;
+
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,6 +176,26 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             currentPlaces.addAll(layerPlaces)
         }
 
+        last_map_id = getSharedPreferences(applicationContext.packageName, 0).getLong(
+            SHARED_PREFERENCE_LAST_MAP_ID, 0)
+        var map: MapEntity
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                map = database!!.mapDao().getById(last_map_id)
+            } catch (ex: Exception) {
+                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", user_id))
+                    val place_id = database!!.placeDao().getAll()[0].id
+                    last_map_id = database!!.mapDao().insert(
+                        MapEntity(
+                            getString(R.string.new_map_name), place_id,
+                            main_malyer_id, user_id))
+                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
+                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
+                    map = database!!.mapDao().getById(last_map_id)
+                    database!!.userMapDao().insert(UserMapEntity(user_id, last_map_id, RoleEnum.ADMIN))
+                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
+            }
+        }
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
             mapview.map.move(
@@ -629,7 +672,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                             var placeId = -1L
                             createNewPlace(
                                 plName,
-                                currentUserID,
+                                user_id,
                                 resultLocation.latitude.toString(),
                                 resultLocation.longitude.toString(),
                                 1

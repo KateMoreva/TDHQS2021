@@ -36,6 +36,8 @@ class InitialDataGenerator {
 
         fun getCategoryDao(context: Context): List<CategoryEntity> {
             return listOf(
+                CategoryEntity("Без категории", 0),
+                CategoryEntity("Любимое", 0),
                 CategoryEntity("Без категории", 1, Color.GRAY, 1),
                 CategoryEntity("Любимое", 1, Color.RED, 2),
             )
@@ -69,7 +71,7 @@ class InitialDataGenerator {
         }
 
         fun getMap(context: Context): MapEntity {
-            return MapEntity("Карта", 1, 1)
+            return MapEntity("Карта", 1, 1, null)
         }
     }
 }
