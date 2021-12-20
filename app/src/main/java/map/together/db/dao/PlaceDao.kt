@@ -19,8 +19,11 @@ interface PlaceDao {
     @Query("SELECT * FROM PlaceEntity WHERE ownerId = :ownerId")
     fun getByOwnerId(ownerId: Long): List<PlaceEntity>
 
-    @Query("select * from placeentity where id in (SELECT p.id FROM PlaceEntity as p join placelayerentity as pl join layermapentity as lm join mapentity as m where pl.placeId = p.id and lm.layerId = pl.layerId and m.id = lm.mapId and m.id = :mapId)")
+    @Query("select * from placeEntity where id in (SELECT p.id FROM PlaceEntity as p join PlaceLayerEntity as pl join LayerMapEntity as lm join mapEntity as m where pl.placeId = p.id and lm.layerId = pl.layerId and m.id = lm.mapId and m.id = :mapId)")
     fun getByMapId(mapId: Long): List<PlaceEntity>
+
+    @Query("select * from placeEntity where id in (SELECT p.id FROM PlaceEntity as p join PlaceLayerEntity as pl where pl.placeId = p.id and pl.layerId = :layerId)")
+    fun getByLayerId(layerId: Long): List<PlaceEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(place: PlaceEntity): Long

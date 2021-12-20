@@ -1,6 +1,7 @@
 package map.together.activities
 
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -9,10 +10,13 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
@@ -20,7 +24,9 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.yandex.mapkit.Animation
+import com.yandex.mapkit.GeoObject
 import com.yandex.mapkit.MapKitFactory
+import com.yandex.mapkit.geometry.Geometry
 import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
@@ -34,32 +40,50 @@ import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import map.together.R
-import map.together.dto.db.PlaceDto
+import map.together.db.entity.CategoryEntity
+import map.together.db.entity.PlaceCategoryEntity
+import map.together.db.entity.PlaceEntity
+import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
+import map.together.items.SearchItem
 import map.together.utils.recycler.adapters.LayersAdapter
+import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.viewholders.LayerViewHolder
-import java.lang.Exception
+import map.together.viewholders.SearchViewHolder
 import kotlin.math.roundToInt
+import kotlin.math.round
 
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
+    val SPB = Point(59.9408455, 30.3131542)
+    //TODO: loading from meta
+    val currentUserID = 1L
+    val currentMapId = 1L
+    val currentLayerId = 1L
 
-    val currentUserID = 0L
-
-    val currentPlaces: MutableList<PlaceDto> = ArrayList()
-    val currentAddress: MutableList<String> = ArrayList()
+    val currentPlaces: MutableList<PlaceEntity> = ArrayList()
+    val currentAddress: MutableMap<Long, String> = HashMap()
+    val currentGeoObjects: MutableMap<Long, GeoObject> = HashMap()
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
     var isLinePointClick = false
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
-    var geoSearch = false
+    var geoSearch = true
+    var preLoad = false
     var selectedLayerId: String = ""
-    var selectedObjectAddress = ""
+    var selectedObjectId = ""
+    var selectedObject: GeoObject? = null
+    var loadingObjId = -1L
+    val searchResults: MutableList<SearchItem> = ArrayList()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -71,6 +95,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     }
 
     override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
+        preLoad = false
         if (!isLinePointClick) {
             val selectionMetadata = geoObjectTapEvent
                 .geoObject
@@ -96,13 +121,35 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         SearchFactory.initialize(this);
-        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE);
+        //TODO: LOAD meta from sever
+
+        val layerPlaces = mutableListOf<PlaceEntity>()
+
+        searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
         mapview.map.move(
-            CameraPosition(Point(59.9408455, 30.3131542), 11.0f, 0.0f, 0.0f),
+            CameraPosition(SPB, 11.0f, 0.0f, 0.0f),
             Animation(Animation.Type.SMOOTH, 1F),
             null
         )
+
+        getPlaces(currentLayerId) { places ->
+            layerPlaces.addAll(places)
+            drawPlaces(layerPlaces)
+            for (place in places) {
+                val y = mapview.map.maxZoom.roundToInt()
+                preLoad = true
+                geoSearch = true
+                loadingObjId = place.id
+                searchSession = searchManager!!.submit(
+                    Point(
+                        place.latitude.toDouble(),
+                        place.longitude.toDouble()
+                    ), y, SearchOptions(), this
+                )
+            }
+            currentPlaces.addAll(layerPlaces)
+        }
 
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
@@ -143,14 +190,94 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             } else {
                 mapview.map.removeInputListener(polylineListener)
                 mapview.map.mapObjects.clear()
+                for (obj in currentGeoObjects) {
+                    val point = obj.value.geometry[0].point
+                    if (point != null) {
+                        mapview.getMap().getMapObjects().addPlacemark(
+                            Point(point.latitude, point.longitude),
+                            ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
+                        )
+                    }
+                }
             }
         })
 
-        search_button_id.setOnClickListener(fun(_: View) {
+        search_button_id.setOnClickListener(fun(view: View) {
+            val imm = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
+                search_res_list.visibility = View.VISIBLE
+                search_text_clear.visibility = View.VISIBLE
+                search_text_field.setSelection(search_text_field.length())
+                imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
+                search_res_list.visibility = View.INVISIBLE
+                search_text_clear.visibility = View.INVISIBLE
+                imm.hideSoftInputFromWindow(view.windowToken, 0)
+                geoSearch = true
+            }
+        })
+        search_text_clear.setOnClickListener {
+            search_text_field.setText("")
+            searchResults.clear()
+
+        }
+
+        search_text_field.addTextChangedListener(object : TextWatcher {
+
+            override fun afterTextChanged(s: Editable) {
+
+            }
+
+            override fun beforeTextChanged(
+                s: CharSequence, start: Int,
+                count: Int, after: Int
+            ) {
+            }
+
+            override fun onTextChanged(
+                s: CharSequence, start: Int,
+                before: Int, count: Int
+            ) {
+                if (s.length > 2) {
+                    geoSearch = false
+                    val adapter = SearchResAdapter(
+                        holderType = SearchViewHolder::class,
+                        layoutId = R.layout.item_search_result,
+                        dataSource = ItemsList(searchResults),
+                        onClick = { item ->
+                            //TODO: Fix onClick
+                            if (item.coord.longitude != 0.0) {
+                                val y = mapview.map.maxZoom.roundToInt()
+                                geoSearch = true
+                                searchSession = searchManager!!.submit(
+                                    item.coord,
+                                    y,
+                                    SearchOptions(),
+                                    this@MapActivity
+                                )
+                                search_text_field.visibility = View.INVISIBLE
+                                search_res_list.visibility = View.GONE
+                                searchResults.clear()
+                                val imm =
+                                    getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                                imm.hideSoftInputFromWindow(
+                                    this@MapActivity.currentFocus?.windowToken,
+                                    0
+                                )
+                                showTagMenu()
+                            }
+                        },
+                    )
+                    search_res_list.adapter = adapter
+                    val layoutManager =
+                        LinearLayoutManager(this@MapActivity, RecyclerView.VERTICAL, false)
+                    search_res_list.layoutManager = layoutManager
+                    search_res_list.visibility = View.VISIBLE
+
+                    dynamicSearch(s.toString())
+                }
             }
         })
 
@@ -304,6 +431,62 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     }
 
+    fun drawPlaces(places: List<PlaceEntity>) {
+        for (place in places) {
+            getCategory(
+                place
+                    .categoryId
+            ) { category ->
+                if (category.colorRecourse != null) {
+                    mapview.getMap().getMapObjects().addPlacemark(
+                        Point(place.latitude.toDouble(), place.longitude.toDouble()),
+                        ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse!!))
+                    )
+                }
+            }
+        }
+    }
+
+    fun getPlaces(
+        layerId: Long, actionsAfter: (
+            List<PlaceEntity>
+        ) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val placesDao = it.placeDao().getByLayerId(layerId)
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(placesDao)
+                }
+            }
+        }
+    }
+
+    fun getCategory(
+        categoryId: Long, actionsAfter: (
+            CategoryItem
+        ) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val categorydao = it.categoryDao().getById(categoryId)
+                val category = fromCategory(categorydao)
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(category)
+                }
+            }
+        }
+    }
+
+    fun fromCategory(categoryEntity: CategoryEntity): CategoryItem {
+        return CategoryItem(
+            categoryEntity.id.toString(),
+            categoryEntity.name,
+            categoryEntity.colorRecourse,
+            categoryEntity.ownerId
+        )
+    }
+
     override fun getToolbarView(): Toolbar = base_toolbar
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -328,77 +511,183 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         )
     }
 
+    protected fun createNewPlace(
+        name: String,
+        ownerId: Long,
+        latitude: String,
+        longitude: String,
+        categoryId: Long,
+        actionsAfter: (Long) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database!!.let {
+                val place = PlaceEntity(
+                    name,
+                    ownerId,
+                    latitude,
+                    longitude,
+                    categoryId
+                )
+                place.id = it.placeDao().insert(place)
+                it.placeCategoryDao().insert(PlaceCategoryEntity(place.id, categoryId))
+
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(place.id)
+                }
+            }
+        }
+    }
+
+    protected fun deletePlace(placeEntity: PlaceEntity, actionsAfter: () -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database!!.placeDao().delete(placeEntity)
+            withContext(Dispatchers.Main) {
+                actionsAfter.invoke()
+            }
+        }
+    }
+
+    fun Double.round(decimals: Int = 4): Double {
+        var multiplier = 1.0
+        repeat(decimals) { multiplier *= 10 }
+        return round(this * multiplier) / multiplier
+    }
+
+    protected fun getPlaceByParam(
+        latitude: Double,
+        longitude: Double,
+        layerId: Long,
+        actionsAfter: (PlaceEntity?) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database!!.let {
+                val places = it.placeDao().getByLayerId(layerId)
+                var place: PlaceEntity? = null
+                for (placeEntity in places) {
+                    val plLat = placeEntity.latitude.toDouble().round(3)
+                    val pLong = placeEntity.longitude.toDouble().round(3)
+                    if (plLat == latitude.round(3) && pLong == longitude.round(3)) {
+                        place = placeEntity
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(place)
+                }
+            }
+        }
+    }
+
+    protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
+        var place: PlaceEntity? = null
+        for (placeEntity in currentGeoObjects) {
+            val plLat = placeEntity.value.geometry[0].point?.latitude?.round(2)
+            val pLong = placeEntity.value.geometry[0].point?.longitude?.round(2)
+            val lat = latitude.round(2)
+            val log = longitude.round(2)
+            if (plLat == lat && pLong == log) {
+                place = currentPlaces.find { plaace -> place?.id == placeEntity.key }
+            }
+        }
+        return place
+    }
+
     override fun onSearchResponse(response: Response) {
 
         val mapObjects: MapObjectCollection = mapview.getMap().getMapObjects()
         when {
             geoSearch -> {
                 val searchRes = response.getCollection().getChildren()
-                val address = searchRes[0].obj!!.name
-                val desc = searchRes[0].obj!!.descriptionText
-                val meta = searchRes[0].obj!!.metadataContainer
+                val geoObject = searchRes[0].obj!!
+                val address = geoObject.name
+                val desc = geoObject.descriptionText
                 category_on_tap_adress_id.setText(address, TextView.BufferType.EDITABLE)
                 category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
-                var plName = category_on_tap_place_name_id.text.toString()
-                if (plName == "Place name" && address != null) {
-                    plName = address
+                category_on_tap_place_name_id.setText(address.toString())
+                var plName = address.toString()
+                val resultLocation = searchRes[0].obj!!.geometry[0].point
+                if (preLoad) {
+                    if (resultLocation != null) {
+                        currentGeoObjects.put(loadingObjId, geoObject)
+                    }
+                } else {
+                    selectedObjectId = address.toString()
+                    selectedObject = geoObject
+                    checkPlaceMarked()
                 }
-                selectedObjectAddress = address.toString()
-                checkPlaceMarked()
                 category_on_tap_save_changes_id.setOnClickListener {
-                    val resultLocation = searchRes[0].obj!!.geometry[0].point
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
                         if (resultLocation != null) {
-                            currentAddress.add(address.toString())
-                            currentPlaces.add(
-                                PlaceDto(
-                                    -1,
-                                    plName,
-                                    currentUserID,
-                                    resultLocation.latitude.toString(),
-                                    resultLocation.longitude.toString()
-                                )
-                            )
-                            mapObjects.addPlacemark(
-                                resultLocation,
-                                ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
-                            )
+                            //TODO: correct category + save to DB
+                            var placeId = -1L
+                            createNewPlace(
+                                plName,
+                                currentUserID,
+                                resultLocation.latitude.toString(),
+                                resultLocation.longitude.toString(),
+                                1
+                            ) { newPlaceId: Long ->
+                                placeId = newPlaceId
+                                if (placeId != -1L) {
+                                    currentAddress.put(placeId, address.toString())
+                                    currentGeoObjects.put(placeId, geoObject)
+                                    mapObjects.addPlacemark(
+                                        resultLocation,
+                                        ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
+                                    )
+                                }
+                            }
                         }
 
                         hideTagMenu()
                         mapview.map.deselectGeoObject()
                     } else {
                         if (resultLocation != null) {
-                            currentAddress.remove(address.toString())
-                            currentPlaces.remove(
-                                PlaceDto(
-                                    -1,
-                                    plName,
-                                    currentUserID,
-                                    resultLocation.latitude.toString(),
-                                    resultLocation.longitude.toString()
-                                )
+                            category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
+                            var pl = getPlaceByParam(
+                                resultLocation.latitude,
+                                resultLocation.longitude
                             )
-                            mapObjects.clear()
-                            for (place in currentPlaces) {
-                                val point =
-                                    Point(place.latitude.toDouble(), place.longitude.toDouble())
-                                val category = Color.BLUE
-                                mapObjects.addPlacemark(
-                                    point,
-                                    ImageProvider.fromBitmap(drawSimpleBitmap(category))
-                                )
+                            if (pl != null) {
+                                deletePlace(pl) {
+                                    currentAddress.remove(address.toString())
+                                    currentPlaces.remove(pl)
+                                    mapObjects.clear()
+                                    for (place in currentPlaces) {
+                                        val point =
+                                            Point(
+                                                place.latitude.toDouble(),
+                                                place.longitude.toDouble()
+                                            )
+                                        val category = Color.BLUE
+                                        mapObjects.addPlacemark(
+                                            point,
+                                            ImageProvider.fromBitmap(drawSimpleBitmap(category))
+                                        )
+                                    }
+                                    selectedObjectId = ""
+                                    hideTagMenu()
+                                }
                             }
-                            selectedObjectAddress = ""
-                            hideTagMenu()
                         }
                     }
-                    geoSearch = false
                 }
             }
             else -> {
+                searchResults.clear()
                 for (searchResult in response.getCollection().getChildren()) {
-                    //Normal
+                    val geoObject = searchResult.obj!!
+                    val address = geoObject.name
+                    val desc = geoObject.descriptionText
+                    val resultLocation = geoObject.geometry[0].point
+                    if (resultLocation != null) {
+                        val serch = SearchItem(
+                            searchResults.size.toString(),
+                            address.toString(),
+                            desc.toString(),
+                            resultLocation
+                        )
+                        searchResults.add(serch)
+                    }
                 }
             }
         }
@@ -469,6 +758,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     override fun onMapTap(p0: Map, p1: Point) {
         ///TODO: Обработка попадания на тэг
+        preLoad = false
         if (!isLinePointClick) {
             geoSearch = true
             val y = mapview.map.maxZoom.roundToInt()
@@ -480,13 +770,37 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     }
 
     private fun checkPlaceMarked() {
-        if (selectedObjectAddress.isNotEmpty()) {
-            for (place in currentAddress) {
-                if (place == selectedObjectAddress) {
+        if (preLoad) {
+            return
+        }
+        if (selectedObject != null) {
+            for (place in currentGeoObjects) {
+                val plLat = place.value.geometry[0].point?.latitude?.round(2)
+                val pLong = place.value.geometry[0].point?.longitude?.round(2)
+                val sLat = selectedObject!!.geometry[0].point?.latitude?.round(2)
+                val sLong = selectedObject!!.geometry[0].point?.longitude?.round(2)
+                if (plLat == sLat && pLong == sLong) {
+//                    place = placeEntity
+//                }
+//                if (selectedObgect?.name!! == place.value.name!!) {
                     category_on_tap_save_changes_id.setText(resources.getText(R.string.delete))
+                    val placeName =
+                        currentPlaces.filter { placeEntity -> placeEntity.id == place.key }
+                    if (placeName.isNotEmpty()) {
+                        category_on_tap_place_name_id.setText(placeName[0].name)
+                    }
                 }
             }
         }
+    }
+
+    private fun dynamicSearch(s: String) {
+        var searchOptions = SearchOptions()
+        searchOptions.searchTypes = SearchType.GEO.value
+        searchSession = searchManager!!.submit(
+            s,
+            Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this
+        )
     }
 
     private fun hideTagMenu() {
@@ -496,6 +810,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
+        preLoad = false
         if (!isLinePointClick) {
             val y = mapview.map.maxZoom.roundToInt()
             geoSearch = true

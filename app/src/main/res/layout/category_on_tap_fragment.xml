@@ -130,6 +130,7 @@
         android:background="#ECECEC"
         android:inputType="textLongMessage"
         android:text="Place description"
+        android:editable="false"
         android:layout_marginVertical="@dimen/padding_10"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
