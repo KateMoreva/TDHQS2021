@@ -45,14 +45,16 @@
             android:minHeight="48dp"
             app:srcCompat="@drawable/ic_baseline_search_24" />
 
-        <Button
-            android:id="@+id/open_users"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout android:id="@+id/open_users"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/transparent"
-            android:text="users"
-            android:textColor="@color/transparent"
-            android:layout_alignStart="@id/search_text_clear"></Button>
+            android:translationZ="5dp"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_alignEnd="@id/search_text_field">
+
+            <include layout="@layout/item_users_icons" />
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <EditText
             android:id="@+id/search_text_field"

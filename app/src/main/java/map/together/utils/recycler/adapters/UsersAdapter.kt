@@ -18,9 +18,9 @@ class UsersAdapter(
         super.onBindViewHolder(holder, position)
         val item = data[position]
         val layerHolder = (holder as UsersViewHolder)
-
-        layerHolder.setOnItemClickListener {
-            onClick.invoke(item)
-        }
+//
+//        layerHolder.setOnItemClickListener {
+//            onClick.invoke(item)
+//        }
     }
 }

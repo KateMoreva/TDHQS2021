@@ -132,7 +132,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         //TODO: LOAD meta from sever
 
         val layerPlaces = mutableListOf<PlaceEntity>()
-        mapUsers.addAll(mutableListOf(UserItem("1", "rjcnz"), UserItem("1", "rjcnz")))
+        mapUsers.addAll(mutableListOf(UserItem("0", "rjcnz"), UserItem("1", "rjcnz")))
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
@@ -364,24 +364,28 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             }
         })
 
-        open_users.setOnClickListener {
-            showUsersMenu()
-        }
-
-        val usersList = ItemsList(mapUsers)
         val usersAdapter = UsersAdapter(
             holderType = UsersViewHolder::class,
-            layoutId = R.layout.item_layer,
-            dataSource = usersList,
+            layoutId = R.layout.item_user,
+            dataSource = ItemsList(mapUsers),
             onClick = { user ->
                 print("Layer $user clicked")
             },
 //            onRemove = {
-//                // todo: check that user can delete this layer and delete it
+//
 //                layersList.remove(it)
 //            },
 
         )
+
+        users_list.adapter = usersAdapter
+        val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        users_list.layoutManager = usersManager
+
+
+        open_users.setOnClickListener {
+            showUsersMenu()
+        }
 
         val layers = mutableListOf(
             LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
