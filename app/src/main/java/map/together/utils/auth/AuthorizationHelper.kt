@@ -9,7 +9,7 @@ object AuthorizationHelper {
 
     private const val PASSWORD_PATTERN = "[a-zA-Z0-9_/!?&*.,]{6,40}"
 
-    private const val NAME_PATTERN = "^\\S{2,}\$"
+    private const val NAME_PATTERN = "^\\S{2,50}\$"
 
     @SignUpDataCorrectType
     fun checkCorrectnessInputData(userSignUpInfo: UserSignUpInfo): Int {

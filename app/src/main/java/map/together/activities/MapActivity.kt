@@ -36,30 +36,37 @@ import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
 import kotlinx.android.synthetic.main.item_menu.*
+import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.*
+import map.together.db.entity.CategoryEntity
+import map.together.db.entity.PlaceCategoryEntity
+import map.together.db.entity.PlaceEntity
+import map.together.db.entity.UserEntity
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.items.SearchItem
+import map.together.items.UserItem
 import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
 import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
+import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
+import map.together.viewholders.UsersViewHolder
+import kotlin.math.roundToInt
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 
-class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
-    Session.SearchListener {
+class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener {
 
     var mapUpdater: MapUpdater? = null
-
     val SPB = Point(59.9408455, 30.3131542)
 
     //TODO: loading from bundle
@@ -93,6 +100,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     var selectedObject: GeoObject? = null
     var loadingObjId = -1L
     val searchResults: MutableList<SearchItem> = ArrayList()
+    val mapUsers: MutableList<UserItem> = ArrayList()
+    val userLayer: MutableMap<Long, Long> = HashMap()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: com.yandex.mapkit.map.Map, p1: Point) {}
@@ -135,6 +144,26 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
 
         val layerPlaces = mutableListOf<PlaceEntity>()
+        getUsers(currentMapId) { users ->
+            mapUsers.addAll(userItemFromEntity(users))
+            var usersList = ItemsList(mapUsers)
+            val usersAdapter = UsersAdapter(
+                holderType = UsersViewHolder::class,
+                layoutId = R.layout.item_user,
+                dataSource = usersList,
+                onClick = { user ->
+                    print("Layer $user clicked")
+                },
+                onRemove = { item ->
+                    usersList.remove(item)
+                },
+
+                )
+
+            users_list.adapter = usersAdapter
+            val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            users_list.layoutManager = usersManager
+        }
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
@@ -238,13 +267,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
                 search_res_list.visibility = View.VISIBLE
-                search_text_clear.visibility = View.VISIBLE
-                search_text_field.setSelection(search_text_field.length())
+                search_text_field.setSelection(0)
                 imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
                 search_res_list.visibility = View.INVISIBLE
                 search_text_clear.visibility = View.INVISIBLE
+                search_text_field.setText("")
+                searchResults.clear()
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
                 geoSearch = true
             }
@@ -252,7 +282,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         search_text_clear.setOnClickListener {
             search_text_field.setText("")
             searchResults.clear()
-
         }
 
         search_text_field.addTextChangedListener(object : TextWatcher {
@@ -271,6 +300,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
+                if (s.length > 0) {
+                    search_text_clear.visibility = View.VISIBLE
+                }
                 if (s.length > 2) {
                     geoSearch = false
                     val adapter = SearchResAdapter(
@@ -278,7 +310,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                         layoutId = R.layout.item_search_result,
                         dataSource = ItemsList(searchResults),
                         onClick = { item ->
-                            //TODO: Fix onClick
                             if (item.coord.longitude != 0.0) {
                                 val y = mapview.map.maxZoom.roundToInt()
                                 geoSearch = true
@@ -368,15 +399,38 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             }
         })
 
+
+        val usersBottomSheetBehavior = from(users_edit_menu)
+        usersBottomSheetBehavior.setState(STATE_HIDDEN);
+
+        usersBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                val layoutParams = users_edit_menu.layoutParams
+                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                if (newState == STATE_HALF_EXPANDED) {
+                    layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
+                }
+                users_edit_menu.layoutParams = layoutParams
+            }
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+
+            }
+        })
+
+        open_users.setOnClickListener {
+            showUsersMenu()
+        }
+
         val layers = mutableListOf(
-                LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
-                LayerItem("1", "Слой 1", true, 2, false),
-                LayerItem("2", "Слой 2", false, 2, false)
+            LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
+            LayerItem("1", "Слой 1", true, 2, false),
+            LayerItem("2", "Слой 2", false, 2, false)
         )
         val layersList = ItemsList(layers)
         val adapter = LayersAdapter(
-                holderType = LayerViewHolder::class,
-                layoutId = R.layout.item_layer,
+            holderType = LayerViewHolder::class,
+            layoutId = R.layout.item_layer,
                 dataSource = layersList,
                 onClick = { layer ->
                     print("Layer $layer clicked")
@@ -490,6 +544,18 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
     }
 
+    fun hideKeyboard() {
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = this.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(this)
+        }
+        view.clearFocus()
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     fun drawPlaces(places: List<PlaceEntity>) {
         for (place in places) {
             getCategory(
@@ -519,6 +585,32 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 }
             }
         }
+    }
+
+    fun getUsers(
+        mapId: Long, actionsAfter: (
+            List<UserEntity>
+        ) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val userMaps = it.userMapDao().getByMapId(mapId)
+                val userIds = userMaps.map { userMapEntity -> userMapEntity.userId }
+                val users = it.userDao().getByIds(userIds.filterNot { id -> id == currentUserID })
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(users)
+                }
+            }
+        }
+    }
+
+
+    fun userItemFromEntity(usersEntities: List<UserEntity>): List<UserItem> {
+        val userItems: MutableList<UserItem> = ArrayList()
+        for (userEntity in usersEntities) {
+            userItems.add(UserItem(userEntity.id.toString(), userEntity.userName))
+        }
+        return userItems
     }
 
     fun getCategory(
@@ -817,7 +909,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     }
 
     override fun onMapTap(p0: com.yandex.mapkit.map.Map, p1: Point) {
-        ///TODO: Обработка попадания на тэг
+        hideKeyboard()
+        search_text_field.visibility = View.INVISIBLE
+        search_res_list.visibility = View.INVISIBLE
+        search_text_clear.visibility = View.INVISIBLE
+        search_text_field.setText("")
+        searchResults.clear()
+        geoSearch = true
         preLoad = false
         if (!isLinePointClick) {
             geoSearch = true
@@ -869,6 +967,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
     }
 
+    private fun hideUsersMenu() {
+        val usersBottomSheetBehavior = from(users_edit_menu)
+        usersBottomSheetBehavior.setState(STATE_HIDDEN)
+        category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
+    }
+
     override fun onMapLongTap(p0: com.yandex.mapkit.map.Map, p1: Point) {
         preLoad = false
         if (!isLinePointClick) {
@@ -885,6 +989,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
             tagBottomSheetBehavior.isDraggable = true
             tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+        }
+    }
+
+    private fun showUsersMenu() {
+        val usersBottomSheetBehavior = from(users_edit_menu)
+        if (!usersBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
+            usersBottomSheetBehavior.isDraggable = true
+            usersBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
         }
     }
 

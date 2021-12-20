@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
 import map.together.R
+import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.utils.recycler.adapters.CategoriesAdapter
@@ -32,10 +33,24 @@ class SettingsCategoriesFragment : BaseFragment() {
                 dataSource = categoriesList,
                 onClick = { category ->
                     print("Category $category clicked")
+                    val dialog = CategoryColorDialog()
+                    dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
+                    val ff = dialog.selectedColor
+//                    categoriesList.remove(category)
+                    category.colorRecourse = ff
+                    val nam = dialog.categoryName
+                    category.name = nam
+//                    categoriesList.add(category)
 
                 },
                 onEdit = { category ->
                     print("Category $category onChange")
+                    val dialog = CategoryColorDialog()
+                    dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
+                    val ff = dialog.selectedColor
+                    category.colorRecourse = ff
+                    val nam = dialog.categoryName
+                    category.name = nam
                 },
                 onRemove = { category ->
                     print("Category $category deleted")
@@ -49,8 +64,10 @@ class SettingsCategoriesFragment : BaseFragment() {
         checkCategoriesList(categoriesList)
 
         add_category_btn.setOnClickListener {
-            val newCategory = CategoryItem(categoriesList.size().toString(),
-                    "Новая категория " + categoriesList.size())
+            val newCategory = CategoryItem(
+                categoriesList.size().toString(),
+                "Новая категория " + categoriesList.size(), R.color.grey
+            )
             categoriesList.addLast(newCategory)
             categories_list.smoothScrollToPosition(categoriesList.size() - 1)
             checkCategoriesList(categoriesList)

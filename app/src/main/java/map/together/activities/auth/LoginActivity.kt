@@ -35,7 +35,7 @@ class LoginActivity : BaseActivity() {
                 password_et.text.toString()
             )
             taskContainer.add(
-                Api.login(token).subscribe(
+                Api.fakeLogin(token).subscribe(
                     { onResponse(it, token) },
                     { onFail(it) }
                 )
