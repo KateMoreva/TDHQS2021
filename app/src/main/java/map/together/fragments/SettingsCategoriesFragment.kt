@@ -13,44 +13,38 @@ import map.together.items.ItemsList
 import map.together.utils.recycler.adapters.CategoriesAdapter
 import map.together.viewholders.CategoryViewHolder
 
-class SettingsCategoriesFragment : BaseFragment() {
+class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryDialogListener {
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_categories
+    val categories = mutableListOf(
+        CategoryItem("1", "Категория 1", R.color.red),
+        CategoryItem("2", "Категория 2", R.color.green),
+        CategoryItem("3", "Категория 3", R.color.blue),
+    )
+    val categoriesList = ItemsList(categories)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // TODO: load categories from the server or get them from the local DB
-        val categories = mutableListOf(
-                CategoryItem("1", "Категория 1", R.color.red),
-                CategoryItem("2", "Категория 2", R.color.green),
-                CategoryItem("3", "Категория 3", R.color.blue),
-        )
-        val categoriesList = ItemsList(categories)
-        val adapter = CategoriesAdapter(
-                holderType = CategoryViewHolder::class,
-                layoutId = R.layout.item_category,
-                dataSource = categoriesList,
-                onClick = { category ->
-                    print("Category $category clicked")
-                    val dialog = CategoryColorDialog()
-                    dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
-                    val ff = dialog.selectedColor
-//                    categoriesList.remove(category)
-                    category.colorRecourse = ff
-                    val nam = dialog.categoryName
-                    category.name = nam
-//                    categoriesList.add(category)
 
-                },
+        val adapter = CategoriesAdapter(
+            holderType = CategoryViewHolder::class,
+            layoutId = R.layout.item_category,
+            dataSource = categoriesList,
+            onClick = {
+                CategoryColorDialog(it, this).show(
+                    requireActivity().supportFragmentManager,
+                    "CategoryColorDialog"
+                )
+
+            },
                 onEdit = { category ->
                     print("Category $category onChange")
-                    val dialog = CategoryColorDialog()
-                    dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
-                    val ff = dialog.selectedColor
-                    category.colorRecourse = ff
-                    val nam = dialog.categoryName
-                    category.name = nam
+                    CategoryColorDialog(
+                        category,
+                        this
+                    ).show(requireActivity().supportFragmentManager, "CategoryColorDialog")
                 },
                 onRemove = { category ->
                     print("Category $category deleted")
@@ -85,5 +79,17 @@ class SettingsCategoriesFragment : BaseFragment() {
     }
 
     override fun getAppbarTitle(): Int = R.string.change_categories
+
+    override fun onSaveParameterClick(item: CategoryItem) {
+        println(item.toString())
+        categoriesList.let {
+            val indexOf = it.indexOf(item)
+            if (indexOf == -1) {
+                it.addLast(item)
+            } else {
+                it.update(indexOf, item)
+            }
+        }
+    }
 
 }

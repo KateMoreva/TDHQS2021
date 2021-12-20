@@ -8,14 +8,17 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.category_color_dialog.*
 import kotlinx.android.synthetic.main.category_color_dialog.view.*
 import map.together.R
+import map.together.items.CategoryItem
 
-class CategoryColorDialog : DialogFragment() {
+class CategoryColorDialog(
+    private val item: CategoryItem,
+    private val listener: CategoryDialogListener
+) : DialogFragment() {
     var selectedColor: Int = 0
     var drawableColor: ImageView? = null
     var categoryName: String = ""
@@ -58,6 +61,11 @@ class CategoryColorDialog : DialogFragment() {
             colorAcid = view.category_color_acid
             save = view.save_category
             selecded = view.selected_category_color
+            view.category_name.setText(item.name)
+            selecded!!.setColorFilter(
+                ContextCompat.getColor(this.requireContext(), item.colorRecourse),
+                android.graphics.PorterDuff.Mode.SRC_IN
+            );
 
             colorRed!!.setOnClickListener {
                 selectedColor = R.color.red
@@ -170,10 +178,17 @@ class CategoryColorDialog : DialogFragment() {
 
             save!!.setOnClickListener {
                 categoryName = view.category_name.text.toString()
+                item.name = categoryName
+                item.colorRecourse = selectedColor
+                listener.onSaveParameterClick(item)
                 dialog.dismiss()
             }
 
             dialog
         } ?: throw IllegalStateException("Activity cannot be null")
+    }
+
+    interface CategoryDialogListener {
+        fun onSaveParameterClick(item: CategoryItem)
     }
 }
