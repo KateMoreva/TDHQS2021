@@ -40,15 +40,7 @@ import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.*
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.PlaceCategoryEntity
-import map.together.db.entity.PlaceEntity
-import map.together.db.entity.UserEntity
-import map.together.items.CategoryItem
-import map.together.items.ItemsList
-import map.together.items.LayerItem
-import map.together.items.SearchItem
-import map.together.items.UserItem
+import map.together.items.*
 import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
@@ -59,7 +51,6 @@ import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
-import kotlin.math.roundToInt
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -525,15 +516,50 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
         mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
             val currentLayers = layersList.items
-            val actualLayers: MutableList<LayerItem> = mapInfo.layers.map { layerDto ->
-                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
-                return@map if (find == null) {
-                    layerDto.toNewLayerItem()
-                } else {
-                    layerDto.updateLayerItem(find)
+            val actualLayersFromServer = mapInfo.layers
+
+            val layersToRemove = mutableListOf<LayerItem>()
+            val layersToUpdate = mutableListOf<Pair<Int, LayerItem>>()
+            // we need to understand which one should be updated, created or removed
+            currentLayers.forEachIndexed { index, layerItem ->
+                val foundLayerDto = actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
+                if (foundLayerDto == null) {
+                    if (layerItem.id != "0") {
+                        // this layer was deleted
+                        layersToRemove.add(layerItem)
+                    }
+                } else if (foundLayerDto.timestamp > layerItem.timestamp) {
+                    layersToUpdate.add(Pair(index, foundLayerDto.updateLayerItem(layerItem)))
                 }
-            }.toMutableList()
-            layersList.setData(actualLayers)
+            }
+            println("Updated layers: $layersToUpdate, removedLayers: $layersToRemove")
+            // update updated layers
+            layersToUpdate.forEach { indexAndLayerDto ->
+                layersList.update(indexAndLayerDto.first, indexAndLayerDto.second)
+            }
+            // remove removed layers
+            layersToRemove.forEach { layerItem ->
+                layersList.remove(layerItem)
+            }
+            // add new layers
+            actualLayersFromServer.filter { layerDto ->
+                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
+                return@filter find == null
+            }.forEach { layerDto ->
+                val newLayer = layerDto.toNewLayerItem()
+                println("new layer $newLayer")
+                layersList.addLast(newLayer)
+            }
+
+//            val actualLayers: MutableList<LayerItem> = mapInfo.layers.map { layerDto ->
+//                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
+//                return@map if (find == null) {
+//                    layerDto.toNewLayerItem()
+//                } else {
+//                    layerDto.updateLayerItem(find)
+//                }
+//            }.toMutableList()
+//            layersList.setData(actualLayers)
 
             mapInfo.map
             mapInfo.users

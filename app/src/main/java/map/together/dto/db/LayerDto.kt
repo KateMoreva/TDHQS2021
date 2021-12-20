@@ -23,14 +23,18 @@ data class LayerDto(
         @SerializedName("places")
         @Expose
         var places: List<PlaceDto>,
+        @SerializedName("timestamp")
+        @Expose
+        var timestamp: Long,
 ) {
         fun toNewLayerItem(): LayerItem =
-                LayerItem(id.toString(), name, true, ownerId, canEdit, false, selected = false)
+                LayerItem(id.toString(), name, true, ownerId, canEdit, false, selected = false, timestamp)
 
         fun updateLayerItem(layerToUpdate: LayerItem): LayerItem {
                 layerToUpdate.title = name
                 layerToUpdate.ownerId = ownerId
                 layerToUpdate.editable = canEdit
+                layerToUpdate.timestamp = timestamp
                 return layerToUpdate
         }
 }

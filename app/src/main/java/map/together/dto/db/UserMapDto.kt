@@ -20,4 +20,7 @@ data class UserMapDto(
         @SerializedName("roleName")
         @Expose
         var roleName: String?,
+        @SerializedName("timestamp")
+        @Expose
+        var timestamp: Long,
 )

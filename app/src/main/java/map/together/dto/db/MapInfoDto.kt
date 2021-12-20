@@ -17,4 +17,7 @@ data class MapInfoDto(
         @SerializedName("demonstrationLayers")
         @Expose
         var demonstrationLayers: List<Long>?,
+        @SerializedName("demonstrationTimestamp")
+        @Expose
+        var demonstrationTimestamp: Long,
 )
