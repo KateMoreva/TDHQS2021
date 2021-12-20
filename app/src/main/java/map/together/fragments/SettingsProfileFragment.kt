@@ -60,10 +60,10 @@ class SettingsProfileFragment : BaseFragment() {
 
     private fun getPhotoUri(): String? {
         val currentUser = CurrentUserRepository.currentUser
-        if (currentUser.value?.pictureUrlStr == null) {
+        if (currentUser.value?.photoUrl == null) {
             return null
         }
-        return IVANSON_SERVER_URL + "api/auth/photo/" + currentUser.value?.pictureUrlStr
+        return IVANSON_SERVER_URL + "api/auth/photo/" + currentUser.value?.photoUrl
     }
 
     fun loadImage() {

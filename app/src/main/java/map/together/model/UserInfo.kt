@@ -8,7 +8,7 @@ data class UserInfo(
         val id: Long,
         val userName: String,
         val email: String,
-        val pictureUrlStr: String?
+        val photoUrl: String?
 ) : Parcelable {
 
     companion object CREATOR : Parcelable.Creator<UserInfo> {
@@ -27,7 +27,7 @@ data class UserInfo(
             parcel.readLong(),
             parcel.readString() ?: NAME_UNKNOWN,
             parcel.readString() ?: NAME_UNKNOWN,
-            parcel.readString()
+            parcel.readString() ?: NAME_UNKNOWN
     )
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
@@ -35,7 +35,7 @@ data class UserInfo(
             writeLong(id)
             writeString(userName)
             writeString(email)
-            writeString(pictureUrlStr)
+            writeString(photoUrl)
         }
     }
 
@@ -45,6 +45,6 @@ data class UserInfo(
             id,
             userName,
             email,
-            pictureUrlStr
+            photoUrl
     )
 }

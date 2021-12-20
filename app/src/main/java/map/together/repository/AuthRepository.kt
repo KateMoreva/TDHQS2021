@@ -24,14 +24,14 @@ object AuthRepository {
                     user = UserEntity(
                             userInfo.userName,
                             userInfo.email,
-                            userInfo.pictureUrlStr,
+                            userInfo.photoUrl,
                             userInfo.id
                     )
                     database?.userDao()?.insert(user)
                 } else {
                     user.userName = userInfo.userName
                     user.email = userInfo.email
-                    user.photoUrl = userInfo.pictureUrlStr
+                    user.photoUrl = userInfo.photoUrl
                     user.id = userInfo.id
                     database?.userDao()?.update(user)
                 }
@@ -53,8 +53,8 @@ object AuthRepository {
     fun doOnLogout(activity: BaseActivity) {
         activity.apply {
             CurrentUserRepository.currentUser.value = null
-            getSharedPreferences("Map", Context.MODE_PRIVATE).edit().remove(USER_TOKEN).apply()
-            getSharedPreferences("Map", Context.MODE_PRIVATE).edit().remove(USER_INFO_KEY).apply()
+            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_TOKEN).apply()
+            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_INFO_KEY).apply()
             router?.showLoginPage()
             finish()
         }
