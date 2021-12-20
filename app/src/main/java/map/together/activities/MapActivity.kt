@@ -43,6 +43,8 @@ import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.items.SearchItem
+import map.together.lifecycle.MapUpdater
+import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
 import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
@@ -55,10 +57,13 @@ import kotlin.math.roundToInt
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
+
+    var mapUpdater: MapUpdater? = null
+
     val SPB = Point(59.9408455, 30.3131542)
-    //TODO: loading from meta
-    val currentUserID = 1L
-    val currentMapId = 1L
+
+    //TODO: loading from bundle
+    var currentMapId = 1L
     val currentLayerId = 1L
 
     companion object {
@@ -120,14 +125,16 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         return false
     }
 
-    private val user_id = CurrentUserRepository.currentUser.value?.id ?: 1;
-
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
-        SearchFactory.initialize(this);
+        SearchFactory.initialize(this)
         //TODO: LOAD meta from sever
+        currentMapId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
+        val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
+        mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!, {})
+        mapUpdater?.start()
 
         val layerPlaces = mutableListOf<PlaceEntity>()
 
@@ -164,16 +171,16 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             try {
                 map = database!!.mapDao().getById(last_map_id)
             } catch (ex: Exception) {
-                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", user_id))
+                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", userId))
                     val place_id = database!!.placeDao().getAll()[0].id
                     last_map_id = database!!.mapDao().insert(
                         MapEntity(
                             getString(R.string.new_map_name), place_id,
-                            main_malyer_id, user_id, true, true, "Админ", 1))
+                            main_malyer_id, userId, true, true, "Админ", 1))
                     getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
                         SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
                     map = database!!.mapDao().getById(last_map_id)
-                    database!!.userMapDao().insert(UserMapEntity(user_id, last_map_id, RoleEnum.ADMIN))
+                    database!!.userMapDao().insert(UserMapEntity(userId!!, last_map_id, RoleEnum.ADMIN))
                 database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
             }
         }
@@ -656,7 +663,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                             var placeId = -1L
                             createNewPlace(
                                 plName,
-                                user_id,
+                                userId!!,
                                 resultLocation.latitude.toString(),
                                 resultLocation.longitude.toString(),
                                 1
@@ -742,7 +749,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             (source.width / 2).toFloat() / 2,
             paint
         );
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.WHITE)
         paint.setAntiAlias(true);
         paint.setTextSize(9F);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -767,6 +774,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         // Activity onStop call must be passed to both MapView and MapKit instance.
         mapview.onStop()
         MapKitFactory.getInstance().onStop()
+        mapUpdater?.stop()
         super.onStop()
     }
 

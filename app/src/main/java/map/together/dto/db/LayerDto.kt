@@ -10,7 +10,16 @@ data class LayerDto(
         @SerializedName("name")
         @Expose
         var name: String,
-        @SerializedName("owner_id")
+        @SerializedName("ownerId")
         @Expose
         var ownerId: Long,
+        @SerializedName("canEdit")
+        @Expose
+        var canEdit: Boolean,
+        @SerializedName("canDelete")
+        @Expose
+        var canDelete: Boolean,
+        @SerializedName("places")
+        @Expose
+        var places: List<PlaceDto>,
 )

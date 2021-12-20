@@ -7,6 +7,7 @@ import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
 import map.together.dto.db.MapDto
+import map.together.dto.db.MapInfoDto
 import okhttp3.MultipartBody
 import retrofit2.Response
 
@@ -82,6 +83,11 @@ object Api {
 
     fun leaveMap(token: String, mapId: Long): Single<Response<MapDto>> =
             api.leaveMap(token, mapId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun getMapInfo(token: String, mapId: Long): Single<Response<MapInfoDto>> =
+            api.getMapinfo(token, mapId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 

@@ -42,7 +42,9 @@ class MapsListFragment : BaseFragment() {
                     MapViewHolder::class,
                     R.layout.map_list_item,
                     mapsInfo,
-                    {},
+                    { mapEntity ->
+                        (activity as BaseFragmentActivity).router?.showMainPage(mapEntity.id)
+                    },
                     { mapEntity ->
                         showDeletaAlertDialog(mapEntity)
                     }
@@ -126,7 +128,10 @@ class MapsListFragment : BaseFragment() {
                                 database.mapDao().delete(currentMap)
                             }
                             currentMaps = actualMaps.map { map -> map.toMapEntity() }.toMutableList()
-                            database.mapDao().insert(currentMaps)
+                            val ids = database.mapDao().insert(currentMaps)
+                            currentMaps.forEachIndexed { index, mapEntity ->
+                                mapEntity.id = ids[index]
+                            }
                         }
                         withContext(Dispatchers.Main) {
                             onLoaded.invoke(currentMaps)

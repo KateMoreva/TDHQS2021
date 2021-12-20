@@ -4,10 +4,7 @@ import io.reactivex.Single
 import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
-import map.together.dto.db.CategoryDto
-import map.together.dto.db.LayerDto
-import map.together.dto.db.MapDto
-import map.together.dto.db.PlaceDto
+import map.together.dto.db.*
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -65,8 +62,9 @@ interface ApiInterface {
     @POST("/api/shared/users/change_role")
     fun changeUserRole(mapId: Long, email: String, role: Long): Single<Response<UserDto>>
 
-    @GET("/api/shared/users/list")
-    fun getUsersByMap(mapId: Long, search: String?): Single<Response<List<UserDto>>>
+    @GET("/api/shared/maps/updates")
+    fun getMapinfo(@Header("Authorization") token: String,
+                   @Query("mapId") mapId: Long): Single<Response<MapInfoDto>>
 
     @POST("/api/shared/places/remove")
     fun removePlaceByLayerAndMap(
