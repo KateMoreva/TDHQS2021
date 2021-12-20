@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/padding_200">
+
+    <TextView
+        android:id="@+id/category_color_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="Category color"
+        android:textSize="25sp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/category_color_red"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_red"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_orange"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_purple"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_orange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_orange"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_red"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_yellow"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_gray"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_yellow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_yellow"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_orange"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_green"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_black"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_green"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_green"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_yellow"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_light_blue"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_purple"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_light_blue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_light_blue"
+        tools:layout_editor_absoluteX="282dp"
+        tools:layout_editor_absoluteY="74dp"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_green"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_blue"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_light_green"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_blue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_blue"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_light_blue"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_id"
+        app:layout_constraintBottom_toTopOf="@+id/category_color_acid"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_purple"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_purple"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_gray"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_red"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_gray"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_grey"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_purple"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_black"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_black"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_black"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_gray"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_pink"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_yellow"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_pink"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_pink"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_black"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_light_green"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_green"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_light_green"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_light_green"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_pink"
+        app:layout_constraintRight_toLeftOf="@+id/category_color_acid"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_light_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+
+    <ImageView
+        android:id="@+id/category_color_acid"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_category_color_acid"
+        app:layout_constraintLeft_toRightOf="@+id/category_color_light_green"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/category_color_blue"
+        app:layout_constraintBottom_toBottomOf="parent"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
