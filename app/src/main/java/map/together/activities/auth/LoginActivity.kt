@@ -1,6 +1,7 @@
 package map.together.activities.auth
 
 import android.os.Bundle
+import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
 import com.yandex.mapkit.MapKitFactory
 import kotlinx.android.synthetic.main.activity_login.*
@@ -23,7 +24,7 @@ class LoginActivity : BaseActivity() {
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        forgot_password_tv.visibility = View.INVISIBLE
         not_exist_acc_tv.setOnClickListener {
             router?.showRegistrationPage()
         }

@@ -15,9 +15,11 @@ import androidx.room.PrimaryKey
 ]
 )
 data class CategoryEntity(
-        @ColumnInfo
-        var name: String,
-        @ColumnInfo
-        var ownerId: Long?,
-        @PrimaryKey(autoGenerate = true) var id: Long = 0
+    @ColumnInfo
+    var name: String,
+    @ColumnInfo
+    var ownerId: Long,
+    @ColumnInfo
+    var colorRecourse: Int,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0
 )
