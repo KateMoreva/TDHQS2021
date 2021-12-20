@@ -22,7 +22,6 @@ import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Transaction
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.GeoObject
@@ -35,7 +34,6 @@ import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.*
 import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.search.*
-import com.yandex.mapkit.search.search_layer.SearchResultItem
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
@@ -83,10 +81,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     var preLoad = false
     var selectedLayerId: String = ""
     var selectedObjectId = ""
-    var selectedObgect: GeoObject? = null
+    var selectedObject: GeoObject? = null
     var loadingObjId = -1L
     val searchResults: MutableList<SearchItem> = ArrayList()
-    val serchedGeoObject: Point = Point()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -606,7 +603,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                     }
                 }
                 selectedObjectId = address.toString()
-                selectedObgect = geoObject
+                selectedObject = geoObject
                 checkPlaceMarked()
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
@@ -766,12 +763,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         if (preLoad) {
             return
         }
-        if (selectedObgect != null) {
+        if (selectedObject != null) {
             for (place in currentGeoObjects) {
                 val plLat = place.value.geometry[0].point?.latitude?.round(2)
                 val pLong = place.value.geometry[0].point?.longitude?.round(2)
-                val sLat = selectedObgect!!.geometry[0].point?.latitude?.round(2)
-                val sLong = selectedObgect!!.geometry[0].point?.longitude?.round(2)
+                val sLat = selectedObject!!.geometry[0].point?.latitude?.round(2)
+                val sLong = selectedObject!!.geometry[0].point?.longitude?.round(2)
                 if (plLat == sLat && pLong == sLong) {
 //                    place = placeEntity
 //                }
