@@ -8,7 +8,12 @@ import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import map.together.fragments.BaseFragment
+import map.together.fragments.MediaViewerWrapper
 import map.together.items.MediaItem
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import java.io.File
 import kotlin.random.Random
 
 
@@ -17,10 +22,12 @@ class MediaLoaderWrapper(
         editContentBtn: FloatingActionButton,
         removeContentBtn: FloatingActionButton,
         var mediaItem: MediaItem?,
-        private val onRemoveCallback: () -> Unit
+        private val onRemoveCallback: () -> Unit,
+        private val onEditCallback: (localUrl: String) -> Unit
 ) {
 
     init {
+        MediaViewerWrapper.verifyStoragePermissions(fragment.activity)
         editContentBtn.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
             intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
@@ -66,6 +73,17 @@ class MediaLoaderWrapper(
         cursor?.close()
         filePath?.let {
             mediaItem = MediaItem((Random.nextInt()).toString(), it, MediaItem.DisplayMode.FIT_CENTER)
+            onEditCallback.invoke(it)
+        }
+    }
+
+    companion object {
+        fun loadImage(imageUrl: String?): MultipartBody.Part? {
+            if (imageUrl == null)
+                return null
+            val file = File(imageUrl)
+            val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+            return MultipartBody.Part.createFormData("image", file.name, requestFile)
         }
     }
 

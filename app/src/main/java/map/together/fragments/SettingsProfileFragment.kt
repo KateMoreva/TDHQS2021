@@ -15,8 +15,10 @@ import map.together.items.MediaItem
 import map.together.repository.AuthRepository
 import map.together.repository.CurrentUserRepository
 import map.together.utils.MediaLoaderWrapper
+import map.together.utils.MediaLoaderWrapper.Companion.loadImage
 import map.together.utils.ResponseActions
 import java.net.HttpURLConnection
+import javax.net.ssl.HttpsURLConnection
 
 class SettingsProfileFragment : BaseFragment() {
 
@@ -28,25 +30,41 @@ class SettingsProfileFragment : BaseFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadImage()
+        setImage()
         val photoUri = getPhotoUri()
         val mediaItem = if (photoUri == null) null else MediaItem("0", photoUri, MediaItem.DisplayMode.FIT_CENTER)
         mediaLoaderWrapper = MediaLoaderWrapper(
                 this,
                 change_user_profile_pic_button_id,
                 remove_user_profile_pic_button_id,
-                mediaItem
-        ) {
-            val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
-            Api.changeUserData(token!!, null, null, null, "").subscribe(
+                mediaItem,
+         { changeUserPhoto("") },
+        { localUrl ->
+            (activity as BaseActivity).taskContainer.add(
+                Api.uploadImage(loadImage(localUrl)).subscribe(
+                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED,
+                                {
+                                    imageUrlDto ->  changeUserPhoto(imageUrlDto?.photoUrl ?: ""
+                                ) }, HttpsURLConnection.HTTP_BAD_REQUEST) },
+                        { ResponseActions.onFail(it, this.requireContext()) }
+                )
+            )
+
+        })
+        logout_button_id.setOnClickListener {
+            AuthRepository.doOnLogout(this.activity as BaseActivity)
+        }
+    }
+
+    private fun changeUserPhoto(url: String) {
+        val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
+        (activity as BaseActivity).taskContainer.add(
+            Api.changeUserData(token!!, null, null, null, url).subscribe(
                     { ResponseActions.onResponse(it, this.requireContext(), HttpURLConnection.HTTP_OK,
                             this::updateUser, HttpURLConnection.HTTP_BAD_REQUEST) },
                     { ResponseActions.onFail(it, this.requireContext()) }
             )
-        }
-        logout_button_id.setOnClickListener {
-            AuthRepository.doOnLogout(this.activity as BaseActivity)
-        }
+        )
     }
 
     private fun updateUser(userDto: UserDto?) {
@@ -54,7 +72,7 @@ class SettingsProfileFragment : BaseFragment() {
                 this.activity as BaseActivity, CurrentUserRepository.getCurrentUserToken(this.requireContext())!!, false,
                 userDto?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY, false
         ) {
-            loadImage()
+            setImage()
         }
     }
 
@@ -66,7 +84,7 @@ class SettingsProfileFragment : BaseFragment() {
         return IVANSON_SERVER_URL + "api/auth/photo/" + currentUser.value?.photoUrl
     }
 
-    fun loadImage() {
+    fun setImage() {
         Glide
                 .with(user_profile_picture_id)
                 .asBitmap()

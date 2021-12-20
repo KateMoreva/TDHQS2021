@@ -28,6 +28,7 @@ interface ApiInterface {
     @GET("/api/auth/login")
     fun loginRequest(@Header("Authorization") token: String): Single<Response<UserDto>>
 
+    @FormUrlEncoded
     @POST("/api/auth/profile/change")
     fun changeUserData(
             @Header("Authorization") token: String,
