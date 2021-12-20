@@ -54,8 +54,11 @@ import map.together.db.entity.PlaceEntity
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
+import map.together.items.SearchItem
 import map.together.utils.recycler.adapters.LayersAdapter
+import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.viewholders.LayerViewHolder
+import map.together.viewholders.SearchViewHolder
 import kotlin.math.roundToInt
 import kotlin.math.round
 
@@ -63,7 +66,6 @@ import kotlin.math.round
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     Session.SearchListener {
     val SPB = Point(59.9408455, 30.3131542)
-
     //TODO: loading from meta
     val currentUserID = 1L
     val currentMapId = 1L
@@ -83,7 +85,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     var selectedObjectId = ""
     var selectedObgect: GeoObject? = null
     var loadingObjId = -1L
-//    val searchResults: MutableList<SearchResultItem> = ArrayList()
+    val searchResults: MutableList<SearchItem> = ArrayList()
+    val serchedGeoObject: Point = Point()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -122,7 +125,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         MapKitFactory.initialize(this)
         SearchFactory.initialize(this);
         //TODO: LOAD meta from sever
-
+        searchResults.addAll(
+            mutableListOf(
+                SearchItem("0", "ff", "1", Point()),
+                SearchItem("1", "ss", "1", Point()),
+            )
+        )
         val layerPlaces = mutableListOf<PlaceEntity>()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
@@ -210,6 +218,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
+                search_res_list.visibility = View.INVISIBLE
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
                 geoSearch = true
             }
@@ -231,10 +240,38 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
-                if (s.length > 3) {
+                if (s.length > 2) {
                     geoSearch = false
-//                    dynamicSearch(s.toString())
+                    val adapter = SearchResAdapter(
+                        holderType = SearchViewHolder::class,
+                        layoutId = R.layout.item_search_result,
+                        dataSource = ItemsList(searchResults),
+                        onClick = { item ->
+                            //TODO: Fix onClick
+                            if (item.coord.longitude != 0.0) {
+                                val y = mapview.map.maxZoom.roundToInt()
+                                geoSearch = true
+                                searchSession = searchManager!!.submit(
+                                    item.coord,
+                                    y,
+                                    SearchOptions(),
+                                    this@MapActivity
+                                )
+                                search_text_field.visibility = View.INVISIBLE
+                                search_res_list.visibility = View.INVISIBLE
+                                val imm =
+                                    getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+//                                imm.hideSoftInputFromWindow(VIEW,  0)
+                            }
+                        },
+                    )
+                    search_res_list.adapter = adapter
+                    val layoutManager =
+                        LinearLayoutManager(this@MapActivity, RecyclerView.VERTICAL, false)
+                    search_res_list.layoutManager = layoutManager
+                    search_res_list.visibility = View.VISIBLE
 
+                    dynamicSearch(s.toString())
                 }
             }
         })
@@ -632,7 +669,19 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             }
             else -> {
                 for (searchResult in response.getCollection().getChildren()) {
-                    //Normal
+                    val geoObject = searchResult.obj!!
+                    val address = geoObject.name
+                    val desc = geoObject.descriptionText
+                    val resultLocation = geoObject.geometry[0].point
+                    if (resultLocation != null) {
+                        val serch = SearchItem(
+                            searchResults.size.toString(),
+                            address.toString(),
+                            desc.toString(),
+                            resultLocation
+                        )
+                        searchResults.add(serch)
+                    }
                 }
             }
         }
@@ -737,20 +786,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 }
             }
         }
-
-//
-//        if (selectedObjectAddress.isNotEmpty()) {
-//            for (place in currentAddress) {
-//                if (place.value == selectedObjectAddress) {
-//                    category_on_tap_save_changes_id.setText(resources.getText(R.string.delete))
-//                    val placeName =
-//                        currentPlaces.filter { placeEntity -> placeEntity.id == place.key }
-//                    if (placeName.isNotEmpty()) {
-//                        category_on_tap_place_name_id.setText(placeName[0].name)
-//                    }
-//                }
-//            }
-//        }
     }
 
     private fun dynamicSearch(s: String) {
