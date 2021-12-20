@@ -5,6 +5,7 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import android.widget.TextView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.item_user.view.*
 import map.together.R
 import map.together.items.UserItem
@@ -14,6 +15,7 @@ class UsersViewHolder(
 ) : BaseViewHolder<UserItem>(itemView) {
 
     private var name: TextView = itemView.user_name_text
+    private var remove: FloatingActionButton = itemView.remove_user
 
     //    private var roles = UserRoles
     private var rolesList: List<String> = mutableListOf("FFF", "ggg")
@@ -48,4 +50,8 @@ class UsersViewHolder(
 //            onClick(it)
 //        }
 //    }
+
+    fun setOnRemoveItemClickListener(onRemove: (View) -> Unit) {
+        remove.setOnClickListener(onRemove)
+    }
 }

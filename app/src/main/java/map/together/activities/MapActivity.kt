@@ -52,6 +52,7 @@ import map.together.R
 import map.together.db.entity.CategoryEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
+import map.together.db.entity.UserEntity
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
@@ -132,7 +133,26 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         //TODO: LOAD meta from sever
 
         val layerPlaces = mutableListOf<PlaceEntity>()
-        mapUsers.addAll(mutableListOf(UserItem("0", "rjcnz"), UserItem("1", "rjcnz")))
+        getUsers(currentMapId) { users ->
+            mapUsers.addAll(userItemFromEntity(users))
+            var usersList = ItemsList(mapUsers)
+            val usersAdapter = UsersAdapter(
+                holderType = UsersViewHolder::class,
+                layoutId = R.layout.item_user,
+                dataSource = usersList,
+                onClick = { user ->
+                    print("Layer $user clicked")
+                },
+                onRemove = { item ->
+                    usersList.remove(item)
+                },
+
+                )
+
+            users_list.adapter = usersAdapter
+            val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+            users_list.layoutManager = usersManager
+        }
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
@@ -364,25 +384,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             }
         })
 
-        val usersAdapter = UsersAdapter(
-            holderType = UsersViewHolder::class,
-            layoutId = R.layout.item_user,
-            dataSource = ItemsList(mapUsers),
-            onClick = { user ->
-                print("Layer $user clicked")
-            },
-//            onRemove = {
-//
-//                layersList.remove(it)
-//            },
-
-        )
-
-        users_list.adapter = usersAdapter
-        val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-        users_list.layoutManager = usersManager
-
-
         open_users.setOnClickListener {
             showUsersMenu()
         }
@@ -531,6 +532,32 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 }
             }
         }
+    }
+
+    fun getUsers(
+        mapId: Long, actionsAfter: (
+            List<UserEntity>
+        ) -> Unit
+    ) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val userMaps = it.userMapDao().getByMapId(mapId)
+                val userIds = userMaps.map { userMapEntity -> userMapEntity.userId }
+                val users = it.userDao().getByIds(userIds)
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(users)
+                }
+            }
+        }
+    }
+
+
+    fun userItemFromEntity(usersEntities: List<UserEntity>): List<UserItem> {
+        val userItems: MutableList<UserItem> = ArrayList()
+        for (userEntity in usersEntities) {
+            userItems.add(UserItem(userEntity.id.toString(), userEntity.userName))
+        }
+        return userItems
     }
 
     fun getCategory(

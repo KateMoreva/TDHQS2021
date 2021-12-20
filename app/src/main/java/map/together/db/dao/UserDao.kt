@@ -16,6 +16,9 @@ interface UserDao {
     @Query("SELECT * FROM UserEntity WHERE id = :id")
     fun getById(id: Long): UserEntity
 
+    @Query("SELECT * FROM UserEntity WHERE id in (:ids)")
+    fun getByIds(ids: List<Long>): List<UserEntity>
+
     @Query("SELECT * FROM UserEntity WHERE email = :email")
     fun getByEmail(email: String): UserEntity
 

@@ -121,6 +121,7 @@
     <string name="enter_new_name">Введите новое имя</string>
 
     <string name="delete_category_confirmation">Вы уверены, что хотите удалить категорию?</string>
+    <string name="delete_user_confirmation">Вы уверены, что хотите удалить пользователя с карты?</string>
 
     <string name="yes">Да</string>
     <string name="no">Нет</string>
