@@ -6,6 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
+import map.together.dto.db.MapDto
 import okhttp3.MultipartBody
 import retrofit2.Response
 
@@ -63,6 +64,26 @@ object Api {
         api.loginRequest(token)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    fun getMyMaps(token: String, search: String?): Single<Response<List<MapDto>>> =
+            api.getMyMaps(token, search)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun createMap(token: String, name: String): Single<Response<MapDto>> =
+            api.createMap(token, name)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun removeMap(token: String, mapId: Long): Single<Response<MapDto>> =
+            api.removeMap(token, mapId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun leaveMap(token: String, mapId: Long): Single<Response<MapDto>> =
+            api.leaveMap(token, mapId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
 
     fun fakeLogin(token: String): Single<Response<UserDto>> {
         val testUser = UserDto(

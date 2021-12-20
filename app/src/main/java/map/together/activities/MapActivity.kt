@@ -3,14 +3,8 @@ package map.together.activities
 
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
-import android.content.SharedPreferences
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -34,7 +28,6 @@ import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
 import com.yandex.mapkit.map.*
-import com.yandex.mapkit.map.Map
 import com.yandex.mapkit.search.*
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
@@ -42,34 +35,22 @@ import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
-import kotlinx.android.synthetic.main.item_layers_menu.layers_menu
 import kotlinx.android.synthetic.main.item_menu.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import map.together.R
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.PlaceCategoryEntity
-import map.together.db.entity.PlaceEntity
+import map.together.db.entity.*
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.items.SearchItem
+import map.together.repository.CurrentUserRepository
+import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.viewholders.LayerViewHolder
-
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import map.together.db.entity.*
-import map.together.repository.CurrentUserRepository
-import map.together.utils.RoleEnum
 import map.together.viewholders.SearchViewHolder
-import kotlin.math.roundToInt
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
@@ -109,8 +90,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     val searchResults: MutableList<SearchItem> = ArrayList()
 
     private val polylineListener = object : InputListener {
-        override fun onMapLongTap(p0: Map, p1: Point) {}
-        override fun onMapTap(p0: Map, p1: Point) {
+        override fun onMapLongTap(p0: com.yandex.mapkit.map.Map, p1: Point) {}
+        override fun onMapTap(p0: com.yandex.mapkit.map.Map, p1: Point) {
             polyline.points.add(p1)
             p0.mapObjects.addPlacemark(p1)
             p0.mapObjects.addPolyline(Polyline(polyline.points))
@@ -139,7 +120,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         return false
     }
 
-    private val user_id = CurrentUserRepository.currentUser.value!!.id;
+    private val user_id = CurrentUserRepository.currentUser.value?.id ?: 1;
 
     @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -188,7 +169,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                     last_map_id = database!!.mapDao().insert(
                         MapEntity(
                             getString(R.string.new_map_name), place_id,
-                            main_malyer_id, user_id))
+                            main_malyer_id, user_id, true, true, "Админ", 1))
                     getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
                         SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
                     map = database!!.mapDao().getById(last_map_id)
@@ -360,6 +341,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             }
         })
 
+        open_button.setOnClickListener {
+            router?.showMapsLibraryPage()
+        }
 
         val tagBottomSheetBehavior = from(tag_edit_menu)
         tagBottomSheetBehavior.setState(STATE_HIDDEN);
@@ -807,7 +791,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         return if (realHeight > usableHeight) realHeight - usableHeight else 0
     }
 
-    override fun onMapTap(p0: Map, p1: Point) {
+    override fun onMapTap(p0: com.yandex.mapkit.map.Map, p1: Point) {
         ///TODO: Обработка попадания на тэг
         preLoad = false
         if (!isLinePointClick) {
@@ -860,7 +844,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
     }
 
-    override fun onMapLongTap(p0: Map, p1: Point) {
+    override fun onMapLongTap(p0: com.yandex.mapkit.map.Map, p1: Point) {
         preLoad = false
         if (!isLinePointClick) {
             val y = mapview.map.maxZoom.roundToInt()

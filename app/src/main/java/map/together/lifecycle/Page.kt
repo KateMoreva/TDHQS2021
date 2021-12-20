@@ -1,6 +1,7 @@
 package map.together.lifecycle
 
 import map.together.activities.MapActivity
+import map.together.activities.MapsListFragment
 import map.together.activities.auth.LoginActivity
 import map.together.activities.auth.RegistrationActivity
 import map.together.fragments.AboutFragment
@@ -48,6 +49,10 @@ sealed class Page : Serializable {
 
         object SettingsCategories : Fragment() {
             override val clazz = SettingsCategoriesFragment::class
+        }
+
+        object MapsLibrary : Fragment() {
+            override val clazz = MapsListFragment::class
         }
 
     }

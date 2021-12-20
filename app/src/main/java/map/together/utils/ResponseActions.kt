@@ -8,7 +8,7 @@ import retrofit2.Response
 
 object ResponseActions {
 
-    fun<T> onResponse(response: Response<T>, context: Context, okStatus: Int, okCallback: (T?) -> Unit, failStatus: Int) {
+    fun<T> onResponse(response: Response<T>, context: Context, okStatus: Int, failStatus: Int, okCallback: (T?) -> Unit) {
         when (response.code()) {
             okStatus -> {
                 okCallback.invoke(response.body())

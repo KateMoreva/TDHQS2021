@@ -42,10 +42,10 @@ class SettingsProfileFragment : BaseFragment() {
         { localUrl ->
             (activity as BaseActivity).taskContainer.add(
                 Api.uploadImage(loadImage(localUrl)).subscribe(
-                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED,
-                                {
-                                    imageUrlDto ->  changeUserPhoto(imageUrlDto?.photoUrl ?: ""
-                                ) }, HttpsURLConnection.HTTP_BAD_REQUEST) },
+                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED, HttpsURLConnection.HTTP_BAD_REQUEST
+                        ) { imageUrlDto ->
+                            changeUserPhoto(imageUrlDto?.photoUrl ?: "")
+                        } },
                         { ResponseActions.onFail(it, this.requireContext()) }
                 )
             )
@@ -62,8 +62,8 @@ class SettingsProfileFragment : BaseFragment() {
         val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
         (activity as BaseActivity).taskContainer.add(
             Api.changeUserData(token!!, null, null, null, url).subscribe(
-                    { ResponseActions.onResponse(it, this.requireContext(), HttpURLConnection.HTTP_OK,
-                            this::updateUser, HttpURLConnection.HTTP_BAD_REQUEST) },
+                    { ResponseActions.onResponse(it, this.requireContext(),
+                            HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST, this::updateUser)},
                     { ResponseActions.onFail(it, this.requireContext()) }
             )
         )

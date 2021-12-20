@@ -40,6 +40,10 @@ class Router(private val activity: Activity) {
         showPage(Page.Fragment.SettingsCategories)
     }
 
+    fun showMapsLibraryPage() {
+        showPage(Page.Fragment.MapsLibrary)
+    }
+
 
     private fun showPage(page: Page, bundle: Bundle? = null) {
         Logger.d(this, "showPage $page")

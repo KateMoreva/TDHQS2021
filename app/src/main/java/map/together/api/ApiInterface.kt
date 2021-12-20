@@ -48,10 +48,13 @@ interface ApiInterface {
     fun getMyLayers(search: String?): Single<Response<List<LayerDto>>>
 
     @GET("/api/owner/maps")
-    fun getMyMaps(search: String?): Single<Response<List<MapDto>>>
+    fun getMyMaps(@Header("Authorization") token: String,
+                  @Query("search") search: String?): Single<Response<List<MapDto>>>
 
+    @FormUrlEncoded
     @POST("/api/owner/maps/create")
-    fun createMap(mapName: String): Single<Response<MapDto>>
+    fun createMap(@Header("Authorization") token: String,
+                  @Field("mapName") mapName: String): Single<Response<MapDto>>
 
     @POST("/api/owner/categories/create")
     fun createCategory(categoryName: String): Single<Response<CategoryDto>>
@@ -90,8 +93,15 @@ interface ApiInterface {
         categoryId: Long
     ): Single<Response<PlaceDto>>
 
+    @FormUrlEncoded
     @POST("/api/shared/maps/remove")
-    fun removeMap(mapId: Long): Single<Response<MapDto>>
+    fun removeMap(@Header("Authorization") token: String,
+                  @Field("mapId") mapId: Long): Single<Response<MapDto>>
+
+    @FormUrlEncoded
+    @POST("/api/shared/maps/leave")
+    fun leaveMap(@Header("Authorization") token: String,
+                  @Field("mapId") mapId: Long): Single<Response<MapDto>>
 
     @POST("/api/shared/maps/change")
     fun changeMap(mapId: Long, newName: String): Single<Response<MapDto>>
