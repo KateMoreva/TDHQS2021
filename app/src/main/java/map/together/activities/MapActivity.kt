@@ -63,9 +63,9 @@ import kotlin.math.roundToInt
 import kotlin.math.round
 
 
-class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
-    Session.SearchListener {
+class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener {
     val SPB = Point(59.9408455, 30.3131542)
+
     //TODO: loading from meta
     val currentUserID = 1L
     val currentMapId = 1L
@@ -209,13 +209,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
             if (search_text_field.visibility == View.INVISIBLE) {
                 search_text_field.visibility = View.VISIBLE
                 search_res_list.visibility = View.VISIBLE
-                search_text_clear.visibility = View.VISIBLE
-                search_text_field.setSelection(search_text_field.length())
+                search_text_field.setSelection(0)
                 imm.toggleSoftInputFromWindow(view.windowToken, InputMethodManager.SHOW_FORCED, 0)
             } else {
                 search_text_field.visibility = View.INVISIBLE
                 search_res_list.visibility = View.INVISIBLE
                 search_text_clear.visibility = View.INVISIBLE
+                search_text_field.setText("")
+                searchResults.clear()
                 imm.hideSoftInputFromWindow(view.windowToken, 0)
                 geoSearch = true
             }
@@ -223,7 +224,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         search_text_clear.setOnClickListener {
             search_text_field.setText("")
             searchResults.clear()
-
         }
 
         search_text_field.addTextChangedListener(object : TextWatcher {
@@ -242,6 +242,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 s: CharSequence, start: Int,
                 before: Int, count: Int
             ) {
+                if (s.length > 0) {
+                    search_text_clear.visibility = View.VISIBLE
+                }
                 if (s.length > 2) {
                     geoSearch = false
                     val adapter = SearchResAdapter(
@@ -437,6 +440,18 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
+    }
+
+    fun hideKeyboard() {
+        val imm = this.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        //Find the currently focused view, so we can grab the correct window token from it.
+        var view = this.currentFocus
+        //If no view currently has focus, create a new one, just so we can grab a window token from it
+        if (view == null) {
+            view = View(this)
+        }
+        view.clearFocus()
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
     fun drawPlaces(places: List<PlaceEntity>) {
@@ -765,7 +780,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
     }
 
     override fun onMapTap(p0: Map, p1: Point) {
-        ///TODO: Обработка попадания на тэг
+        hideKeyboard()
+        search_text_field.visibility = View.INVISIBLE
+        search_res_list.visibility = View.INVISIBLE
+        search_text_clear.visibility = View.INVISIBLE
+        search_text_field.setText("")
+        searchResults.clear()
+        geoSearch = true
         preLoad = false
         if (!isLinePointClick) {
             geoSearch = true
