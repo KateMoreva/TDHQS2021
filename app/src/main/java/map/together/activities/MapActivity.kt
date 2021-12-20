@@ -125,12 +125,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         MapKitFactory.initialize(this)
         SearchFactory.initialize(this);
         //TODO: LOAD meta from sever
-        searchResults.addAll(
-            mutableListOf(
-                SearchItem("0", "ff", "1", Point()),
-                SearchItem("1", "ss", "1", Point()),
-            )
-        )
+
         val layerPlaces = mutableListOf<PlaceEntity>()
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
@@ -258,7 +253,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                                     this@MapActivity
                                 )
                                 search_text_field.visibility = View.INVISIBLE
-                                search_res_list.visibility = View.INVISIBLE
+                                search_res_list.visibility = View.GONE
+                                searchResults.clear()
                                 val imm =
                                     getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
 //                                imm.hideSoftInputFromWindow(VIEW,  0)
