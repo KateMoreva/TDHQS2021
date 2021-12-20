@@ -27,6 +27,16 @@ data class MapEntity(
         var centerPlaceId: Long?,
         @ColumnInfo
         var mainLayerId: Long?,
+        @ColumnInfo(name = "owner")
+        var ownerId: Long?,
+        @ColumnInfo
+        var canDelete: Boolean,
+        @ColumnInfo
+        var canEdit: Boolean,
+        @ColumnInfo
+        var roleName: String,
+        @ColumnInfo
+        var participantsCount: Int,
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0
 )

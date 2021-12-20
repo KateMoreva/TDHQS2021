@@ -8,10 +8,16 @@ data class UserMapDto(
         @SerializedName("id")
         @Expose
         val id: Long,
-        @SerializedName("user_id")
+        @SerializedName("email")
         @Expose
-        var userId: Long,
-        @SerializedName("map_id")
+        var email: String,
+        @SerializedName("userName")
         @Expose
-        var mapId: Long,
+        var userName: String,
+        @SerializedName("photoUrl")
+        @Expose
+        var photoUrl: String?,
+        @SerializedName("roleName")
+        @Expose
+        var roleName: String?,
 )

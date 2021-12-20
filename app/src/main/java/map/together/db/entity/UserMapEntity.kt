@@ -25,5 +25,7 @@ data class UserMapEntity(
         var userId: Long,
         @ColumnInfo
         var mapId: Long,
+        @ColumnInfo
+        var role: Long,
         var serverId: Long = -1,
 )

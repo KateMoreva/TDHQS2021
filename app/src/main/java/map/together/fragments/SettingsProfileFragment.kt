@@ -38,25 +38,18 @@ class SettingsProfileFragment : BaseFragment() {
         val photoUri = getPhotoUri()
         val mediaItem = if (photoUri == null) null else MediaItem("0", photoUri, MediaItem.DisplayMode.FIT_CENTER)
         mediaLoaderWrapper = MediaLoaderWrapper(
-            this,
-            change_user_profile_pic_button_id,
-            remove_user_profile_pic_button_id,
-            mediaItem,
-            { changeUserPhoto("") },
-            { localUrl ->
-                (activity as BaseActivity).taskContainer.add(
-                    Api.uploadImage(loadImage(localUrl)).subscribe(
-                        {
-                            ResponseActions.onResponse(it,
-                                this.requireContext(),
-                                HttpsURLConnection.HTTP_CREATED,
-                                { imageUrlDto ->
-                                    changeUserPhoto(
-                                        imageUrlDto?.photoUrl ?: ""
-                                    )
-                                },
-                                HttpsURLConnection.HTTP_BAD_REQUEST
-                            )
+                this,
+                change_user_profile_pic_button_id,
+                remove_user_profile_pic_button_id,
+                mediaItem,
+         { changeUserPhoto("") },
+        { localUrl ->
+            (activity as BaseActivity).taskContainer.add(
+                Api.uploadImage(loadImage(localUrl)).subscribe(
+                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED, HttpsURLConnection.HTTP_BAD_REQUEST
+                        ) { imageUrlDto ->
+                            changeUserPhoto(imageUrlDto?.photoUrl ?: "")
+                        }
                         },
                         { ResponseActions.onFail(it, this.requireContext()) }
                     )
@@ -111,13 +104,10 @@ class SettingsProfileFragment : BaseFragment() {
         val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
         (activity as BaseActivity).taskContainer.add(
             Api.changeUserData(token!!, null, null, null, url).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it, this.requireContext(), HttpURLConnection.HTTP_OK,
-                        this::updateUser, HttpURLConnection.HTTP_BAD_REQUEST
-                    )
-                },
-                { ResponseActions.onFail(it, this.requireContext()) }
+                    { ResponseActions.onResponse(it, this.requireContext(),
+                            HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST
+                    , this::updateUser)},
+                    { ResponseActions.onFail(it, this.requireContext()) }
             )
         )
     }
