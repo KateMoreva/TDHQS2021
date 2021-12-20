@@ -54,6 +54,8 @@ class SettingsProfileFragment : BaseFragment() {
         logout_button_id.setOnClickListener {
             AuthRepository.doOnLogout(this.activity as BaseActivity)
         }
+        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName ?: "Username"
+        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email ?: "email@email.email"
     }
 
     private fun changeUserPhoto(url: String) {
