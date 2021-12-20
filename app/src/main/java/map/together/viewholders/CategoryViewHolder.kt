@@ -19,12 +19,18 @@ class CategoryViewHolder (
 
     override fun bind(item: CategoryItem) {
         this.item = item
-        item.colorRecourse?.let { color ->
-            tagImage.setColorFilter(ContextCompat.getColor(itemView.context, color),
-                    android.graphics.PorterDuff.Mode.SRC_IN);
+        item.colorRecourse.let { color ->
+            tagImage.setColorFilter(
+                ContextCompat.getColor(itemView.context, color),
+                android.graphics.PorterDuff.Mode.SRC_IN
+            );
 
         }
         title.text = item.name
+    }
+
+    fun setOnEditColorListener(onClick: (View) -> Unit) {
+        tagImage.setOnClickListener(onClick)
     }
 
     fun setOnEditBtnClickListener(onEdit: (View) -> Unit) {

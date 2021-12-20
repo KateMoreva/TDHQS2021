@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/users_icons"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/amount_users_layer_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="@dimen/dimen_128dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppTheme"
+        android:background="@drawable/day_highlited_circle"
+        android:translationZ="@dimen/padding_10">
+
+        <TextView
+            android:id="@+id/amount_of_users_on_map_id"
+            android:layout_width="40dp"
+            android:text="1"
+            android:textSize="@dimen/padding_20"
+            android:textColor="@color/black"
+            android:layout_height="40dp"
+            android:background="@drawable/day_highlited_circle"
+            android:gravity="center_horizontal|center_vertical" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/user_on_map_1_layer_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="128dp"
+        android:layout_marginLeft="20dp"
+        android:theme="@style/AppTheme"
+        android:background="@drawable/day_highlited_circle"
+        app:layout_constraintLeft_toLeftOf="@+id/amount_users_layer_id"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/user_on_map_1_id"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="@dimen/dimens_8dp"
+            android:background="@drawable/day_highlited_circle"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/user_on_map_2_layer_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="128dp"
+        android:layout_marginLeft="20dp"
+        android:theme="@style/AppTheme"
+        android:background="@drawable/day_highlited_circle"
+        app:layout_constraintLeft_toLeftOf="@+id/user_on_map_1_layer_id"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/user_on_map_2_id"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/day_highlited_circle"
+            android:padding="@dimen/dimens_8dp"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/user_on_map_3_layer_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="128dp"
+        android:layout_marginLeft="20dp"
+        android:theme="@style/AppTheme"
+        android:background="@drawable/day_highlited_circle"
+        app:layout_constraintLeft_toLeftOf="@+id/user_on_map_2_layer_id"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/user_on_map_3_id"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:padding="@dimen/dimens_8dp"
+            android:background="@drawable/day_highlited_circle"
+            android:foreground="@drawable/ic_baseline_person_24"
+            app:srcCompat="@drawable/ic_baseline_person_24" />
+
+    </com.google.android.material.card.MaterialCardView>
+</androidx.constraintlayout.widget.ConstraintLayout>
