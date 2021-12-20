@@ -133,8 +133,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         //TODO: LOAD meta from sever
         currentMapId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
         val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
-        mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!, {})
-        mapUpdater?.start()
 
         val layerPlaces = mutableListOf<PlaceEntity>()
 
@@ -470,6 +468,25 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
         }
 
         stop_demonstrate_card.visibility = View.INVISIBLE
+
+        mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
+            val currentLayers = layersList.items
+            val actualLayers: MutableList<LayerItem> = mapInfo.layers.map { layerDto ->
+                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
+                return@map if (find == null) {
+                    layerDto.toNewLayerItem()
+                } else {
+                    layerDto.updateLayerItem(find)
+                }
+            }.toMutableList()
+            layersList.setData(actualLayers)
+
+            mapInfo.map
+            mapInfo.users
+            mapInfo.layers
+            mapInfo.demonstrationLayers
+        }
+        mapUpdater?.start()
 
     }
 
