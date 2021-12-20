@@ -218,6 +218,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
                 geoSearch = true
             }
         })
+        search_text_clear.setOnClickListener {
+            search_text_field.setText("")
+        }
 
         search_text_field.addTextChangedListener(object : TextWatcher {
 
