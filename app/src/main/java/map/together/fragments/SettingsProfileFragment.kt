@@ -74,7 +74,11 @@ class SettingsProfileFragment : BaseFragment() {
                     message = view.context.getString(R.string.delete_account_confirmation),
                     positiveButtonText = view.context.getString(R.string.yes),
                     negativeButtonText = view.context.getString(R.string.cancel),
-                    onPositiveClicked = { /* do smth */ },
+                    onPositiveClicked = {
+                        //TOD: delete user
+                        AuthRepository.doOnLogout(activity as BaseActivity)
+
+                    },
                 )
             }
         }
