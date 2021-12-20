@@ -596,7 +596,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             database?.let {
                 val userMaps = it.userMapDao().getByMapId(mapId)
                 val userIds = userMaps.map { userMapEntity -> userMapEntity.userId }
-                val users = it.userDao().getByIds(userIds.filterNot { id -> id == currentUserID })
+                val users = it.userDao().getByIds(userIds.filterNot { id -> id == userId })
                 withContext(Dispatchers.Main) {
                     actionsAfter.invoke(users)
                 }
