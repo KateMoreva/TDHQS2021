@@ -452,6 +452,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             layersList.rangeUpdate(0, layersList.size())
         }
 
+        go_to_places.setOnClickListener {
+            //TODO: real layers
+            val layersIds = listOf<Long>(1)
+            router?.showPlacesPage(layersIds.toLongArray())
+        }
+
         show_all_card.setOnClickListener {
             hide_all_card.visibility = View.VISIBLE
             show_all_card.visibility = View.INVISIBLE

@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.yandex.mapkit.MapKitFactory
 import map.together.activities.BaseFragmentActivity
+import map.together.lifecycle.Page.Companion.LAYERS_IDS
 import map.together.lifecycle.Page.Companion.PAGE_KEY
 import map.together.utils.logger.Logger
 import java.lang.Exception
@@ -38,6 +39,12 @@ class Router(private val activity: Activity) {
 
     fun showSettingsCategoriesPage() {
         showPage(Page.Fragment.SettingsCategories)
+    }
+
+    fun showPlacesPage(layersIds: LongArray) {
+        val bundle = Bundle(1)
+        bundle.putLongArray(LAYERS_IDS, layersIds)
+        showPage(Page.Fragment.Places, bundle)
     }
 
 
