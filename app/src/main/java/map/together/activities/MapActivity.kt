@@ -75,6 +75,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     CategoryColorDialog.CategoryDialogListener {
     val SPB = Point(59.9408455, 30.3131542)
 
+    companion object {
+        const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
+        private var last_map_id: Long = -1
+        fun get_last_map(): Long {
+            return last_map_id
+        }
+    }
+
     //TODO: loading from meta
     val currentUserID = 1L
     val currentMapId = 1L
