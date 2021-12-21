@@ -28,4 +28,10 @@ data class PlaceDto(
         @SerializedName("timestamp")
         @Expose
         var timestamp: Long,
+        @SerializedName("categoryName")
+        @Expose
+        var categoryName: String,
+        @SerializedName("categoryColor")
+        @Expose
+        var categoryColor: Int,
 )

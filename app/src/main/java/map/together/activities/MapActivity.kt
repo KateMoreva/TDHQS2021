@@ -96,13 +96,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
-    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
-
     val currentPlaces: MutableList<PlaceEntity> = ArrayList()
-    val currentAddress: MutableMap<Long, String> = HashMap()
-    val currentGeoObjects: MutableMap<Long, GeoObject> = HashMap()
     val placeCategory: MutableMap<Long, CategoryItem> = HashMap()
+
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
     var isLinePointClick = false
@@ -213,17 +209,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             layerPlaces.addAll(places)
             drawPlaces(layerPlaces)
             category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
-//            for (place in places) {
-//                val y = mapview.map.maxZoom.roundToInt()
-//                geoSearch = true
-//                loadingObjId = place.id
-//                searchSession = searchManager!!.submit(
-//                    Point(
-//                        place.latitude.toDouble(),
-//                        place.longitude.toDouble()
-//                    ), y, SearchOptions(), this
-//                )
-//            }
             currentPlaces.addAll(layerPlaces)
         }
 
@@ -491,7 +476,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         go_to_places.setOnClickListener {
             //TODO: real layers
             val layersIds = listOf<Long>(1)
-            router?.showPlacesPage(layersIds.toLongArray())
+            router?.showPlacesPage(currentMapId, layersIds.toLongArray())
         }
 
         show_all_card.setOnClickListener {
@@ -994,7 +979,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             ) { newPlaceId: Long ->
                                 placeId = newPlaceId
                                 if (placeId != -1L) {
-                                    currentAddress.put(placeId, address.toString())
                                     place.id = placeId
                                     currentPlaces.add(place)
                                     mapObjects.addPlacemark(
@@ -1019,7 +1003,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             )
                             if (pl != null) {
                                 deletePlace(pl) {
-                                    currentAddress.remove(address.toString())
                                     currentPlaces.remove(pl)
                                     mapObjects.clear()
                                     for (place in currentPlaces) {

@@ -43,8 +43,9 @@ class Router(private val activity: Activity) {
         showPage(Page.Fragment.SettingsCategories)
     }
 
-    fun showPlacesPage(layersIds: LongArray) {
-        val bundle = Bundle(1)
+    fun showPlacesPage(mapId: Long, layersIds: LongArray) {
+        val bundle = Bundle(2)
+        bundle.putLong(MAP_ID_KEY, mapId)
         bundle.putLongArray(LAYERS_IDS, layersIds)
         showPage(Page.Fragment.Places, bundle)
     }

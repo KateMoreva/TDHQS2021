@@ -1,6 +1,7 @@
 package map.together.viewholders
 
 import android.view.View
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
@@ -15,6 +16,7 @@ class PlaceViewHolder(
     private var addressTextView: TextView = itemView.tag_address
     private var layerTextView: TextView = itemView.tag_layer
     private var iconView: ImageView = itemView.tag_icon
+    private var removeDtn: Button = itemView.tag_delete
 
     private var item: PlaceItem? = null
 
@@ -31,4 +33,10 @@ class PlaceViewHolder(
 
         }
     }
+
+
+    fun setOnRemoveBtnClickListener(onRemove: (View) -> Unit) {
+        removeDtn.setOnClickListener(onRemove)
+    }
+
 }

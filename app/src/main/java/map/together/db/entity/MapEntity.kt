@@ -5,21 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-        foreignKeys = [
-            ForeignKey(
-                    entity = PlaceEntity::class,
-                    parentColumns = ["id"],
-                    childColumns = ["centerPlaceId"],
-            ),
-            ForeignKey(
-                    entity = LayerEntity::class,
-                    parentColumns = ["id"],
-                    childColumns = ["mainLayerId"],
-                    onDelete = ForeignKey.CASCADE
-            )
-        ]
-)
+@Entity()
 data class MapEntity(
         @ColumnInfo
         var name: String,
