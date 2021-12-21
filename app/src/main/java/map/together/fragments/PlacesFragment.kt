@@ -73,7 +73,6 @@ class PlacesFragment : BaseFragment() {
         }
         search_button_id.setOnClickListener {
             if (search_text_field.text.toString().isNotEmpty()) {
-                placesInfoOld = placesInfo
                 placesInfo = placesInfo.filter { placeItem ->
                     placeItem.name == search_text_field.text.toString() ||
                             placeItem.layer_name == search_text_field.text.toString() ||
@@ -183,7 +182,7 @@ class PlacesFragment : BaseFragment() {
                                                     pl.name,
                                                     pl.name,
                                                     layer.name,
-                                                    1
+                                                    pl.categoryColor
                                                 )
                                             )
                                         }
