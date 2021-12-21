@@ -45,7 +45,7 @@ class InitialDataGenerator {
         fun getPlace(context: Context): List<PlaceEntity> {
             return immutableListOf(
                 PlaceEntity("Место", 3, "59.9408455", "30.3131542", 1, -1, 2),
-                PlaceEntity("Место", 3, "59.9538455", "30.3561542", 1, -1, 1)
+                PlaceEntity("Место", 3, "59.9538455", "30.3561542", 2, -1, 1)
             )
         }
 

@@ -54,6 +54,7 @@ import map.together.db.entity.CategoryEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
 import map.together.db.entity.UserEntity
+import map.together.fragments.dialogs.CategoryChoosingDialog
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
@@ -108,11 +109,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             p0.mapObjects.addPolyline(Polyline(polyline.points))
         }
     }
-
-//    override fun void onStart() {
-//        super.onStart()
-//
-//    }
 
     override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
         if (!isLinePointClick) {
@@ -175,17 +171,18 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         getPlaces(currentLayerId) { places ->
             layerPlaces.addAll(places)
             drawPlaces(layerPlaces)
-            for (place in places) {
-                val y = mapview.map.maxZoom.roundToInt()
-                geoSearch = true
-                loadingObjId = place.id
-                searchSession = searchManager!!.submit(
-                    Point(
-                        place.latitude.toDouble(),
-                        place.longitude.toDouble()
-                    ), y, SearchOptions(), this
-                )
-            }
+            category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
+//            for (place in places) {
+//                val y = mapview.map.maxZoom.roundToInt()
+//                geoSearch = true
+//                loadingObjId = place.id
+//                searchSession = searchManager!!.submit(
+//                    Point(
+//                        place.latitude.toDouble(),
+//                        place.longitude.toDouble()
+//                    ), y, SearchOptions(), this
+//                )
+//            }
             currentPlaces.addAll(layerPlaces)
         }
 
@@ -678,10 +675,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
         var place: PlaceEntity? = null
         for (placeEntity in currentPlaces) {
-            val plLat = placeEntity.latitude.toDouble().round(2)
-            val pLong = placeEntity.longitude.toDouble().round(2)
-            val lat = latitude.round(2)
-            val log = longitude.round(2)
+            val plLat = placeEntity.latitude.toDouble().round(3)
+            val pLong = placeEntity.longitude.toDouble().round(3)
+            val lat = latitude.round(3)
+            val log = longitude.round(3)
             if (plLat == lat && pLong == log) {
                 place = placeEntity
             }
@@ -737,10 +734,21 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                         android.graphics.PorterDuff.Mode.SRC_IN
                     )
                     checkPlaceMarked()
+                    category_on_tap_name_id.setOnClickListener {
+                        CategoryChoosingDialog(
+                            selectedPlaceCategory!!,
+                            placeCategory.values.toMutableList().distinctBy { it.id }
+                                .toMutableList(), this
+                        ).show(
+                            supportFragmentManager,
+                            "CategoryChoosingDialog"
+                        )
+                    }
                     category_on_tap_change_name_id.setOnClickListener {
                         CategoryColorDialog(
                             selectedPlaceCategory!!,
-                            placeCategory.values as MutableList<CategoryItem>, this
+                            placeCategory.values.toMutableList().distinctBy { it.id }
+                                .toMutableList(), this
                         ).show(
                             supportFragmentManager,
                             "CategoryColorDialog"
@@ -922,12 +930,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     private fun checkPlaceMarked() {
+        category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
         if (selectedObject != null) {
             for (place in currentPlaces) {
-                val plLat = place.latitude.toDouble().round(2)
-                val pLong = place.longitude.toDouble().round(2)
-                val sLat = selectedObject!!.geometry[0].point?.latitude?.round(2)
-                val sLong = selectedObject!!.geometry[0].point?.longitude?.round(2)
+                val plLat = place.latitude.toDouble().round(3)
+                val pLong = place.longitude.toDouble().round(3)
+                val sLat = selectedObject!!.geometry[0].point?.latitude?.round(3)
+                val sLong = selectedObject!!.geometry[0].point?.longitude?.round(3)
                 if (plLat == sLat && pLong == sLong) {
 //                    place = placeEntity
 //                }
