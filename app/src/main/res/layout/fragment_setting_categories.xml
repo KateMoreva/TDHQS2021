@@ -24,6 +24,7 @@
             android:contentDescription="@string/search_button_text"
             android:minWidth="32dp"
             android:minHeight="48dp"
+            android:visibility="invisible"
             app:srcCompat="@drawable/ic_baseline_search_24"
             android:labelFor="@id/search_text_field"
             />
@@ -35,6 +36,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:autofillHints="0"
+            android:visibility="invisible"
             android:inputType="text"
             android:textSize="25sp"
             />

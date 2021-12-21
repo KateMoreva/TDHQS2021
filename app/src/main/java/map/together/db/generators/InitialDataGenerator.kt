@@ -2,6 +2,7 @@ package map.together.db.generators
 
 import android.content.Context
 import android.graphics.Color
+import map.together.R
 import map.together.db.entity.CategoryEntity
 import map.together.db.entity.LayerEntity
 import map.together.db.entity.LayerMapEntity
@@ -36,17 +37,17 @@ class InitialDataGenerator {
 
         fun getCategoryDao(context: Context): List<CategoryEntity> {
             return listOf(
-                CategoryEntity("Без категории", 1, Color.BLUE, 1),
-                CategoryEntity("Любимое", 1, Color.YELLOW, 2),
-                CategoryEntity("Без категории", 1, Color.GRAY, 3),
-                CategoryEntity("Любимое", 1, Color.RED, 4),
+                CategoryEntity("Без категории", 1, R.color.grey, 1),
+                CategoryEntity("Любимое", 1, R.color.red, 2),
+                CategoryEntity("Xnj-nj", 1,  R.color.blue, 3),
+                CategoryEntity("Любимоое2", 1, R.color.yellow, 4),
             )
         }
 
         fun getPlace(context: Context): List<PlaceEntity> {
             return immutableListOf(
                 PlaceEntity("Место", 3, "59.9408455", "30.3131542", 1, -1, 2),
-                PlaceEntity("Место", 3, "59.9538455", "30.3561542", 1, -1, 1)
+                PlaceEntity("Место", 3, "59.9538455", "30.3561542", 2, -1, 1)
             )
         }
 
