@@ -37,10 +37,10 @@ class InitialDataGenerator {
 
         fun getCategoryDao(context: Context): List<CategoryEntity> {
             return listOf(
-                CategoryEntity("Без категории", 1, R.color.grey, 1),
-                CategoryEntity("Любимое", 1, R.color.red, 2),
-                CategoryEntity("Xnj-nj", 1,  R.color.blue, 3),
-                CategoryEntity("Любимоое2", 1, R.color.yellow, 4),
+                CategoryEntity("Без категории", 1, 0, 1),
+                CategoryEntity("Любимое", 1, 1, 2),
+                CategoryEntity("Xnj-nj", 1,  2, 3),
+                CategoryEntity("Любимоое2", 1, 3, 4),
             )
         }
 

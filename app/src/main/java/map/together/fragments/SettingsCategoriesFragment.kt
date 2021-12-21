@@ -17,9 +17,9 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_categories
     val categories = mutableListOf(
-        CategoryItem("1", "Категория 1", R.color.red),
-        CategoryItem("2", "Категория 2", R.color.green),
-        CategoryItem("3", "Категория 3", R.color.blue),
+        CategoryItem("1", "Категория 1", 0),
+        CategoryItem("2", "Категория 2", 1),
+        CategoryItem("3", "Категория 3", 2),
     )
     val categoriesList = ItemsList(categories)
 

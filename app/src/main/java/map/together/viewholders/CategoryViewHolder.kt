@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.android.synthetic.main.item_category.view.*
+import map.together.fragments.dialogs.CategoryColorDialog.Companion.COLORS_ARRAY
 import map.together.items.CategoryItem
 
 class CategoryViewHolder (
@@ -21,7 +22,7 @@ class CategoryViewHolder (
         this.item = item
         item.colorRecourse.let { color ->
             tagImage.setColorFilter(
-                ContextCompat.getColor(itemView.context, color),
+                ContextCompat.getColor(itemView.context, COLORS_ARRAY[color]),
                 android.graphics.PorterDuff.Mode.SRC_IN
             );
 

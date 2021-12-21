@@ -932,7 +932,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                                 category_img.setColorFilter(
                                     ContextCompat.getColor(
                                         baseContext,
-                                        category.colorRecourse
+                                            CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]
                                     ),
                                     android.graphics.PorterDuff.Mode.SRC_IN
                                 )
@@ -949,7 +949,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     category_img.setColorFilter(
                         ContextCompat.getColor(
                             applicationContext,
-                            selectedPlaceCategory!!.colorRecourse
+                                CategoryColorDialog.COLORS_ARRAY[selectedPlaceCategory!!.colorRecourse]
                         ),
                         android.graphics.PorterDuff.Mode.SRC_IN
                     )
@@ -1068,13 +1068,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    fun drawSimpleBitmap(resourceId: Int): Bitmap {
+    fun drawSimpleBitmap(colorIdAtArray: Int): Bitmap {
         val source =
             BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
         val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(bitmap)
         var paint = Paint();
-        paint.setColor(resources.getColor(resourceId, theme));
+        paint.setColor(resources.getColor(CategoryColorDialog.COLORS_ARRAY[colorIdAtArray], theme));
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(
             (source.height / 2).toFloat(),
@@ -1168,7 +1168,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     if (category != null) {
                         category_on_tap_name_id.setText(category.name)
                         category_img.setColorFilter(
-                            ContextCompat.getColor(applicationContext, category.colorRecourse),
+                            ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
                             android.graphics.PorterDuff.Mode.SRC_IN
                         )
                         selectedPlaceCategory = category
@@ -1228,7 +1228,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         selectedPlaceCategory = item
         category_on_tap_name_id.setText(item.name)
         category_img.setColorFilter(
-            ContextCompat.getColor(applicationContext, item.colorRecourse),
+            ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[item.colorRecourse]),
             android.graphics.PorterDuff.Mode.SRC_IN
         )
     }
