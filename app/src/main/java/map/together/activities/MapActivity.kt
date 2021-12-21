@@ -41,6 +41,7 @@ import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.*
 import map.together.dto.db.LayerDto
+import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
 import map.together.dto.db.UserMapDto
 import map.together.items.*
@@ -519,20 +520,39 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         stop_demonstrate_card.visibility = View.INVISIBLE
 
         mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
+            // mapInfo.map -- done
+            updateMap(mapInfo.map)
+
             // mapInfo.layers -- done
             updateLayers(mapInfo.layers)
-
-            //
-            mapInfo.map
 
             // mapInfo.users -- done
             updateUsers(mapInfo.users)
 
-            // mapInfo.demonstrationLayers
+            // mapInfo.demonstrationLayers -- done
             updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
         }
         mapUpdater?.start()
 
+    }
+
+    private var mapDtoObject: MapDto? = null
+
+    private fun updateMap(map: MapDto) {
+        var updated = false
+        if (mapDtoObject == null) {
+            mapDtoObject = map
+            updated = true
+        }
+        mapDtoObject?.let { currentMap ->
+            if (currentMap.timestamp < map.timestamp) {
+                mapDtoObject = map
+                updated = true
+            }
+        }
+        if (updated) {
+            println("map dto object updated: $mapDtoObject")
+        }
     }
 
     private var demonstrationLayersList: List<Long> = listOf()
