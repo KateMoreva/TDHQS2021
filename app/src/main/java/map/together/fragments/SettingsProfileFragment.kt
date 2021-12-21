@@ -23,8 +23,7 @@ import map.together.utils.ResponseActions
 import map.together.utils.showSimpleInputMaterialDialog
 import map.together.utils.showSimpleMaterialDialog
 import java.net.HttpURLConnection
-import java.net.HttpURLConnection.HTTP_FORBIDDEN
-import java.net.HttpURLConnection.HTTP_OK
+import java.net.HttpURLConnection.*
 import javax.net.ssl.HttpsURLConnection
 
 class SettingsProfileFragment : BaseFragment() {
@@ -71,7 +70,6 @@ class SettingsProfileFragment : BaseFragment() {
                     positiveButtonText = view.context.getString(R.string.yes),
                     negativeButtonText = view.context.getString(R.string.cancel),
                     onPositiveClicked = {
-                        //TOD: delete user
                         val token = CurrentUserRepository.getCurrentUserToken(context)!!
                         (activity as BaseFragmentActivity).taskContainer.add(
                             Api.deactivateUser(token).subscribe(
@@ -99,7 +97,15 @@ class SettingsProfileFragment : BaseFragment() {
                     inputCallback = { _, resultName ->
                         run {
                             user_name_text_field_id.text = resultName
-                            // todo add saving to db
+
+                            val token = CurrentUserRepository.getCurrentUserToken(context)
+                            (activity as BaseActivity).taskContainer.add(
+                                    Api.changeUserData(token!!, resultName.toString(), null, null, null).subscribe(
+                                            { ResponseActions.onResponse(it, context, HTTP_OK, HTTP_BAD_REQUEST, {updateUser(it)})},
+                                            { ResponseActions.onFail(it, context) }
+                                    )
+                            )
+
                         }
                     }
                 )
