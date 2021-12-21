@@ -6,6 +6,7 @@ import map.together.activities.auth.LoginActivity
 import map.together.activities.auth.RegistrationActivity
 import map.together.fragments.AboutFragment
 import map.together.fragments.BaseFragment
+import map.together.fragments.PlacesFragment
 import map.together.fragments.SettingsCategoriesFragment
 import map.together.fragments.SettingsProfileFragment
 import map.together.fragments.SettingsFragment
@@ -51,6 +52,10 @@ sealed class Page : Serializable {
             override val clazz = SettingsCategoriesFragment::class
         }
 
+        object Places : Fragment() {
+            override val clazz = PlacesFragment::class
+        }
+
         object MapsLibrary : Fragment() {
             override val clazz = MapsListFragment::class
         }
@@ -59,6 +64,7 @@ sealed class Page : Serializable {
 
     companion object {
         const val PAGE_KEY = "PAGE"
+        const val LAYERS_IDS = "LAYERS_IDS"
         const val USER_ID_KEY = "USER_ID"
         const val MAP_ID_KEY = "MAP_ID"
         const val LAYER_ID_KEY = "MAP_ID"

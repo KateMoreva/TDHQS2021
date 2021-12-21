@@ -91,10 +91,10 @@
     <string name="account">Аккаунт</string><string name="new_map_name">"пустая карта"></string>
 
 
-    <string name="not_found_error_message">Not found</string>
-    <string name="network_error_message">Network error</string>
-    <string name="remote_error_message">Remote server error</string>
-    <string name="unknown_error_message">Unknown error</string>
+    <string name="not_found_error_message">Не найдено</string>
+    <string name="network_error_message">Ошибка сети</string>
+    <string name="remote_error_message">Ошибка сервера</string>
+    <string name="unknown_error_message">Неизвестная ошибка</string>
     <string name="map_remove_alert">Вы уверены, что хотите удалить карту \'%s\'</string>
     <string name="map_leave_alert">Вы уверены, что хотите покинуть карту \'%s\'</string>
     <string name="change_categories">Изменить категории</string>

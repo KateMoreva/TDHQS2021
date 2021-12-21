@@ -4,6 +4,8 @@ import map.together.items.interfaces.WithId
 
 data class PlaceItem(
     override val id: String,
-    var name: String,
-    var isVisible: Boolean
+    val name: String,
+    val address: String,
+    val layer_name: String,
+    val categoryResource: Int
 ) : WithId
