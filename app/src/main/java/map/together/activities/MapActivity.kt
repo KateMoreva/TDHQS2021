@@ -43,9 +43,13 @@ import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.CategoryEntity
+import map.together.db.entity.LayerEntity
+import map.together.db.entity.LayerMapEntity
+import map.together.db.entity.MapEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
 import map.together.db.entity.UserEntity
+import map.together.db.entity.UserMapEntity
 import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
@@ -67,7 +71,6 @@ import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
-import kotlin.math.roundToInt
 import kotlin.math.round
 import kotlin.math.roundToInt
 
