@@ -6,13 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import map.together.R
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.PlaceEntity
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
@@ -28,21 +22,6 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
         CategoryItem("3", "Категория 3", R.color.blue),
     )
     val categoriesList = ItemsList(categories)
-
-//    fun getCategories(
-//        layerId: Long, actionsAfter: (
-//            List<CategoryEntity>
-//        ) -> Unit
-//    ) {
-//        GlobalScope.launch(Dispatchers.IO) {
-//            database?.let {
-//                val placesDao = it.placeDao().getByLayerId(layerId)
-//                withContext(Dispatchers.Main) {
-//                    actionsAfter.invoke(placesDao)
-//                }
-//            }
-//        }
-//    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
