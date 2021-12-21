@@ -10,4 +10,5 @@ data class LayerItem(
         var editable: Boolean = true,
         var disabled: Boolean = false,
         var selected: Boolean = false,
+        var timestamp: Long = -1L
 ): WithId

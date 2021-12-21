@@ -32,6 +32,9 @@ data class MapDto(
         @SerializedName("participantsCount")
         @Expose
         var participantsCount: Int,
+        @SerializedName("timestamp")
+        @Expose
+        var timestamp: Long,
 ) {
         fun toMapEntity(): MapEntity = MapEntity(name, centerPlaceId, mainLayerId, ownerId,
                 canDelete, canEdit, roleName, participantsCount, id)

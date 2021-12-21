@@ -25,4 +25,7 @@ data class PlaceDto(
         @SerializedName("canDelete")
         @Expose
         var canDelete: Boolean,
+        @SerializedName("timestamp")
+        @Expose
+        var timestamp: Long,
 )

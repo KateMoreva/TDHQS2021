@@ -40,15 +40,11 @@ import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.*
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.PlaceCategoryEntity
-import map.together.db.entity.PlaceEntity
-import map.together.db.entity.UserEntity
-import map.together.items.CategoryItem
-import map.together.items.ItemsList
-import map.together.items.LayerItem
-import map.together.items.SearchItem
-import map.together.items.UserItem
+import map.together.dto.db.LayerDto
+import map.together.dto.db.MapDto
+import map.together.dto.db.PlaceDto
+import map.together.dto.db.UserMapDto
+import map.together.items.*
 import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
@@ -59,13 +55,13 @@ import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
-import kotlin.math.roundToInt
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener {
 
+    val layersList: ItemsList<LayerItem> = ItemsList(mutableListOf())
     var mapUpdater: MapUpdater? = null
     val SPB = Point(59.9408455, 30.3131542)
 
@@ -427,7 +423,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             LayerItem("1", "Слой 1", true, 2, false),
             LayerItem("2", "Слой 2", false, 2, false)
         )
-        val layersList = ItemsList(layers)
+        layersList.setData(layers)
         val adapter = LayersAdapter(
             holderType = LayerViewHolder::class,
             layoutId = R.layout.item_layer,
@@ -524,24 +520,178 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         stop_demonstrate_card.visibility = View.INVISIBLE
 
         mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
-            val currentLayers = layersList.items
-            val actualLayers: MutableList<LayerItem> = mapInfo.layers.map { layerDto ->
-                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
-                return@map if (find == null) {
-                    layerDto.toNewLayerItem()
-                } else {
-                    layerDto.updateLayerItem(find)
-                }
-            }.toMutableList()
-            layersList.setData(actualLayers)
+            // mapInfo.map -- done
+            updateMap(mapInfo.map)
 
-            mapInfo.map
-            mapInfo.users
-            mapInfo.layers
-            mapInfo.demonstrationLayers
+            // mapInfo.layers -- done
+            updateLayers(mapInfo.layers)
+
+            // mapInfo.users -- done
+            updateUsers(mapInfo.users)
+
+            // mapInfo.demonstrationLayers -- done
+            updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
         }
         mapUpdater?.start()
 
+    }
+
+    private var mapDtoObject: MapDto? = null
+
+    private fun updateMap(map: MapDto) {
+        var updated = false
+        if (mapDtoObject == null) {
+            mapDtoObject = map
+            updated = true
+        }
+        mapDtoObject?.let { currentMap ->
+            if (currentMap.timestamp < map.timestamp) {
+                mapDtoObject = map
+                updated = true
+            }
+        }
+        if (updated) {
+            println("map dto object updated: $mapDtoObject")
+        }
+    }
+
+    private var demonstrationLayersList: List<Long> = listOf()
+    private var demonstrationTimestamp: Long = -1L
+
+    private fun updateDemonstration(demonstrationLayers: List<Long>?, timestamp: Long) {
+        if (timestamp <= demonstrationTimestamp) {
+            return
+        }
+        demonstrationTimestamp = timestamp
+        demonstrationLayersList = demonstrationLayers ?: emptyList()
+        println("Demonstration layers updated: $demonstrationLayersList, timestamp: $demonstrationTimestamp")
+        // todo: add demonstration layers logic here
+    }
+
+    private val usersList: MutableList<UserMapDto> = mutableListOf()
+
+    private fun updateUsers(users: List<UserMapDto>) {
+        val usersToRemove = mutableListOf<UserMapDto>()
+        val usersToUpdate = mutableListOf<Pair<Int, UserMapDto>>()
+        // we need to understand which one should be updated, created or removed
+        usersList.forEachIndexed { index, currentUser ->
+            val found = users.find { userDto -> userDto.id == currentUser.id }
+            if (found == null) {
+                // this place was deleted
+                usersToRemove.add(currentUser)
+            } else if (found.timestamp > currentUser.timestamp) {
+                usersToUpdate.add(Pair(index, currentUser))
+            }
+        }
+        println("Updated users: $usersToUpdate, removed users: $usersToRemove")
+        // update updated users
+        usersToUpdate.forEach { indexAndPlace ->
+            usersList[indexAndPlace.first] = indexAndPlace.second
+            // todo: add update user logic here (?)
+        }
+        // remove removed users
+        usersToRemove.forEach { userDto ->
+            usersList.remove(userDto)
+            // todo: add remove user logic here (?)
+        }
+        // add new users
+        users.filter { userDto ->
+            val find = usersList.find { currentUser -> currentUser.id == userDto.id }
+            return@filter find == null
+        }.forEach { userDto ->
+            println("new user is $userDto")
+            usersList.add(userDto)
+            // todo: add new user logic here (?)
+        }
+        println("Users are $usersList")
+        // todo: here is an actual list of users
+    }
+
+    private fun updateLayers(actualLayersFromServer: List<LayerDto>) {
+        val currentLayers: MutableList<LayerItem> = layersList.items
+        val layersToRemove = mutableListOf<LayerItem>()
+        val layersToUpdate = mutableListOf<Pair<Int, LayerDto>>()
+        // we need to understand which one should be updated, created or removed
+        currentLayers.forEachIndexed { index, layerItem ->
+            val foundLayerDto = actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
+            if (foundLayerDto == null) {
+                if (layerItem.id != "0") {
+                    // this layer was deleted
+                    layersToRemove.add(layerItem)
+                }
+            } else if (foundLayerDto.timestamp > layerItem.timestamp) {
+                layersToUpdate.add(Pair(index, foundLayerDto))
+            }
+        }
+
+        println("Updated layers: $layersToUpdate, removedLayers: $layersToRemove")
+        // update updated layers
+        layersToUpdate.forEach { indexAndLayerDto ->
+            val layerItem = currentLayers[indexAndLayerDto.first]
+            layersList.update(indexAndLayerDto.first, indexAndLayerDto.second.updateLayerItem(layerItem))
+        }
+        // remove removed layers
+        layersToRemove.forEach { layerItem ->
+            layersList.remove(layerItem)
+        }
+        // add new layers
+        actualLayersFromServer.filter { layerDto ->
+            val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
+            return@filter find == null
+        }.forEach { layerDto ->
+            val newLayer = layerDto.toNewLayerItem()
+            println("new layer $newLayer")
+            layersList.addLast(newLayer)
+        }
+
+        actualLayersFromServer.forEach { layerDto ->
+            if (layersToRemove.find { removedLayer -> removedLayer.id == layerDto.id.toString() } == null) {
+                updatePlaces(layerDto.places.toMutableList(), layerDto.id)
+            } else {
+                updatePlaces(mutableListOf(), layerDto.id)
+            }
+        }
+    }
+
+    private val layerToPlacesMap: MutableMap<Long, MutableList<PlaceDto>> = mutableMapOf()
+
+    private fun updatePlaces(places: MutableList<PlaceDto>, layerId: Long) {
+        val currentPlaces = layerToPlacesMap.getOrPut(layerId, { mutableListOf() })
+        val placesToRemove = mutableListOf<PlaceDto>()
+        val placesToUpdate = mutableListOf<Pair<Int, PlaceDto>>()
+        // we need to understand which one should be updated, created or removed
+        currentPlaces.forEachIndexed { index, currentPlace ->
+            val foundPlace = places.find { placeDto -> placeDto.id == currentPlace.id }
+            if (foundPlace == null) {
+                // this place was deleted
+                placesToRemove.add(currentPlace)
+            } else if (foundPlace.timestamp > currentPlace.timestamp) {
+                placesToUpdate.add(Pair(index, currentPlace))
+            }
+        }
+        println("Updated places: $placesToUpdate, removed places: $placesToRemove for layer $layerId")
+        // update updated layers
+        placesToUpdate.forEach { indexAndPlace ->
+            currentPlaces[indexAndPlace.first] = indexAndPlace.second
+            // todo: add update place logic here (?)
+        }
+        // remove removed layers
+        placesToRemove.forEach { layerItem ->
+            currentPlaces.remove(layerItem)
+            // todo: add remove place logic here (?)
+        }
+        // add new layers
+        places.filter { placeDto ->
+            val find = currentPlaces.find { place -> place.id == placeDto.id }
+            return@filter find == null
+        }.forEach { placeDto ->
+            println("new place at layer $layerId is $placeDto")
+            currentPlaces.add(placeDto)
+            // todo: add new place logic here (?)
+        }
+        layerToPlacesMap[layerId] = currentPlaces
+        println("Places for the layer $layerId are $currentPlaces")
+        // todo: here is an actual list of places
     }
 
     fun hideKeyboard() {
