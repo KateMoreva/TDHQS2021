@@ -522,15 +522,30 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             // mapInfo.layers -- done
             updateLayers(mapInfo.layers)
 
+            //
             mapInfo.map
 
             // mapInfo.users -- done
             updateUsers(mapInfo.users)
 
-            mapInfo.demonstrationLayers
+            // mapInfo.demonstrationLayers
+            updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
         }
         mapUpdater?.start()
 
+    }
+
+    private var demonstrationLayersList: List<Long> = listOf()
+    private var demonstrationTimestamp: Long = -1L
+
+    private fun updateDemonstration(demonstrationLayers: List<Long>?, timestamp: Long) {
+        if (timestamp <= demonstrationTimestamp) {
+            return
+        }
+        demonstrationTimestamp = timestamp
+        demonstrationLayersList = demonstrationLayers ?: emptyList()
+        println("Demonstration layers updated: $demonstrationLayersList, timestamp: $demonstrationTimestamp")
+        // todo: add demonstration layers logic here
     }
 
     private val usersList: MutableList<UserMapDto> = mutableListOf()
