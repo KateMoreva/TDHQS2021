@@ -34,12 +34,11 @@ import javax.net.ssl.HttpsURLConnection
 
 
 class PlacesFragment : BaseFragment() {
-    private val mapsInfo = ItemsList<MapEntity>(mutableListOf())
 
     private var places: MutableList<PlaceDto> = mutableListOf()
     private var placesInfo: MutableList<PlaceItem> = mutableListOf()
     private var placesInfoOld: MutableList<PlaceItem> = mutableListOf()
-    private var items = ItemsList(placesInfo)
+    private var items = ItemsList<PlaceItem>(mutableListOf())
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_tags_list
 
@@ -50,6 +49,7 @@ class PlacesFragment : BaseFragment() {
         val mapId = (activity?.intent?.extras?.get(Page.MAP_ID_KEY) as? Long)!!
 
         loadPlacesAsync(mapId, layesIndexes) { placesList ->
+            items.setData(placesInfo)
             val adapter = PlaceAdapter(
                 holderType = PlaceViewHolder::class,
                 layoutId = R.layout.tag_list_item,

@@ -190,40 +190,30 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             layerPlaces.addAll(places)
             drawPlaces(layerPlaces)
             category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
-//            for (place in places) {
-//                val y = mapview.map.maxZoom.roundToInt()
-//                geoSearch = true
-//                loadingObjId = place.id
-//                searchSession = searchManager!!.submit(
-//                    Point(
-//                        place.latitude.toDouble(),
-//                        place.longitude.toDouble()
-//                    ), y, SearchOptions(), this
-//                )
-//            }
             currentPlaces.addAll(layerPlaces)
         }
 
         last_map_id = getSharedPreferences(applicationContext.packageName, 0).getLong(
-            SHARED_PREFERENCE_LAST_MAP_ID, 0)
-        var map: MapEntity
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                map = database!!.mapDao().getById(last_map_id)
-            } catch (ex: Exception) {
-                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", userId))
-                    val place_id = database!!.placeDao().getAll()[0].id
-                    last_map_id = database!!.mapDao().insert(
-                        MapEntity(
-                            getString(R.string.new_map_name), place_id,
-                            main_malyer_id, userId, true, true, "Админ", 1))
-                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
-                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
-                    map = database!!.mapDao().getById(last_map_id)
-                    database!!.userMapDao().insert(UserMapEntity(userId!!, last_map_id, RoleEnum.ADMIN))
-                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
-            }
-        }
+            SHARED_PREFERENCE_LAST_MAP_ID, 0
+        )
+//        var map: MapEntity
+//        CoroutineScope(Dispatchers.IO).launch {
+//            try {
+//                map = database!!.mapDao().getById(last_map_id)
+//            } catch (ex: Exception) {
+//                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", userId))
+//                    val place_id = database!!.placeDao().getAll()[0].id
+//                    last_map_id = database!!.mapDao().insert(
+//                        MapEntity(
+//                            getString(R.string.new_map_name), place_id,
+//                            main_malyer_id, userId, true, true, "Админ", 1))
+//                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
+//                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
+//                    map = database!!.mapDao().getById(last_map_id)
+//                    database!!.userMapDao().insert(UserMapEntity(userId!!, last_map_id, RoleEnum.ADMIN))
+//                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
+//            }
+//        }
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
             mapview.map.move(
@@ -488,7 +478,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         go_to_places.setOnClickListener {
             //TODO: real layers
             val layersIds = listOf<Long>(1)
-            router?.showPlacesPage(layersIds.toLongArray())
+            router?.showPlacesPage(currentMapId, layersIds.toLongArray())
         }
 
         show_all_card.setOnClickListener {
