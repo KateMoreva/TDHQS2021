@@ -70,12 +70,12 @@
 
         <ImageButton
             android:id="@+id/search_text_clear"
-            android:visibility="invisible"
             android:layout_width="@dimen/text_size_25"
             android:layout_height="@dimen/text_size_25"
             android:layout_alignTop="@id/search_text_field"
             android:layout_alignEnd="@id/search_text_field"
-            android:background="@drawable/ic_cross" />
+            android:background="@drawable/ic_cross"
+            android:visibility="invisible" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/search_res_list"

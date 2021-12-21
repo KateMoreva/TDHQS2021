@@ -3,7 +3,6 @@ package map.together.fragments
 import android.content.Context
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_tags_list.*
@@ -16,7 +15,9 @@ import map.together.items.ItemsList
 import map.together.items.PlaceItem
 import map.together.utils.recycler.adapters.PlaceAdapter
 import map.together.viewholders.PlaceViewHolder
+import java.io.BufferedReader
 import java.io.FileOutputStream
+import java.io.InputStreamReader
 
 
 class PlacesFragment : BaseFragment() {
@@ -41,6 +42,18 @@ class PlacesFragment : BaseFragment() {
             tags_list.layoutManager = layoutManager
 
         }
+        search_text_clear.setOnClickListener {
+            search_text_field.setText("")
+        }
+        search_button_id.setOnClickListener {
+            if (search_text_field.text.toString().isNotEmpty()) {
+                placesInfo.filter { placeItem ->
+                    placeItem.name == search_text_field.text.toString() ||
+                            placeItem.layer_name == search_text_field.text.toString() ||
+                            placeItem.address == search_text_field.text.toString()
+                }
+            }
+        }
 
         load_button_id.setOnClickListener {
             if (placesInfo.size > 0) {
@@ -51,6 +64,15 @@ class PlacesFragment : BaseFragment() {
                     fileOutputStream = requireActivity().openFileOutput(file, Context.MODE_PRIVATE)
                     fileOutputStream.write(data.toByteArray())
                     fileOutputStream.close()
+                    var fileInputStream = requireActivity().openFileInput(file)
+                    var inputStreamReader = InputStreamReader(fileInputStream)
+                    val bufferedReader: BufferedReader = BufferedReader(inputStreamReader)
+                    val stringBuilder: StringBuilder = StringBuilder()
+                    var text: String? = null
+                    while ({ text = bufferedReader.readLine(); text }() != null) {
+                        stringBuilder.append(text)
+                    }
+                    print(text)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
