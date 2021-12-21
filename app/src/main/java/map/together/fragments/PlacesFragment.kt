@@ -1,5 +1,6 @@
 package map.together.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
@@ -15,6 +16,7 @@ import map.together.items.ItemsList
 import map.together.items.PlaceItem
 import map.together.utils.recycler.adapters.PlaceAdapter
 import map.together.viewholders.PlaceViewHolder
+import java.io.FileOutputStream
 
 
 class PlacesFragment : BaseFragment() {
@@ -23,13 +25,6 @@ class PlacesFragment : BaseFragment() {
     override fun getFragmentLayoutId(): Int = R.layout.fragment_tags_list
 
     override fun getAppbarTitle(): Int = R.string.places_list
-
-    data class TagInfo(
-        val id: Long, val name: String, val address: String, val layer_name: String,
-        val ownerId: Long
-    )
-
-    var nameTextView: TextView? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val layesIndexes = listOf<Long>(1)
@@ -45,6 +40,21 @@ class PlacesFragment : BaseFragment() {
             val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
             tags_list.layoutManager = layoutManager
 
+        }
+
+        load_button_id.setOnClickListener {
+            if (placesInfo.size > 0) {
+                val file = "places$layesIndexes"
+                val data: String = placesInfo.toString()
+                val fileOutputStream: FileOutputStream
+                try {
+                    fileOutputStream = requireActivity().openFileOutput(file, Context.MODE_PRIVATE)
+                    fileOutputStream.write(data.toByteArray())
+                    fileOutputStream.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 
