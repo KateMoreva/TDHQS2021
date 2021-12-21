@@ -12,12 +12,6 @@ import androidx.room.PrimaryKey
                     parentColumns = ["id"],
                     childColumns = ["centerPlaceId"],
             ),
-            ForeignKey(
-                    entity = LayerEntity::class,
-                    parentColumns = ["id"],
-                    childColumns = ["mainLayerId"],
-                    onDelete = ForeignKey.CASCADE
-            )
         ]
 )
 data class MapEntity(
