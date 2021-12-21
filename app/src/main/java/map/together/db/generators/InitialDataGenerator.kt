@@ -39,6 +39,8 @@ class InitialDataGenerator {
             return listOf(
                 CategoryEntity("Без категории", 1, R.color.grey, 1),
                 CategoryEntity("Любимое", 1, R.color.red, 2),
+                CategoryEntity("Xnj-nj", 1,  R.color.blue, 3),
+                CategoryEntity("Любимоое2", 1, R.color.yellow, 4),
             )
         }
 
@@ -70,7 +72,7 @@ class InitialDataGenerator {
         }
 
         fun getMap(context: Context): MapEntity {
-            return MapEntity("Карта", 1, 1)
+            return MapEntity("Карта", 1, 1, null, false, false, "", 0)
         }
     }
 }

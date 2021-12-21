@@ -12,6 +12,12 @@ import androidx.room.PrimaryKey
                     parentColumns = ["id"],
                     childColumns = ["ownerId"],
                     onDelete = ForeignKey.CASCADE
+            ),
+            ForeignKey(
+                    entity = CategoryEntity::class,
+                    parentColumns = ["id"],
+                    childColumns = ["categoryId"],
+                    onDelete = ForeignKey.SET_DEFAULT
             )
         ])
 data class PlaceEntity(
@@ -24,7 +30,7 @@ data class PlaceEntity(
         @ColumnInfo
         var longitude: String,
         @ColumnInfo
-        var categoryId: Long,
+        var categoryId: Long = 1,
         @ColumnInfo
         var serverId: Long = -1,
         @PrimaryKey(autoGenerate = true) var id: Long = 0

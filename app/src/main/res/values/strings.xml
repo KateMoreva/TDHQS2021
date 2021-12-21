@@ -91,8 +91,9 @@
     <string name="show_all">Показать все</string>
     <string name="owner">Владелец</string>
     <string name="member">Участник</string>
-    <string name="members">участников</string>
+    <string name="members"> участников</string>
     <string name="tag_remove_alert">Вы дествительно хотите удалить место \'%s\'?</string>
+    <string name="new_map_name">"пустая карта"></string>
     <string name="load_media" translatable="false">Фото</string>
     <string name="not_found_error_message">Not found</string>
     <string name="network_error_message">Network error</string>
@@ -100,6 +101,8 @@
     <string name="unknown_error_message">Unknown error</string>
     <string name="map_remove_alert">Вы уверены, что хотите удалить карту \'%s\'?</string>
     <string name="map_leave_alert">Вы уверены, что хотите покинуть карту \'%s\'?</string>
+    <string name="maps_list">Библиотека карт</string>
+    <string name="tags_list">Список мест</string>
 
     <string name="stop_the_demonstration">Остановить показ</string>
     <string name="account">Аккаунт</string>

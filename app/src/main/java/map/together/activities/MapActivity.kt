@@ -4,11 +4,7 @@ package map.together.activities
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
+import android.graphics.*
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -44,16 +40,16 @@ import kotlinx.android.synthetic.main.item_layers_menu.*
 import kotlinx.android.synthetic.main.item_layers_menu.layers_menu
 import kotlinx.android.synthetic.main.item_menu.*
 import kotlinx.android.synthetic.main.item_users.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.CategoryEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
 import map.together.db.entity.UserEntity
+import map.together.dto.db.LayerDto
+import map.together.dto.db.MapDto
+import map.together.dto.db.PlaceDto
+import map.together.dto.db.UserMapDto
 import map.together.fragments.dialogs.CategoryChoosingDialog
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
@@ -61,6 +57,10 @@ import map.together.items.ItemsList
 import map.together.items.LayerItem
 import map.together.items.SearchItem
 import map.together.items.UserItem
+import map.together.lifecycle.MapUpdater
+import map.together.lifecycle.Page
+import map.together.repository.CurrentUserRepository
+import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.utils.recycler.adapters.UsersAdapter
@@ -69,16 +69,29 @@ import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
 import kotlin.math.roundToInt
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 
 class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener,
     CategoryColorDialog.CategoryDialogListener {
     val SPB = Point(59.9408455, 30.3131542)
-
-    //TODO: loading from meta
-    val currentUserID = 1L
-    val currentMapId = 1L
+    val layersList: ItemsList<LayerItem> = ItemsList(mutableListOf())
+    var mapUpdater: MapUpdater? = null
+    //TODO: loading from bundle
+    var currentMapId = 1L
     val currentLayerId = 1L
+
+    companion object {
+        const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
+        private var last_map_id: Long  = -1
+        fun get_last_map(): Long
+        {
+            return last_map_id
+        }
+    }
+
+    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
+    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
 
     val currentPlaces: MutableList<PlaceEntity> = ArrayList()
     val currentAddress: MutableMap<Long, String> = HashMap()
@@ -135,8 +148,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
-        SearchFactory.initialize(this);
+        SearchFactory.initialize(this)
         //TODO: LOAD meta from sever
+        currentMapId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
+        val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
 
 
         getUsers(currentMapId) { users ->
@@ -186,6 +201,26 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             currentPlaces.addAll(layerPlaces)
         }
 
+        last_map_id = getSharedPreferences(applicationContext.packageName, 0).getLong(
+            SHARED_PREFERENCE_LAST_MAP_ID, 0)
+        var map: MapEntity
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                map = database!!.mapDao().getById(last_map_id)
+            } catch (ex: Exception) {
+                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", userId))
+                    val place_id = database!!.placeDao().getAll()[0].id
+                    last_map_id = database!!.mapDao().insert(
+                        MapEntity(
+                            getString(R.string.new_map_name), place_id,
+                            main_malyer_id, userId, true, true, "Админ", 1))
+                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
+                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
+                    map = database!!.mapDao().getById(last_map_id)
+                    database!!.userMapDao().insert(UserMapEntity(userId!!, last_map_id, RoleEnum.ADMIN))
+                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
+            }
+        }
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
             mapview.map.move(
@@ -353,6 +388,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             }
         })
 
+        open_button.setOnClickListener {
+            router?.showMapsLibraryPage()
+        }
 
         val tagBottomSheetBehavior = from(tag_edit_menu)
         tagBottomSheetBehavior.setState(STATE_HIDDEN);
@@ -400,7 +438,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             LayerItem("1", "Слой 1", true, 2, false),
             LayerItem("2", "Слой 2", false, 2, false)
         )
-        val layersList = ItemsList(layers)
+        layersList.setData(layers)
         val adapter = LayersAdapter(
             holderType = LayerViewHolder::class,
             layoutId = R.layout.item_layer,
@@ -496,6 +534,179 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
+        mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
+            // mapInfo.map -- done
+            updateMap(mapInfo.map)
+
+            // mapInfo.layers -- done
+            updateLayers(mapInfo.layers)
+
+            // mapInfo.users -- done
+            updateUsers(mapInfo.users)
+
+            // mapInfo.demonstrationLayers -- done
+            updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
+        }
+        mapUpdater?.start()
+
+    }
+
+    private var mapDtoObject: MapDto? = null
+
+    private fun updateMap(map: MapDto) {
+        var updated = false
+        if (mapDtoObject == null) {
+            mapDtoObject = map
+            updated = true
+        }
+        mapDtoObject?.let { currentMap ->
+            if (currentMap.timestamp < map.timestamp) {
+                mapDtoObject = map
+                updated = true
+            }
+        }
+        if (updated) {
+            println("map dto object updated: $mapDtoObject")
+        }
+    }
+
+    private var demonstrationLayersList: List<Long> = listOf()
+    private var demonstrationTimestamp: Long = -1L
+
+    private fun updateDemonstration(demonstrationLayers: List<Long>?, timestamp: Long) {
+        if (timestamp <= demonstrationTimestamp) {
+            return
+        }
+        demonstrationTimestamp = timestamp
+        demonstrationLayersList = demonstrationLayers ?: emptyList()
+        println("Demonstration layers updated: $demonstrationLayersList, timestamp: $demonstrationTimestamp")
+        // todo: add demonstration layers logic here
+    }
+
+    private val usersList: MutableList<UserMapDto> = mutableListOf()
+
+    private fun updateUsers(users: List<UserMapDto>) {
+        val usersToRemove = mutableListOf<UserMapDto>()
+        val usersToUpdate = mutableListOf<Pair<Int, UserMapDto>>()
+        // we need to understand which one should be updated, created or removed
+        usersList.forEachIndexed { index, currentUser ->
+            val found = users.find { userDto -> userDto.id == currentUser.id }
+            if (found == null) {
+                // this place was deleted
+                usersToRemove.add(currentUser)
+            } else if (found.timestamp > currentUser.timestamp) {
+                usersToUpdate.add(Pair(index, currentUser))
+            }
+        }
+        println("Updated users: $usersToUpdate, removed users: $usersToRemove")
+        // update updated users
+        usersToUpdate.forEach { indexAndPlace ->
+            usersList[indexAndPlace.first] = indexAndPlace.second
+            // todo: add update user logic here (?)
+        }
+        // remove removed users
+        usersToRemove.forEach { userDto ->
+            usersList.remove(userDto)
+            // todo: add remove user logic here (?)
+        }
+        // add new users
+        users.filter { userDto ->
+            val find = usersList.find { currentUser -> currentUser.id == userDto.id }
+            return@filter find == null
+        }.forEach { userDto ->
+            println("new user is $userDto")
+            usersList.add(userDto)
+            // todo: add new user logic here (?)
+        }
+        println("Users are $usersList")
+        // todo: here is an actual list of users
+    }
+
+    private fun updateLayers(actualLayersFromServer: List<LayerDto>) {
+        val currentLayers: MutableList<LayerItem> = layersList.items
+        val layersToRemove = mutableListOf<LayerItem>()
+        val layersToUpdate = mutableListOf<Pair<Int, LayerDto>>()
+        // we need to understand which one should be updated, created or removed
+        currentLayers.forEachIndexed { index, layerItem ->
+            val foundLayerDto = actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
+            if (foundLayerDto == null) {
+                if (layerItem.id != "0") {
+                    // this layer was deleted
+                    layersToRemove.add(layerItem)
+                }
+            } else if (foundLayerDto.timestamp > layerItem.timestamp) {
+                layersToUpdate.add(Pair(index, foundLayerDto))
+            }
+        }
+
+        println("Updated layers: $layersToUpdate, removedLayers: $layersToRemove")
+        // update updated layers
+        layersToUpdate.forEach { indexAndLayerDto ->
+            val layerItem = currentLayers[indexAndLayerDto.first]
+            layersList.update(indexAndLayerDto.first, indexAndLayerDto.second.updateLayerItem(layerItem))
+        }
+        // remove removed layers
+        layersToRemove.forEach { layerItem ->
+            layersList.remove(layerItem)
+        }
+        // add new layers
+        actualLayersFromServer.filter { layerDto ->
+            val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
+            return@filter find == null
+        }.forEach { layerDto ->
+            val newLayer = layerDto.toNewLayerItem()
+            println("new layer $newLayer")
+            layersList.addLast(newLayer)
+        }
+
+        actualLayersFromServer.forEach { layerDto ->
+            if (layersToRemove.find { removedLayer -> removedLayer.id == layerDto.id.toString() } == null) {
+                updatePlaces(layerDto.places.toMutableList(), layerDto.id)
+            } else {
+                updatePlaces(mutableListOf(), layerDto.id)
+            }
+        }
+    }
+
+    private val layerToPlacesMap: MutableMap<Long, MutableList<PlaceDto>> = mutableMapOf()
+
+    private fun updatePlaces(places: MutableList<PlaceDto>, layerId: Long) {
+        val currentPlaces = layerToPlacesMap.getOrPut(layerId, { mutableListOf() })
+        val placesToRemove = mutableListOf<PlaceDto>()
+        val placesToUpdate = mutableListOf<Pair<Int, PlaceDto>>()
+        // we need to understand which one should be updated, created or removed
+        currentPlaces.forEachIndexed { index, currentPlace ->
+            val foundPlace = places.find { placeDto -> placeDto.id == currentPlace.id }
+            if (foundPlace == null) {
+                // this place was deleted
+                placesToRemove.add(currentPlace)
+            } else if (foundPlace.timestamp > currentPlace.timestamp) {
+                placesToUpdate.add(Pair(index, currentPlace))
+            }
+        }
+        println("Updated places: $placesToUpdate, removed places: $placesToRemove for layer $layerId")
+        // update updated layers
+        placesToUpdate.forEach { indexAndPlace ->
+            currentPlaces[indexAndPlace.first] = indexAndPlace.second
+            // todo: add update place logic here (?)
+        }
+        // remove removed layers
+        placesToRemove.forEach { layerItem ->
+            currentPlaces.remove(layerItem)
+            // todo: add remove place logic here (?)
+        }
+        // add new layers
+        places.filter { placeDto ->
+            val find = currentPlaces.find { place -> place.id == placeDto.id }
+            return@filter find == null
+        }.forEach { placeDto ->
+            println("new place at layer $layerId is $placeDto")
+            currentPlaces.add(placeDto)
+            // todo: add new place logic here (?)
+        }
+        layerToPlacesMap[layerId] = currentPlaces
+        println("Places for the layer $layerId are $currentPlaces")
+        // todo: here is an actual list of places
     }
 
     fun hideKeyboard() {
@@ -549,7 +760,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             database?.let {
                 val userMaps = it.userMapDao().getByMapId(mapId)
                 val userIds = userMaps.map { userMapEntity -> userMapEntity.userId }
-                val users = it.userDao().getByIds(userIds.filterNot { id -> id == currentUserID })
+                val users = it.userDao().getByIds(userIds.filterNot { id -> id == userId })
                 withContext(Dispatchers.Main) {
                     actionsAfter.invoke(users)
                 }
@@ -763,14 +974,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             var placeId = -1L
                             val place = PlaceEntity(
                                 plName,
-                                currentUserID,
+                                userId!!,
                                 resultLocation.latitude.toString(),
                                 resultLocation.longitude.toString(),
                                 1
                             )
                             createNewPlace(
                                 plName,
-                                currentUserID,
+                                userId!!,
                                 resultLocation.latitude.toString(),
                                 resultLocation.longitude.toString(),
                                 1
@@ -862,7 +1073,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             (source.width / 2).toFloat() / 2,
             paint
         );
-        paint.setColor(Color.WHITE);
+        paint.setColor(Color.WHITE)
         paint.setAntiAlias(true);
         paint.setTextSize(9F);
         paint.setTextAlign(Paint.Align.CENTER);
@@ -887,6 +1098,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         // Activity onStop call must be passed to both MapView and MapKit instance.
         mapview.onStop()
         MapKitFactory.getInstance().onStop()
+        mapUpdater?.stop()
         super.onStop()
     }
 

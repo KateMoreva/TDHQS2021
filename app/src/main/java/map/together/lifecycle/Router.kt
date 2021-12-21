@@ -3,11 +3,10 @@ package map.together.lifecycle
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.yandex.mapkit.MapKitFactory
 import map.together.activities.BaseFragmentActivity
+import map.together.lifecycle.Page.Companion.MAP_ID_KEY
 import map.together.lifecycle.Page.Companion.PAGE_KEY
 import map.together.utils.logger.Logger
-import java.lang.Exception
 import kotlin.reflect.full.createInstance
 
 class Router(private val activity: Activity) {
@@ -16,8 +15,11 @@ class Router(private val activity: Activity) {
         showPage(Page.Activity.Login)
     }
 
-    fun showMainPage() {
-        showPage(Page.Activity.Main)
+    // here is a local map id! If you want to find the serverId you need to get MapEntity from the database
+    fun showMainPage(mapId: Long) {
+        val bundle = Bundle(1)
+        bundle.putLong(MAP_ID_KEY, mapId)
+        showPage(Page.Activity.Main, bundle)
     }
 
     fun showRegistrationPage() {
@@ -38,6 +40,10 @@ class Router(private val activity: Activity) {
 
     fun showSettingsCategoriesPage() {
         showPage(Page.Fragment.SettingsCategories)
+    }
+
+    fun showMapsLibraryPage() {
+        showPage(Page.Fragment.MapsLibrary)
     }
 
 

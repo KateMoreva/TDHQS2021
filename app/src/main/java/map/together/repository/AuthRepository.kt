@@ -41,7 +41,8 @@ object AuthRepository {
                         getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_INFO_KEY, Gson().toJson(user)).apply()
                     }
                     if (goToMain) {
-                        router?.showMainPage()
+                        // TODO: save recently used map and load it again
+                        router?.showMapsLibraryPage()
                         finish()
                     }
                     actionsAfter.invoke()
