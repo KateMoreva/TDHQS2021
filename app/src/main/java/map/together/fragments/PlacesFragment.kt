@@ -21,7 +21,9 @@ import java.io.InputStreamReader
 
 
 class PlacesFragment : BaseFragment() {
-    private val placesInfo: MutableList<PlaceItem> = mutableListOf()
+    private var placesInfo: MutableList<PlaceItem> = mutableListOf()
+    private var placesInfoOld: MutableList<PlaceItem> = mutableListOf()
+    private var items: ItemsList<PlaceItem> = ItemsList(placesInfo)
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_tags_list
 
@@ -33,7 +35,7 @@ class PlacesFragment : BaseFragment() {
             val adapter = PlaceAdapter(
                 holderType = PlaceViewHolder::class,
                 layoutId = R.layout.tag_list_item,
-                dataSource = ItemsList(placesInfo),
+                dataSource = items,
                 onClick = {
                 },
             )
@@ -47,11 +49,14 @@ class PlacesFragment : BaseFragment() {
         }
         search_button_id.setOnClickListener {
             if (search_text_field.text.toString().isNotEmpty()) {
-                placesInfo.filter { placeItem ->
+                placesInfoOld = placesInfo
+                placesInfo = placesInfo.filter { placeItem ->
                     placeItem.name == search_text_field.text.toString() ||
                             placeItem.layer_name == search_text_field.text.toString() ||
                             placeItem.address == search_text_field.text.toString()
-                }
+                }.toMutableList()
+            } else {
+                placesInfo = placesInfoOld
             }
         }
 
@@ -102,6 +107,7 @@ class PlacesFragment : BaseFragment() {
                             )
                         )
                     }
+                    placesInfoOld = placesInfo
                     withContext(Dispatchers.Main) {
                         actionsAfter.invoke(placesInfo)
                     }
