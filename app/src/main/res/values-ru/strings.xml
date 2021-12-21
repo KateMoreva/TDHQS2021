@@ -88,7 +88,8 @@
     <string name="demonstrate_all">Показать всем</string>
     <string name="show_all">Показать все</string>
     <string name="stop_the_demonstration">Остановить показ</string>
-    <string name="account">Аккаунт</string>
+    <string name="account">Аккаунт</string><string name="new_map_name">"пустая карта"></string>
+
 
     <string name="not_found_error_message">Не найдено</string>
     <string name="network_error_message">Ошибка сети</string>
@@ -119,4 +120,6 @@
     <string name="no">Нет</string>
     <string name="cancel">Отменить</string>
     <string name="edit">Изменить</string>
+    <string name="maps_list">Библиотека карт</string>
+    <string name="tags_list">Список мест</string>
 </resources>

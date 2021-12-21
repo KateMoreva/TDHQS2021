@@ -4,10 +4,7 @@ import io.reactivex.Single
 import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
-import map.together.dto.db.CategoryDto
-import map.together.dto.db.LayerDto
-import map.together.dto.db.MapDto
-import map.together.dto.db.PlaceDto
+import map.together.dto.db.*
 import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
@@ -48,10 +45,13 @@ interface ApiInterface {
     fun getMyLayers(search: String?): Single<Response<List<LayerDto>>>
 
     @GET("/api/owner/maps")
-    fun getMyMaps(search: String?): Single<Response<List<MapDto>>>
+    fun getMyMaps(@Header("Authorization") token: String,
+                  @Query("search") search: String?): Single<Response<List<MapDto>>>
 
+    @FormUrlEncoded
     @POST("/api/owner/maps/create")
-    fun createMap(mapName: String): Single<Response<MapDto>>
+    fun createMap(@Header("Authorization") token: String,
+                  @Field("mapName") mapName: String): Single<Response<MapDto>>
 
     @POST("/api/owner/categories/create")
     fun createCategory(categoryName: String): Single<Response<CategoryDto>>
@@ -62,8 +62,9 @@ interface ApiInterface {
     @POST("/api/shared/users/change_role")
     fun changeUserRole(mapId: Long, email: String, role: Long): Single<Response<UserDto>>
 
-    @GET("/api/shared/users/list")
-    fun getUsersByMap(mapId: Long, search: String?): Single<Response<List<UserDto>>>
+    @GET("/api/shared/maps/updates")
+    fun getMapinfo(@Header("Authorization") token: String,
+                   @Query("mapId") mapId: Long): Single<Response<MapInfoDto>>
 
     @POST("/api/shared/places/remove")
     fun removePlaceByLayerAndMap(
@@ -90,8 +91,15 @@ interface ApiInterface {
         categoryId: Long
     ): Single<Response<PlaceDto>>
 
+    @FormUrlEncoded
     @POST("/api/shared/maps/remove")
-    fun removeMap(mapId: Long): Single<Response<MapDto>>
+    fun removeMap(@Header("Authorization") token: String,
+                  @Field("mapId") mapId: Long): Single<Response<MapDto>>
+
+    @FormUrlEncoded
+    @POST("/api/shared/maps/leave")
+    fun leaveMap(@Header("Authorization") token: String,
+                  @Field("mapId") mapId: Long): Single<Response<MapDto>>
 
     @POST("/api/shared/maps/change")
     fun changeMap(mapId: Long, newName: String): Single<Response<MapDto>>
