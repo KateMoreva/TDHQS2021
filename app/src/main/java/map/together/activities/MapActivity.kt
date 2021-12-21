@@ -40,6 +40,8 @@ import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.db.entity.*
+import map.together.dto.db.LayerDto
+import map.together.dto.db.PlaceDto
 import map.together.items.*
 import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
@@ -519,7 +521,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             val actualLayersFromServer = mapInfo.layers
 
             val layersToRemove = mutableListOf<LayerItem>()
-            val layersToUpdate = mutableListOf<Pair<Int, LayerItem>>()
+            val layersToUpdate = mutableListOf<Pair<Int, LayerDto>>()
             // we need to understand which one should be updated, created or removed
             currentLayers.forEachIndexed { index, layerItem ->
                 val foundLayerDto = actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
@@ -529,13 +531,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                         layersToRemove.add(layerItem)
                     }
                 } else if (foundLayerDto.timestamp > layerItem.timestamp) {
-                    layersToUpdate.add(Pair(index, foundLayerDto.updateLayerItem(layerItem)))
+                    layersToUpdate.add(Pair(index, foundLayerDto))
                 }
             }
+
             println("Updated layers: $layersToUpdate, removedLayers: $layersToRemove")
             // update updated layers
             layersToUpdate.forEach { indexAndLayerDto ->
-                layersList.update(indexAndLayerDto.first, indexAndLayerDto.second)
+                val layerItem = currentLayers[indexAndLayerDto.first]
+                layersList.update(indexAndLayerDto.first, indexAndLayerDto.second.updateLayerItem(layerItem))
             }
             // remove removed layers
             layersToRemove.forEach { layerItem ->
@@ -551,15 +555,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 layersList.addLast(newLayer)
             }
 
-//            val actualLayers: MutableList<LayerItem> = mapInfo.layers.map { layerDto ->
-//                val find = currentLayers.find { layerItem -> layerItem.id == layerDto.id.toString() }
-//                return@map if (find == null) {
-//                    layerDto.toNewLayerItem()
-//                } else {
-//                    layerDto.updateLayerItem(find)
-//                }
-//            }.toMutableList()
-//            layersList.setData(actualLayers)
+            actualLayersFromServer.forEach { layerDto ->
+                if (layersToRemove.find { removedLayer -> removedLayer.id == layerDto.id.toString() } == null) {
+                    updatePlaces(layerDto.places.toMutableList(), layerDto.id)
+                } else {
+                    updatePlaces(mutableListOf(), layerDto.id)
+                }
+            }
 
             mapInfo.map
             mapInfo.users
@@ -568,6 +570,47 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
         mapUpdater?.start()
 
+    }
+
+    private val layerToPlacesMap: MutableMap<Long, MutableList<PlaceDto>> = mutableMapOf()
+
+    private fun updatePlaces(places: MutableList<PlaceDto>, layerId: Long) {
+        val currentPlaces = layerToPlacesMap.getOrPut(layerId, { mutableListOf() })
+        val placesToRemove = mutableListOf<PlaceDto>()
+        val placesToUpdate = mutableListOf<Pair<Int, PlaceDto>>()
+        // we need to understand which one should be updated, created or removed
+        currentPlaces.forEachIndexed { index, currentPlace ->
+            val foundPlace = places.find { placeDto -> placeDto.id == currentPlace.id }
+            if (foundPlace == null) {
+                // this place was deleted
+                placesToRemove.add(currentPlace)
+            } else if (foundPlace.timestamp > currentPlace.timestamp) {
+                placesToUpdate.add(Pair(index, currentPlace))
+            }
+        }
+        println("Updated places: $placesToUpdate, removed places: $placesToRemove for layer $layerId")
+        // update updated layers
+        placesToUpdate.forEach { indexAndPlace ->
+            currentPlaces[indexAndPlace.first] = indexAndPlace.second
+            // todo: add update place logic here (?)
+        }
+        // remove removed layers
+        placesToRemove.forEach { layerItem ->
+            currentPlaces.remove(layerItem)
+            // todo: add remove place logic here (?)
+        }
+        // add new layers
+        places.filter { placeDto ->
+            val find = currentPlaces.find { place -> place.id == placeDto.id }
+            return@filter find == null
+        }.forEach { placeDto ->
+            println("new place at layer $layerId is $placeDto")
+            currentPlaces.add(placeDto)
+            // todo: add new place logic here (?)
+        }
+        layerToPlacesMap[layerId] = currentPlaces
+        println("Places for the layer $layerId are $currentPlaces")
+        // todo: here is an actual list of places
     }
 
     fun hideKeyboard() {
