@@ -10,6 +10,7 @@ import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.fragment_setting_profile.*
 import map.together.R
 import map.together.activities.BaseActivity
+import map.together.activities.BaseFragmentActivity
 import map.together.api.Api
 import map.together.api.RetrofitApiUtils.IVANSON_SERVER_URL
 import map.together.dto.UserDto
@@ -22,6 +23,8 @@ import map.together.utils.ResponseActions
 import map.together.utils.showSimpleInputMaterialDialog
 import map.together.utils.showSimpleMaterialDialog
 import java.net.HttpURLConnection
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_OK
 import javax.net.ssl.HttpsURLConnection
 
 class SettingsProfileFragment : BaseFragment() {
@@ -69,7 +72,15 @@ class SettingsProfileFragment : BaseFragment() {
                     negativeButtonText = view.context.getString(R.string.cancel),
                     onPositiveClicked = {
                         //TOD: delete user
-                        AuthRepository.doOnLogout(activity as BaseActivity)
+                        val token = CurrentUserRepository.getCurrentUserToken(context)!!
+                        (activity as BaseFragmentActivity).taskContainer.add(
+                            Api.deactivateUser(token).subscribe(
+                                { ResponseActions.onResponse(it, context, HTTP_OK, HTTP_FORBIDDEN) {
+                                    AuthRepository.doOnLogout(activity as BaseActivity)
+                                } },
+                                { ResponseActions.onFail(it, context) }
+                            )
+                        )
 
                     },
                 )
@@ -98,6 +109,7 @@ class SettingsProfileFragment : BaseFragment() {
             ?: "Username"
         user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email
             ?: "email@email.email"
+
     }
 
     private fun changeUserPhoto(url: String) {

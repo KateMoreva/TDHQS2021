@@ -25,6 +25,9 @@ interface ApiInterface {
     @GET("/api/auth/login")
     fun loginRequest(@Header("Authorization") token: String): Single<Response<UserDto>>
 
+    @POST("/api/auth/deactivateAccount")
+    fun deactivateUser(@Header("Authorization") token: String): Single<Response<UserDto>>
+
     @FormUrlEncoded
     @POST("/api/auth/profile/change")
     fun changeUserData(

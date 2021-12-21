@@ -91,6 +91,11 @@ object Api {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
+    fun deactivateUser(token: String): Single<Response<UserDto>> =
+            api.deactivateUser(token)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
     fun fakeLogin(token: String): Single<Response<UserDto>> {
         val testUser = UserDto(
             1,

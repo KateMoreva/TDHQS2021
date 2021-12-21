@@ -3,10 +3,7 @@ package map.together.activities.auth
 import android.os.Bundle
 import android.view.View
 import com.afollestad.materialdialogs.MaterialDialog
-import com.yandex.mapkit.MapKitFactory
 import kotlinx.android.synthetic.main.activity_login.*
-import kotlinx.android.synthetic.main.activity_login.email_et
-import kotlinx.android.synthetic.main.activity_login.password_et
 import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
@@ -35,7 +32,7 @@ class LoginActivity : BaseActivity() {
                 password_et.text.toString()
             )
             taskContainer.add(
-                Api.fakeLogin(token).subscribe(
+                Api.login(token).subscribe(
                     { onResponse(it, token) },
                     { onFail(it) }
                 )
@@ -66,6 +63,16 @@ class LoginActivity : BaseActivity() {
                 MaterialDialog(this).show {
                     title(R.string.cannot_login)
                     message(R.string.server_not_available)
+                    negativeButton(R.string.close) {
+                        it.cancel()
+                    }
+                }
+                Logger.d(this, response.code())
+            }
+            HttpURLConnection.HTTP_BAD_REQUEST -> {
+                MaterialDialog(this).show {
+                    title(R.string.cannot_login)
+                    message(text=response.errorBody()?.string())
                     negativeButton(R.string.close) {
                         it.cancel()
                     }
