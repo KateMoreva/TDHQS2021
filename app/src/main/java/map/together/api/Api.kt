@@ -6,6 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
+import map.together.dto.db.CategoryDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.MapInfoDto
 import okhttp3.MultipartBody
@@ -88,6 +89,16 @@ object Api {
 
     fun getMapInfo(token: String, mapId: Long): Single<Response<MapInfoDto>> =
             api.getMapinfo(token, mapId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun deactivateUser(token: String): Single<Response<UserDto>> =
+            api.deactivateUser(token)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun changeCategory(token: String, categoryId: Long, name: String, color: Int): Single<Response<CategoryDto>> =
+            api.changeCategory(token, categoryId, name, color)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
