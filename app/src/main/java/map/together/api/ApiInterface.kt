@@ -59,8 +59,12 @@ interface ApiInterface {
     @POST("/api/owner/categories/create")
     fun createCategory(categoryName: String): Single<Response<CategoryDto>>
 
+    @FormUrlEncoded
     @POST("/api/owner/categories/change")
-    fun changeCategory(categoryId: Long, newName: String): Single<Response<CategoryDto>>
+    fun changeCategory(@Header("Authorization") token: String,
+                       @Field("categoryId") categoryId: Long,
+                       @Field("newName") newName: String,
+                       @Field("color") color: Int): Single<Response<CategoryDto>>
 
     @POST("/api/shared/users/change_role")
     fun changeUserRole(mapId: Long, email: String, role: Long): Single<Response<UserDto>>

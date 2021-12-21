@@ -7,6 +7,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
 import map.together.R
+import map.together.activities.BaseFragmentActivity
+import map.together.api.Api
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
@@ -32,25 +34,23 @@ class SettingsCategoriesFragment : BaseFragment() {
                 layoutId = R.layout.item_category,
                 dataSource = categoriesList,
                 onClick = { category ->
-                    print("Category $category clicked")
-                    val dialog = CategoryColorDialog()
-                    dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
-                    val ff = dialog.selectedColor
-//                    categoriesList.remove(category)
-                    category.colorRecourse = ff
-                    val nam = dialog.categoryName
-                    category.name = nam
-//                    categoriesList.add(category)
 
                 },
                 onEdit = { category ->
                     print("Category $category onChange")
-                    val dialog = CategoryColorDialog()
+                    val dialog = CategoryColorDialog { catName, catColor ->
+                        val index = categoriesList.indexOf(category)
+                        category.colorRecourse = catColor
+                        category.name = catName
+                        categoriesList.update(index, category)
+                        (activity as BaseFragmentActivity).taskContainer.add(
+                            Api.changeCategory(token, catName, catColor).subscribe(
+
+                            )
+                        )
+                    }
                     dialog.show(requireActivity().supportFragmentManager, "CategoryColorDialog")
-                    val ff = dialog.selectedColor
-                    category.colorRecourse = ff
-                    val nam = dialog.categoryName
-                    category.name = nam
+
                 },
                 onRemove = { category ->
                     print("Category $category deleted")

@@ -96,6 +96,11 @@ object Api {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
+    fun changeCategory(token: String, categoryId: Long, name: String, color: Int): Single<Response<UserDto>> =
+            api.changeCategory(token, categoryId, name, color)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
     fun fakeLogin(token: String): Single<Response<UserDto>> {
         val testUser = UserDto(
             1,

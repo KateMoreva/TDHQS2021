@@ -4,18 +4,16 @@ import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
-import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
 import kotlinx.android.synthetic.main.category_color_dialog.*
 import kotlinx.android.synthetic.main.category_color_dialog.view.*
 import map.together.R
 
-class CategoryColorDialog : DialogFragment() {
+class CategoryColorDialog(private val onSave: (String, Int) -> Unit) : DialogFragment() {
     var selectedColor: Int = 0
     var drawableColor: ImageView? = null
     var categoryName: String = ""
@@ -170,6 +168,7 @@ class CategoryColorDialog : DialogFragment() {
 
             save!!.setOnClickListener {
                 categoryName = view.category_name.text.toString()
+                onSave.invoke(categoryName, selectedColor)
                 dialog.dismiss()
             }
 
