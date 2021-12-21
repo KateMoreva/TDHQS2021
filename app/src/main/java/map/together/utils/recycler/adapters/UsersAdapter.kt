@@ -14,6 +14,7 @@ class UsersAdapter(
     @LayoutRes layoutId: Int,
     dataSource: ItemsList<UserItem>,
     private val onClick: (UserItem) -> Unit = {},
+    private val onChangeRole: (UserItem) -> Unit = {},
     private val onRemove: (UserItem) -> Unit = {}
 ) : BaseListAdapter<UserItem>(holderType, layoutId, dataSource, onClick) {
 
@@ -21,6 +22,10 @@ class UsersAdapter(
         super.onBindViewHolder(holder, position)
         val item = data[position]
         val layerHolder = (holder as UsersViewHolder)
+
+        layerHolder.setOnChangeRoleListener {
+            onChangeRole.invoke(item)
+        }
 
         layerHolder.setOnRemoveItemClickListener {
             showSimpleMaterialDialog(

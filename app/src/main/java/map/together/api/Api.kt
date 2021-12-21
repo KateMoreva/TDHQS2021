@@ -9,6 +9,7 @@ import map.together.dto.UserSignUpDto
 import map.together.dto.db.CategoryDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.MapInfoDto
+import map.together.dto.db.UserMapDto
 import okhttp3.MultipartBody
 import retrofit2.Response
 
@@ -99,6 +100,11 @@ object Api {
 
     fun changeCategory(token: String, categoryId: Long, name: String, color: Int): Single<Response<CategoryDto>> =
             api.changeCategory(token, categoryId, name, color)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun changeRole(token: String, mapId: Long, email: String, role: Long): Single<Response<UserMapDto>> =
+            api.changeUserRole(token, mapId, email, role)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 

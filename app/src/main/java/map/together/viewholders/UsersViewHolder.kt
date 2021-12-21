@@ -16,42 +16,68 @@ class UsersViewHolder(
 
     private var name: TextView = itemView.user_name_text
     private var remove: FloatingActionButton = itemView.remove_user
-
-    //    private var roles = UserRoles
-    private var rolesList: List<String> = mutableListOf("FFF", "ggg")
-//    private var role: Spinner = itemView.user_role
     private var item: UserItem? = null
-    private var currentLevel: Int = 0
+    private var userRole: Spinner = itemView.user_role
+    val roles = listOf("Модерация", "Изменение", "Просмотр")
 
     override fun bind(item: UserItem) {
         this.item = item
-        name.setText(item.name)
+        name.text = item.name
 
-//        val arrayAdapter = ArrayAdapter(itemView.context, R.layout.spinner_item, rolesList)
-//        arrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
-//        role.adapter = arrayAdapter
-//        role.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-//            override fun onNothingSelected(parent: AdapterView<*>?) {}
-//            override fun onItemSelected(
-//                parent: AdapterView<*>?,
-//                view: View?,
-//                position: Int,
-//                id: Long
-//            ) {
-//                currentLevel = position + 1
-//            }
-//        }
-//
-//        this.role.setSelection(0)
+        if (item.canDelete)
+            remove.visibility = View.VISIBLE
+        else
+            remove.visibility = View.INVISIBLE
+
+        userRole.isEnabled = item.canEdit
+
+        var index = 0
+
+        when (item.roleName) {
+            "Модерация" -> {
+                index = 0
+                this.item!!.role = 7
+            }
+            "Изменение" -> {
+                index = 1
+                this.item!!.role = 3
+            }
+            "Просмотр" -> {
+                index = 2
+                this.item!!.role = 1
+            }
+        }
+
+        val categoryAdapter = ArrayAdapter<String>(itemView.context, R.layout.spinner_item, roles)
+        categoryAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+        userRole.adapter = categoryAdapter
+
+        userRole.setSelection(index, true)
+
     }
-//
-//    fun setOnItemClickListener(onClick: (View) -> Unit) {
-//        role.setOnClickListener {
-//            onClick(it)
-//        }
-//    }
 
     fun setOnRemoveItemClickListener(onRemove: (View) -> Unit) {
         remove.setOnClickListener(onRemove)
+    }
+
+    fun setOnChangeRoleListener(onChange: () -> Unit) {
+        userRole.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                this@UsersViewHolder.item!!.roleName = roles[position]
+                when (this@UsersViewHolder.item!!.roleName) {
+                    "Модерация" -> {
+                        this@UsersViewHolder.item!!.role = 7
+                    }
+                    "Изменение" -> {
+                        this@UsersViewHolder.item!!.role = 3
+                    }
+                    "Просмотр" -> {
+                        this@UsersViewHolder.item!!.role = 1
+                    }
+                }
+                onChange.invoke()
+            }
+        }
     }
 }

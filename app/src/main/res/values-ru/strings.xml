@@ -122,4 +122,11 @@
     <string name="edit">Изменить</string>
     <string name="maps_list">Библиотека карт</string>
     <string name="tags_list">Список мест</string>
+
+    <string-array name="role_types">
+        <item>Модерация</item>
+        <item>Изменение</item>
+        <item>Просмотр</item>
+    </string-array>
+
 </resources>
