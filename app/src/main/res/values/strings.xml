@@ -119,7 +119,8 @@
     <string name="logout">Выйти из профиля</string>
     <string name="edit_name">Изменение имени</string>
     <string name="enter_new_name">Введите новое имя</string>
-
+    <string name="empty_category" translatable="false">"Имя категории пустое"</string>
+    <string name="already_created_category" translatable="false">"Такая категория уже существуете"</string>
     <string name="delete_category_confirmation">Вы уверены, что хотите удалить категорию?</string>
     <string name="delete_user_confirmation" translatable="false">Вы уверены, что хотите удалить пользователя с карты?</string>
     <string name="def_category" translatable="false">Без категории</string>

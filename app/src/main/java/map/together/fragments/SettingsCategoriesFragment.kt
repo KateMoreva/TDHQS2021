@@ -6,7 +6,13 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import map.together.R
+import map.together.db.entity.CategoryEntity
+import map.together.db.entity.PlaceEntity
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
@@ -23,6 +29,21 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
     )
     val categoriesList = ItemsList(categories)
 
+//    fun getCategories(
+//        layerId: Long, actionsAfter: (
+//            List<CategoryEntity>
+//        ) -> Unit
+//    ) {
+//        GlobalScope.launch(Dispatchers.IO) {
+//            database?.let {
+//                val placesDao = it.placeDao().getByLayerId(layerId)
+//                withContext(Dispatchers.Main) {
+//                    actionsAfter.invoke(placesDao)
+//                }
+//            }
+//        }
+//    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -33,7 +54,7 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
             layoutId = R.layout.item_category,
             dataSource = categoriesList,
             onClick = {
-                CategoryColorDialog(it, this).show(
+                CategoryColorDialog(it, categories, this).show(
                     requireActivity().supportFragmentManager,
                     "CategoryColorDialog"
                 )
@@ -42,7 +63,7 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
                 onEdit = { category ->
                     print("Category $category onChange")
                     CategoryColorDialog(
-                        category,
+                        category, categories,
                         this
                     ).show(requireActivity().supportFragmentManager, "CategoryColorDialog")
                 },
@@ -61,6 +82,10 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
             val newCategory = CategoryItem(
                 categoriesList.size().toString(),
                 "Новая категория " + categoriesList.size(), R.color.grey
+            )
+            CategoryColorDialog(newCategory, categories, this).show(
+                requireActivity().supportFragmentManager,
+                "CategoryColorDialog"
             )
             categoriesList.addLast(newCategory)
             categories_list.smoothScrollToPosition(categoriesList.size() - 1)

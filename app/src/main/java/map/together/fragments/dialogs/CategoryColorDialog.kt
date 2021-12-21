@@ -8,8 +8,10 @@ import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.DialogFragment
+import com.afollestad.materialdialogs.MaterialDialog
 import kotlinx.android.synthetic.main.category_color_dialog.*
 import kotlinx.android.synthetic.main.category_color_dialog.view.*
 import map.together.R
@@ -17,6 +19,7 @@ import map.together.items.CategoryItem
 
 class CategoryColorDialog(
     private val item: CategoryItem,
+    private val existing: MutableList<CategoryItem>,
     private val listener: CategoryDialogListener
 ) : DialogFragment() {
     var selectedColor: Int = 0
@@ -62,6 +65,8 @@ class CategoryColorDialog(
             save = view.save_category
             selecded = view.selected_category_color
             view.category_name.setText(item.name)
+            val oldName = item.name
+            selectedColor = item.colorRecourse
             selecded!!.setColorFilter(
                 ContextCompat.getColor(this.requireContext(), item.colorRecourse),
                 android.graphics.PorterDuff.Mode.SRC_IN
@@ -178,10 +183,28 @@ class CategoryColorDialog(
 
             save!!.setOnClickListener {
                 categoryName = view.category_name.text.toString()
-                item.name = categoryName
-                item.colorRecourse = selectedColor
-                listener.onSaveParameterClick(item)
-                dialog.dismiss()
+                val names = existing.map { elem -> elem.name }
+                if (categoryName != oldName && names.contains(categoryName)) {
+                    MaterialDialog(this.requireContext()).show {
+                        message(R.string.already_created_category)
+                        negativeButton(R.string.close) {
+                            it.cancel()
+                        }
+                    }
+                } else if (categoryName.isEmpty()) {
+//                    Toast.makeText(this.requireContext(), "Имя категории пустое", Toast.LENGTH_SHORT).show()
+                    MaterialDialog(this.requireContext()).show {
+                        message(R.string.empty_category)
+                        negativeButton(R.string.close) {
+                            it.cancel()
+                        }
+                    }
+                } else {
+                    item.name = categoryName
+                    item.colorRecourse = selectedColor
+                    listener.onSaveParameterClick(item)
+                    dialog.dismiss()
+                }
             }
 
             dialog

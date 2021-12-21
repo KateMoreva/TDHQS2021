@@ -738,7 +738,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     )
                     checkPlaceMarked()
                     category_on_tap_change_name_id.setOnClickListener {
-                        CategoryColorDialog(selectedPlaceCategory!!, this).show(
+                        CategoryColorDialog(
+                            selectedPlaceCategory!!,
+                            placeCategory.values as MutableList<CategoryItem>, this
+                        ).show(
                             supportFragmentManager,
                             "CategoryColorDialog"
                         )
@@ -961,12 +964,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
     }
 
-    private fun hideUsersMenu() {
-        val usersBottomSheetBehavior = from(users_edit_menu)
-        usersBottomSheetBehavior.setState(STATE_HIDDEN)
-        category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
-    }
-
     override fun onMapLongTap(p0: Map, p1: Point) {
         if (!isLinePointClick) {
             val y = mapview.map.maxZoom.roundToInt()
@@ -999,6 +996,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     override fun onSaveParameterClick(item: CategoryItem) {
         selectedPlaceCategory = item
+        category_on_tap_name_id.setText(item.name)
         category_img.setColorFilter(
             ContextCompat.getColor(applicationContext, item.colorRecourse),
             android.graphics.PorterDuff.Mode.SRC_IN
