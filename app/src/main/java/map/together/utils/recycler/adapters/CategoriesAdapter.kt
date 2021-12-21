@@ -1,9 +1,7 @@
 package map.together.utils.recycler.adapters
 
-import android.app.ProgressDialog.show
 import androidx.annotation.LayoutRes
 import map.together.R
-import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.utils.showSimpleMaterialDialog

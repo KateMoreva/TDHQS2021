@@ -22,6 +22,24 @@ class CategoryColorDialog(
     private val existing: MutableList<CategoryItem>,
     private val listener: CategoryDialogListener
 ) : DialogFragment() {
+
+    companion object {
+        val COLORS_ARRAY = listOf(
+                R.color.red,
+                R.color.orange,
+                R.color.yellow,
+                R.color.green,
+                R.color.l_blue,
+                R.color.blue,
+                R.color.purple,
+                R.color.grey,
+                R.color.black,
+                R.color.pink,
+                R.color.l_green,
+                R.color.acid,
+        )
+    }
+
     var selectedColor: Int = 0
     var drawableColor: ImageView? = null
     var categoryName: String = ""
@@ -68,113 +86,113 @@ class CategoryColorDialog(
             val oldName = item.name
             selectedColor = item.colorRecourse
             selecded!!.setColorFilter(
-                ContextCompat.getColor(this.requireContext(), item.colorRecourse),
+                ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[item.colorRecourse]),
                 android.graphics.PorterDuff.Mode.SRC_IN
             );
 
             colorRed!!.setOnClickListener {
-                selectedColor = R.color.red
+                selectedColor = 0
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_red
 
             }
             colorOrange!!.setOnClickListener {
-                selectedColor = R.color.orange
+                selectedColor = 1
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_orange
 
             }
             colorYellow!!.setOnClickListener {
-                selectedColor = R.color.yellow
+                selectedColor = 2
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_yellow
 
             }
             colorGreen!!.setOnClickListener {
-                selectedColor = R.color.green
+                selectedColor = 3
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_green
 
             }
             colorLightBlue!!.setOnClickListener {
-                selectedColor = R.color.l_blue
+                selectedColor = 4
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_light_blue
 
             }
             colorBlue!!.setOnClickListener {
-                selectedColor = R.color.blue
+                selectedColor = 5
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_blue
 
             }
             colorPurple!!.setOnClickListener {
-                selectedColor = R.color.purple
+                selectedColor = 6
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_purple
 
             }
             colorGray!!.setOnClickListener {
-                selectedColor = R.color.grey
+                selectedColor = 7
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_gray
 
             }
             colorBlack!!.setOnClickListener {
-                selectedColor = R.color.black
+                selectedColor = 8
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_black
 
             }
             colorPink!!.setOnClickListener {
-                selectedColor = R.color.pink
+                selectedColor = 9
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_pink
 
             }
             colorLightGreen!!.setOnClickListener {
-                selectedColor = R.color.l_green
+                selectedColor = 10
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_light_green
 
             }
             colorAcid!!.setOnClickListener {
-                selectedColor = R.color.acid
+                selectedColor = 11
                 selecded!!.setColorFilter(
-                    ContextCompat.getColor(this.requireContext(), selectedColor),
+                    ContextCompat.getColor(this.requireContext(), COLORS_ARRAY[selectedColor]),
                     android.graphics.PorterDuff.Mode.SRC_IN
                 );
                 drawableColor = category_color_acid

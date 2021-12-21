@@ -11,10 +11,10 @@ data class CategoryDto(
     @SerializedName("name")
     @Expose
     var name: String,
-    @SerializedName("colorRecourse")
+    @SerializedName("color")
     @Expose
-    var colorRecourse: Int,
-    @SerializedName("owner_id")
+    var color: Int,
+    @SerializedName("ownerId")
     @Expose
     var ownerId: Long,
 )
