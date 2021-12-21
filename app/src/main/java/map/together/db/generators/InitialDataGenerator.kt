@@ -2,6 +2,7 @@ package map.together.db.generators
 
 import android.content.Context
 import android.graphics.Color
+import map.together.R
 import map.together.db.entity.CategoryEntity
 import map.together.db.entity.LayerEntity
 import map.together.db.entity.LayerMapEntity
@@ -36,8 +37,8 @@ class InitialDataGenerator {
 
         fun getCategoryDao(context: Context): List<CategoryEntity> {
             return listOf(
-                CategoryEntity("Без категории", 1, Color.GRAY, 1),
-                CategoryEntity("Любимое", 1, Color.RED, 2),
+                CategoryEntity("Без категории", 1, R.color.grey, 1),
+                CategoryEntity("Любимое", 1, R.color.red, 2),
             )
         }
 

@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomsheet.BottomSheetBehavior.*
@@ -53,6 +54,7 @@ import map.together.db.entity.CategoryEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
 import map.together.db.entity.UserEntity
+import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
 import map.together.items.LayerItem
@@ -68,7 +70,8 @@ import kotlin.math.roundToInt
 import kotlin.math.round
 
 
-class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener {
+class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener,
+    CategoryColorDialog.CategoryDialogListener {
     val SPB = Point(59.9408455, 30.3131542)
 
     //TODO: loading from meta
@@ -79,6 +82,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     val currentPlaces: MutableList<PlaceEntity> = ArrayList()
     val currentAddress: MutableMap<Long, String> = HashMap()
     val currentGeoObjects: MutableMap<Long, GeoObject> = HashMap()
+    val placeCategory: MutableMap<Long, CategoryItem> = HashMap()
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
     var isLinePointClick = false
@@ -93,6 +97,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     val searchResults: MutableList<SearchItem> = ArrayList()
     val mapUsers: MutableList<UserItem> = ArrayList()
     val userLayer: MutableMap<Long, Long> = HashMap()
+    var selectedPlaceCategory: CategoryItem? = null
+    val layerPlaces = mutableListOf<PlaceEntity>()
 
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
@@ -103,8 +109,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
+//    override fun void onStart() {
+//        super.onStart()
+//
+//    }
+
     override fun onObjectTap(geoObjectTapEvent: GeoObjectTapEvent): Boolean {
-        preLoad = false
         if (!isLinePointClick) {
             val selectionMetadata = geoObjectTapEvent
                 .geoObject
@@ -132,7 +142,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         SearchFactory.initialize(this);
         //TODO: LOAD meta from sever
 
-        val layerPlaces = mutableListOf<PlaceEntity>()
+
         getUsers(currentMapId) { users ->
             mapUsers.addAll(userItemFromEntity(users))
             var usersList = ItemsList(mapUsers)
@@ -167,7 +177,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             drawPlaces(layerPlaces)
             for (place in places) {
                 val y = mapview.map.maxZoom.roundToInt()
-                preLoad = true
                 geoSearch = true
                 loadingObjId = place.id
                 searchSession = searchManager!!.submit(
@@ -219,12 +228,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             } else {
                 mapview.map.removeInputListener(polylineListener)
                 mapview.map.mapObjects.clear()
-                for (obj in currentGeoObjects) {
-                    val point = obj.value.geometry[0].point
-                    if (point != null) {
+                for (obj in currentPlaces) {
+                    val point = Point(obj.latitude.toDouble(), obj.longitude.toDouble())
+                    val category = placeCategory.get(obj.id)
+                    if (category != null) {
                         mapview.getMap().getMapObjects().addPlacemark(
                             Point(point.latitude, point.longitude),
-                            ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
+                            ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
                         )
                     }
                 }
@@ -509,12 +519,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 place
                     .categoryId
             ) { category ->
-                if (category.colorRecourse != null) {
-                    mapview.getMap().getMapObjects().addPlacemark(
-                        Point(place.latitude.toDouble(), place.longitude.toDouble()),
-                        ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse!!))
-                    )
-                }
+                placeCategory.put(place.id, category)
+                mapview.getMap().getMapObjects().addPlacemark(
+                    Point(place.latitude.toDouble(), place.longitude.toDouble()),
+                    ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
+                )
             }
         }
     }
@@ -600,15 +609,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         return true
     }
 
-    private fun submitQuery(query: String) {
-        searchSession = searchManager?.submit(
-            query,
-            VisibleRegionUtils.toPolygon(mapview.map.visibleRegion),
-            SearchOptions(),
-            this
-        )
-    }
-
     protected fun createNewPlace(
         name: String,
         ownerId: Long,
@@ -677,13 +677,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
         var place: PlaceEntity? = null
-        for (placeEntity in currentGeoObjects) {
-            val plLat = placeEntity.value.geometry[0].point?.latitude?.round(2)
-            val pLong = placeEntity.value.geometry[0].point?.longitude?.round(2)
+        for (placeEntity in currentPlaces) {
+            val plLat = placeEntity.latitude.toDouble().round(2)
+            val pLong = placeEntity.longitude.toDouble().round(2)
             val lat = latitude.round(2)
             val log = longitude.round(2)
             if (plLat == lat && pLong == log) {
-                place = currentPlaces.find { plaace -> place?.id == placeEntity.key }
+                place = placeEntity
             }
         }
         return place
@@ -705,18 +705,58 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 val resultLocation = searchRes[0].obj!!.geometry[0].point
                 if (preLoad) {
                     if (resultLocation != null) {
-                        currentGeoObjects.put(loadingObjId, geoObject)
+                        val placeEntity =
+                            currentPlaces.filter { placeEntity -> placeEntity.id == loadingObjId }
+                        if (placeEntity.isNotEmpty()) {
+                            category_on_tap_place_name_id.setText(placeEntity[0].name)
+                            val category = placeCategory.get(loadingObjId)
+                            if (category != null) {
+                                category_on_tap_name_id.setText(category.name)
+                                category_img.setColorFilter(
+                                    ContextCompat.getColor(
+                                        baseContext,
+                                        category.colorRecourse
+                                    ),
+                                    android.graphics.PorterDuff.Mode.SRC_IN
+                                )
+                                selectedPlaceCategory = category
+                            }
+                        }
                     }
                 } else {
                     selectedObjectId = address.toString()
                     selectedObject = geoObject
+                    selectedPlaceCategory =
+                        CategoryItem("-1", resources.getString(R.string.def_category), R.color.grey)
+                    category_on_tap_name_id.setText(selectedPlaceCategory!!.name)
+                    category_img.setColorFilter(
+                        ContextCompat.getColor(
+                            applicationContext,
+                            selectedPlaceCategory!!.colorRecourse
+                        ),
+                        android.graphics.PorterDuff.Mode.SRC_IN
+                    )
                     checkPlaceMarked()
+                    category_on_tap_change_name_id.setOnClickListener {
+                        CategoryColorDialog(selectedPlaceCategory!!, this).show(
+                            supportFragmentManager,
+                            "CategoryColorDialog"
+                        )
+                    }
+
                 }
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
                         if (resultLocation != null) {
                             //TODO: correct category + save to DB
                             var placeId = -1L
+                            val place = PlaceEntity(
+                                plName,
+                                currentUserID,
+                                resultLocation.latitude.toString(),
+                                resultLocation.longitude.toString(),
+                                1
+                            )
                             createNewPlace(
                                 plName,
                                 currentUserID,
@@ -727,10 +767,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                                 placeId = newPlaceId
                                 if (placeId != -1L) {
                                     currentAddress.put(placeId, address.toString())
-                                    currentGeoObjects.put(placeId, geoObject)
+                                    place.id = placeId
+                                    currentPlaces.add(place)
                                     mapObjects.addPlacemark(
                                         resultLocation,
-                                        ImageProvider.fromBitmap(drawSimpleBitmap(Color.BLUE))
+                                        ImageProvider.fromBitmap(selectedPlaceCategory?.let { it1 ->
+                                            drawSimpleBitmap(
+                                                it1.colorRecourse
+                                            )
+                                        })
                                     )
                                 }
                             }
@@ -740,7 +785,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                         mapview.map.deselectGeoObject()
                     } else {
                         if (resultLocation != null) {
-                            category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
                             var pl = getPlaceByParam(
                                 resultLocation.latitude,
                                 resultLocation.longitude
@@ -756,11 +800,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                                                 place.latitude.toDouble(),
                                                 place.longitude.toDouble()
                                             )
-                                        val category = Color.BLUE
-                                        mapObjects.addPlacemark(
-                                            point,
-                                            ImageProvider.fromBitmap(drawSimpleBitmap(category))
-                                        )
+                                        val category = placeCategory.get(place.id)
+                                        if (category != null) {
+                                            mapObjects.addPlacemark(
+                                                point,
+                                                ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
+                                            )
+                                        }
                                     }
                                     selectedObjectId = ""
                                     hideTagMenu()
@@ -791,13 +837,13 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    fun drawSimpleBitmap(color: Int): Bitmap {
+    fun drawSimpleBitmap(resourceId: Int): Bitmap {
         val source =
             BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
         val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(bitmap)
         var paint = Paint();
-        paint.setColor(Color.GREEN);
+        paint.setColor(resources.getColor(resourceId, theme));
         paint.setStyle(Paint.Style.FILL);
         canvas.drawCircle(
             (source.height / 2).toFloat(),
@@ -862,7 +908,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         search_text_field.setText("")
         searchResults.clear()
         geoSearch = true
-        preLoad = false
         if (!isLinePointClick) {
             geoSearch = true
             val y = mapview.map.maxZoom.roundToInt()
@@ -874,13 +919,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     private fun checkPlaceMarked() {
-        if (preLoad) {
-            return
-        }
         if (selectedObject != null) {
-            for (place in currentGeoObjects) {
-                val plLat = place.value.geometry[0].point?.latitude?.round(2)
-                val pLong = place.value.geometry[0].point?.longitude?.round(2)
+            for (place in currentPlaces) {
+                val plLat = place.latitude.toDouble().round(2)
+                val pLong = place.longitude.toDouble().round(2)
                 val sLat = selectedObject!!.geometry[0].point?.latitude?.round(2)
                 val sLong = selectedObject!!.geometry[0].point?.longitude?.round(2)
                 if (plLat == sLat && pLong == sLong) {
@@ -888,11 +930,17 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 //                }
 //                if (selectedObgect?.name!! == place.value.name!!) {
                     category_on_tap_save_changes_id.setText(resources.getText(R.string.delete))
-                    val placeName =
-                        currentPlaces.filter { placeEntity -> placeEntity.id == place.key }
-                    if (placeName.isNotEmpty()) {
-                        category_on_tap_place_name_id.setText(placeName[0].name)
+                    category_on_tap_place_name_id.setText(place.name)
+                    val category = placeCategory.get(place.id)
+                    if (category != null) {
+                        category_on_tap_name_id.setText(category.name)
+                        category_img.setColorFilter(
+                            ContextCompat.getColor(applicationContext, category.colorRecourse),
+                            android.graphics.PorterDuff.Mode.SRC_IN
+                        )
+                        selectedPlaceCategory = category
                     }
+
                 }
             }
         }
@@ -920,7 +968,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
-        preLoad = false
         if (!isLinePointClick) {
             val y = mapview.map.maxZoom.roundToInt()
             geoSearch = true
@@ -949,4 +996,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     override fun getToolbarTitle(): String = getString(R.string.app_name)
 
     override fun canOpenNavMenuFromToolbar(): Boolean = false
+
+    override fun onSaveParameterClick(item: CategoryItem) {
+        selectedPlaceCategory = item
+        category_img.setColorFilter(
+            ContextCompat.getColor(applicationContext, item.colorRecourse),
+            android.graphics.PorterDuff.Mode.SRC_IN
+        )
+    }
 }
