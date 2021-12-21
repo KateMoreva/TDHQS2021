@@ -93,13 +93,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    private val DRAGGABLE_PLACEMARK_CENTER = Point(59.948, 30.323)
-    private val ANIMATED_PLACEMARK_CENTER = Point(59.948, 30.318)
-
     val currentPlaces: MutableList<PlaceEntity> = ArrayList()
-    val currentAddress: MutableMap<Long, String> = HashMap()
-    val currentGeoObjects: MutableMap<Long, GeoObject> = HashMap()
     val placeCategory: MutableMap<Long, CategoryItem> = HashMap()
+
     var polyline: Polyline = Polyline()
     var prevPolyline: Polyline = Polyline()
     var isLinePointClick = false
@@ -987,7 +983,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             ) { newPlaceId: Long ->
                                 placeId = newPlaceId
                                 if (placeId != -1L) {
-                                    currentAddress.put(placeId, address.toString())
                                     place.id = placeId
                                     currentPlaces.add(place)
                                     mapObjects.addPlacemark(
@@ -1012,7 +1007,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             )
                             if (pl != null) {
                                 deletePlace(pl) {
-                                    currentAddress.remove(address.toString())
                                     currentPlaces.remove(pl)
                                     mapObjects.clear()
                                     for (place in currentPlaces) {
