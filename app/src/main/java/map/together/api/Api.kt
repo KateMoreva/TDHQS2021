@@ -123,4 +123,9 @@ object Api {
         api.changeUserData(token, userName, passwordHash, oldPassword, picture)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    fun getMyCategories(token: String): Single<Response<List<CategoryDto>>> =
+            api.getMyCategories(token)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
 }

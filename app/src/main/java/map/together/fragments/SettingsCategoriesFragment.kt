@@ -7,26 +7,42 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
 import map.together.R
+import map.together.activities.BaseFragmentActivity
+import map.together.api.Api
 import map.together.fragments.dialogs.CategoryColorDialog
 import map.together.items.CategoryItem
 import map.together.items.ItemsList
+import map.together.repository.CurrentUserRepository
+import map.together.utils.ResponseActions
 import map.together.utils.recycler.adapters.CategoriesAdapter
 import map.together.viewholders.CategoryViewHolder
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import javax.net.ssl.HttpsURLConnection
 
 class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryDialogListener {
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_categories
-    val categories = mutableListOf(
-        CategoryItem("1", "Категория 1", 0),
-        CategoryItem("2", "Категория 2", 1),
-        CategoryItem("3", "Категория 3", 2),
-    )
+    var categories = mutableListOf<CategoryItem>()
     val categoriesList = ItemsList(categories)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // TODO: load categories from the server or get them from the local DB
+        val token = CurrentUserRepository.getCurrentUserToken(requireContext())!!
+
+        (activity as BaseFragmentActivity).taskContainer.add(
+                Api.getMyCategories(token).subscribe(
+                        { ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HTTP_BAD_REQUEST) { categoriesDtos ->
+                            categories = categoriesDtos!!.map {
+                                dto -> CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
+                            }.toMutableList()
+                            categoriesList.setData(categories)
+                            checkCategoriesList(categoriesList)
+                        } },
+                        { ResponseActions.onFail(it, requireContext()) }
+                )
+        )
 
         val adapter = CategoriesAdapter(
             holderType = CategoryViewHolder::class,
@@ -55,7 +71,7 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
         categories_list.adapter = adapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         categories_list.layoutManager = layoutManager
-        checkCategoriesList(categoriesList)
+
 
         add_category_btn.setOnClickListener {
             val newCategory = CategoryItem(

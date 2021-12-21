@@ -41,8 +41,8 @@ interface ApiInterface {
     @GET("/api/owner/places")
     fun getMyPlaces(search: String?): Single<Response<List<PlaceDto>>>
 
-    @GET("/api/owner/categories")
-    fun getMyCategories(search: String?): Single<Response<List<CategoryDto>>>
+    @GET("/api/owner/categories/list")
+    fun getMyCategories(@Header("Authorization") token: String): Single<Response<List<CategoryDto>>>
 
     @GET("/api/owner/layers")
     fun getMyLayers(search: String?): Single<Response<List<LayerDto>>>
