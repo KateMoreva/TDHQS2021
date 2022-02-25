@@ -4,34 +4,37 @@ import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 data class PlaceDto(
-        @SerializedName("id")
+    @SerializedName("id")
         @Expose
         val id: Long,
-        @SerializedName("name")
+    @SerializedName("name")
         @Expose
         var name: String,
-        @SerializedName("ownerId")
+    @SerializedName("ownerId")
         @Expose
         var ownerId: Long,
-        @SerializedName("latitude")
+    @SerializedName("latitude")
         @Expose
         var latitude: String,
-        @SerializedName("longitude")
+    @SerializedName("longitude")
         @Expose
         var longitude: String,
-        @SerializedName("canEdit")
+    @SerializedName("canEdit")
         @Expose
         var canEdit: Boolean,
-        @SerializedName("canDelete")
+    @SerializedName("canDelete")
         @Expose
-        var canDelete: Boolean,
-        @SerializedName("timestamp")
-        @Expose
-        var timestamp: Long,
-        @SerializedName("categoryName")
-        @Expose
-        var categoryName: String,
-        @SerializedName("categoryColor")
-        @Expose
-        var categoryColor: Int,
+    var canDelete: Boolean,
+    @SerializedName("timestamp")
+    @Expose
+    var timestamp: Long,
+    @SerializedName("categoryName")
+    @Expose
+    var categoryName: String,
+    @SerializedName("categoryColor")
+    @Expose
+    var categoryColor: Int,
+    @SerializedName("categoryId")
+    @Expose
+    var categoryId: Long,
 )

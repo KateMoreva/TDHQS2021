@@ -6,20 +6,21 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-        foreignKeys = [
-            ForeignKey(
-                    entity = UserEntity::class,
-                    parentColumns = ["id"],
-                    childColumns = ["ownerId"],
-                    onDelete = ForeignKey.CASCADE
-            ),
-            ForeignKey(
-                    entity = CategoryEntity::class,
-                    parentColumns = ["id"],
-                    childColumns = ["categoryId"],
-                    onDelete = ForeignKey.SET_DEFAULT
-            )
-        ])
+//        foreignKeys = [
+//            ForeignKey(
+//                    entity = UserEntity::class,
+//                    parentColumns = ["id"],
+//                    childColumns = ["ownerId"],
+//                    onDelete = ForeignKey.CASCADE
+//            ),
+//            ForeignKey(
+//                    entity = CategoryEntity::class,
+//                    parentColumns = ["id"],
+//                    childColumns = ["categoryId"],
+//                    onDelete = ForeignKey.SET_DEFAULT
+//            )
+//        ]
+)
 data class PlaceEntity(
         @ColumnInfo
         var name: String,

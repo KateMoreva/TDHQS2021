@@ -1,4 +1,4 @@
-package ru.ok.technopolis.training.personal.activities.settings
+package map.together.activities.settings
 
 import map.together.R
 

@@ -36,12 +36,12 @@ object Api {
      * Also, other actions could be performed in these methods, including
      * subscribeOn() and observeOn()
      *
-     *  fun getUserTrainings(user: User) =
-     *      api.getUserTrainings(user.uid)
+     *  fun getUserData(user: User) =
+     *      api.getUserData(user.uid)
      *          .subscribeOn(Schedulers.io())
      *          .observeOn(AndroidSchedulers.mainThread())
      *          .map {
-     *              Training.fromDto(it)
+     *              Data.fromDto(it)
      *          }
      *          .some_other_logic
      */
