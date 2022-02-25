@@ -16,17 +16,8 @@ class RegistrationScreen {
         return Espresso.onView(ViewMatchers.withText(message))
     }
 
-    fun typeFirstName(login: String): RegistrationScreen {
-        Espresso.onView(ViewMatchers.withId(R.id.email_et))
-            .perform(
-                ViewActions.typeText(login),
-                ViewActions.closeSoftKeyboard()
-            )
-        return this
-    }
-
-    fun typeLastName(login: String): RegistrationScreen {
-        Espresso.onView(ViewMatchers.withId(R.id.email_et))
+    fun typeName(login: String): RegistrationScreen {
+        Espresso.onView(ViewMatchers.withId(R.id.user_name_et))
             .perform(
                 ViewActions.typeText(login),
                 ViewActions.closeSoftKeyboard()

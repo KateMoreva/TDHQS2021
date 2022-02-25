@@ -5,7 +5,6 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
-import map.together.RegistrationScreen
 
 class LoginScreen {
 
