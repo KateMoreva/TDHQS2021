@@ -41,8 +41,8 @@ interface ApiInterface {
     @GET("/api/owner/places")
     fun getMyPlaces(search: String?): Single<Response<List<PlaceDto>>>
 
-    @GET("/api/owner/categories")
-    fun getMyCategories(search: String?): Single<Response<List<CategoryDto>>>
+    @GET("/api/owner/categories/list")
+    fun getMyCategories(@Header("Authorization") token: String): Single<Response<List<CategoryDto>>>
 
     @GET("/api/owner/layers")
     fun getMyLayers(search: String?): Single<Response<List<LayerDto>>>
@@ -66,8 +66,12 @@ interface ApiInterface {
                        @Field("newName") newName: String,
                        @Field("color") color: Int): Single<Response<CategoryDto>>
 
+    @FormUrlEncoded
     @POST("/api/shared/users/change_role")
-    fun changeUserRole(mapId: Long, email: String, role: Long): Single<Response<UserDto>>
+    fun changeUserRole(@Header("Authorization") token: String,
+                       @Field("mapId") mapId: Long,
+                       @Field("email") email: String,
+                       @Field("role") role: Long): Single<Response<UserMapDto>>
 
     @GET("/api/shared/maps/updates")
     fun getMapinfo(@Header("Authorization") token: String,

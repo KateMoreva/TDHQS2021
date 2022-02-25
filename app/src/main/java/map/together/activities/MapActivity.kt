@@ -42,6 +42,7 @@ import kotlinx.android.synthetic.main.item_menu.*
 import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
+import map.together.api.Api
 import map.together.db.entity.CategoryEntity
 import map.together.db.entity.LayerEntity
 import map.together.db.entity.LayerMapEntity
@@ -64,6 +65,7 @@ import map.together.items.UserItem
 import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
+import map.together.utils.ResponseActions
 import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
@@ -71,6 +73,7 @@ import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
+import javax.net.ssl.HttpsURLConnection
 import kotlin.math.round
 import kotlin.math.roundToInt
 
@@ -113,6 +116,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     var selectedPlaceCategory: CategoryItem? = null
     val layerPlaces = mutableListOf<PlaceEntity>()
 
+    var usersItemsList = ItemsList(mutableListOf<UserItem>())
+
     private val polylineListener = object : InputListener {
         override fun onMapLongTap(p0: Map, p1: Point) {}
         override fun onMapTap(p0: Map, p1: Point) {
@@ -152,27 +157,45 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         currentMapId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
         val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
 
-
-        getUsers(currentMapId) { users ->
-            mapUsers.addAll(userItemFromEntity(users))
-            var usersList = ItemsList(mapUsers)
-            val usersAdapter = UsersAdapter(
-                holderType = UsersViewHolder::class,
-                layoutId = R.layout.item_user,
-                dataSource = usersList,
-                onClick = { user ->
-                    print("Layer $user clicked")
-                },
-                onRemove = { item ->
-                    usersList.remove(item)
-                },
-
+        val usersAdapter = UsersAdapter(
+            holderType = UsersViewHolder::class,
+            layoutId = R.layout.item_user,
+            dataSource = usersItemsList,
+            onClick = { user ->
+                print("Layer $user clicked")
+            },
+            onChangeRole = { item ->
+                println(item)
+                taskContainer.add(
+                        Api.changeRole(
+                                token, currentMapId, item.email, item.role,
+                        ).subscribe(
+                                {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
+                                    println("Success!")
+                                }},
+                                { ResponseActions.onFail(it, applicationContext) }
+                        )
                 )
+            },
+                onRemove = { item ->
+                    println(item)
+                    taskContainer.add(
+                            Api.changeRole(
+                                    token, currentMapId, item.email, 0,
+                            ).subscribe(
+                                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
+                                        println("Success!")
+                                    }},
+                                    { ResponseActions.onFail(it, applicationContext) }
+                            )
+                    )
+                },
 
-            users_list.adapter = usersAdapter
-            val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
-            users_list.layoutManager = usersManager
-        }
+        )
+
+        users_list.adapter = usersAdapter
+        val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
+        users_list.layoutManager = usersManager
 
         searchManager = SearchFactory.getInstance().createSearchManager(SearchManagerType.ONLINE)
         search_text_field.visibility = View.INVISIBLE
@@ -189,27 +212,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             currentPlaces.addAll(layerPlaces)
         }
 
-        last_map_id = getSharedPreferences(applicationContext.packageName, 0).getLong(
-            SHARED_PREFERENCE_LAST_MAP_ID, 0
-        )
-//        var map: MapEntity
-//        CoroutineScope(Dispatchers.IO).launch {
-//            try {
-//                map = database!!.mapDao().getById(last_map_id)
-//            } catch (ex: Exception) {
-//                    val main_malyer_id = database!!.layerDao().insert(LayerEntity("слой 1", userId))
-//                    val place_id = database!!.placeDao().getAll()[0].id
-//                    last_map_id = database!!.mapDao().insert(
-//                        MapEntity(
-//                            getString(R.string.new_map_name), place_id,
-//                            main_malyer_id, userId, true, true, "Админ", 1))
-//                    getSharedPreferences(applicationContext.packageName, 0).edit().putLong(
-//                        SHARED_PREFERENCE_LAST_MAP_ID, last_map_id)
-//                    map = database!!.mapDao().getById(last_map_id)
-//                    database!!.userMapDao().insert(UserMapEntity(userId!!, last_map_id, RoleEnum.ADMIN))
-//                database!!.layerMapDao().insert(LayerMapEntity(last_map_id, main_malyer_id))
-//            }
-//        }
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
             mapview.map.move(
@@ -598,10 +600,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         usersToUpdate.forEach { indexAndPlace ->
             usersList[indexAndPlace.first] = indexAndPlace.second
             // todo: add update user logic here (?)
+            usersItemsList.update(indexAndPlace.first, indexAndPlace.second.toUserItem())
         }
         // remove removed users
         usersToRemove.forEach { userDto ->
             usersList.remove(userDto)
+            usersItemsList.remove(userDto.toUserItem())
             // todo: add remove user logic here (?)
         }
         // add new users
@@ -611,6 +615,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }.forEach { userDto ->
             println("new user is $userDto")
             usersList.add(userDto)
+            usersItemsList.addLast(userDto.toUserItem())
             // todo: add new user logic here (?)
         }
         println("Users are $usersList")
@@ -761,15 +766,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 }
             }
         }
-    }
-
-
-    fun userItemFromEntity(usersEntities: List<UserEntity>): List<UserItem> {
-        val userItems: MutableList<UserItem> = ArrayList()
-        for (userEntity in usersEntities) {
-            userItems.add(UserItem(userEntity.id.toString(), userEntity.userName))
-        }
-        return userItems
     }
 
     fun getCategory(
@@ -930,7 +926,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     selectedObjectId = address.toString()
                     selectedObject = geoObject
                     selectedPlaceCategory =
-                        CategoryItem("-1", resources.getString(R.string.def_category), R.color.grey)
+                        CategoryItem("-1", resources.getString(R.string.def_category), 1)
                     category_on_tap_name_id.setText(selectedPlaceCategory!!.name)
                     category_img.setColorFilter(
                         ContextCompat.getColor(
