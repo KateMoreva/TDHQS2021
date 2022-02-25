@@ -5,22 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity(
-//        foreignKeys = [
-//            ForeignKey(
-//                    entity = UserEntity::class,
-//                    parentColumns = ["id"],
-//                    childColumns = ["ownerId"],
-//                    onDelete = ForeignKey.CASCADE
-//            ),
-//            ForeignKey(
-//                    entity = CategoryEntity::class,
-//                    parentColumns = ["id"],
-//                    childColumns = ["categoryId"],
-//                    onDelete = ForeignKey.SET_DEFAULT
-//            )
-//        ]
-)
+@Entity
 data class PlaceEntity(
         @ColumnInfo
         var name: String,

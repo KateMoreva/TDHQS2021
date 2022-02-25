@@ -9,6 +9,7 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.db.AppDatabase
 import map.together.lifecycle.AppMap
 import map.together.lifecycle.Router
+import map.together.repository.CurrentUserRepository
 import map.together.utils.logger.Logger
 
 abstract class BaseActivity : AppCompatActivity() {
@@ -34,6 +35,8 @@ abstract class BaseActivity : AppCompatActivity() {
         AppMap.initialize()
         router = Router(this)
         database = AppDatabase.getInstance(applicationContext)
+
+        userId = CurrentUserRepository.currentUser.value?.id
 
 
         setContentView(getActivityLayoutId())

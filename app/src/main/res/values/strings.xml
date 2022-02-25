@@ -133,4 +133,9 @@
     <string name="cancel">Отменить</string>
     <string name="edit">Изменить</string>
     <string name="places_list" translatable="false">Места</string>
+    <string-array name="role_types">
+        <item>Модерация</item>
+        <item>Изменение</item>
+        <item>Просмотр</item>
+    </string-array>
 </resources>

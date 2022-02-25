@@ -9,6 +9,7 @@ import map.together.dto.UserSignUpDto
 import map.together.dto.db.CategoryDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.MapInfoDto
+import map.together.dto.db.UserMapDto
 import okhttp3.MultipartBody
 import retrofit2.Response
 
@@ -102,6 +103,11 @@ object Api {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
+    fun changeRole(token: String, mapId: Long, email: String, role: Long): Single<Response<UserMapDto>> =
+            api.changeUserRole(token, mapId, email, role)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
     fun fakeLogin(token: String): Single<Response<UserDto>> {
         val testUser = UserDto(
             1,
@@ -123,4 +129,9 @@ object Api {
         api.changeUserData(token, userName, passwordHash, oldPassword, picture)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    fun getMyCategories(token: String): Single<Response<List<CategoryDto>>> =
+            api.getMyCategories(token)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
 }
