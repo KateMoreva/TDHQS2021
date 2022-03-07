@@ -6,10 +6,7 @@ import io.reactivex.schedulers.Schedulers
 import map.together.dto.ImageUrlDto
 import map.together.dto.UserDto
 import map.together.dto.UserSignUpDto
-import map.together.dto.db.CategoryDto
-import map.together.dto.db.MapDto
-import map.together.dto.db.MapInfoDto
-import map.together.dto.db.UserMapDto
+import map.together.dto.db.*
 import okhttp3.MultipartBody
 import retrofit2.Response
 
@@ -75,6 +72,11 @@ object Api {
 
     fun createMap(token: String, name: String): Single<Response<MapDto>> =
             api.createMap(token, name)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun createLayer(token: String, name: String, mapId: Long): Single<Response<LayerDto>> =
+            api.createLayer(token, name, mapId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 

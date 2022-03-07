@@ -64,7 +64,7 @@ class MapsListFragment : BaseFragment() {
 
     private fun addMapAsync(callback: (MapEntity) -> Unit) {
         (activity as BaseFragmentActivity).taskContainer.add(
-            Api.createMap(CurrentUserRepository.getCurrentUserToken(requireContext())!!, "Новая карта " + (mapsInfo.size() + 1)).subscribe(
+            Api.createMap(getToken(), "Новая карта " + (mapsInfo.size() + 1)).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_BAD_REQUEST) { createdMap ->
                     GlobalScope.launch(Dispatchers.IO) {
                         val database = (activity as BaseFragmentActivity).database!!
@@ -84,7 +84,7 @@ class MapsListFragment : BaseFragment() {
 
     private fun removeMapAsync(mapId: Long, callback: () -> Unit) {
         (activity as BaseFragmentActivity).taskContainer.add(
-            Api.removeMap(CurrentUserRepository.getCurrentUserToken(requireContext())!!, mapId).subscribe(
+            Api.removeMap(getToken(), mapId).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_UNAUTHORIZED) { removedMap ->
                     GlobalScope.launch(Dispatchers.IO) {
                         val database = (activity as BaseFragmentActivity).database!!
@@ -101,7 +101,7 @@ class MapsListFragment : BaseFragment() {
 
     private fun leaveMapAsync(mapId: Long, callback: () -> Unit) {
         (activity as BaseFragmentActivity).taskContainer.add(
-            Api.leaveMap(CurrentUserRepository.getCurrentUserToken(requireContext())!!, mapId).subscribe(
+            Api.leaveMap(getToken(), mapId).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { removedMap ->
                     GlobalScope.launch(Dispatchers.IO) {
                         val database = (activity as BaseFragmentActivity).database!!
@@ -118,7 +118,7 @@ class MapsListFragment : BaseFragment() {
 
     private fun loadMapsAsync(onLoaded: (MutableList<MapEntity>) -> Unit) {
         (activity as BaseFragmentActivity).taskContainer.add(
-            Api.getMyMaps(CurrentUserRepository.getCurrentUserToken(requireContext())!!, "").subscribe(
+            Api.getMyMaps(getToken(), "").subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { actualMaps ->
                     GlobalScope.launch(Dispatchers.IO) {
                         val database = (activity as BaseFragmentActivity).database!!
@@ -133,9 +133,7 @@ class MapsListFragment : BaseFragment() {
                                 mapEntity.id = ids[index]
                             }
                         }
-                        withContext(Dispatchers.Main) {
-                            onLoaded.invoke(currentMaps)
-                        }
+                        withContext(Dispatchers.Main) { onLoaded.invoke(currentMaps) }
                     }
                 } },
                 {ResponseActions.onFail(it, requireContext())}
@@ -178,4 +176,6 @@ class MapsListFragment : BaseFragment() {
             mapsInfo.remove(map)
         }
     }
+
+    private fun getToken(): String = CurrentUserRepository.getCurrentUserToken(requireContext())!!
 }

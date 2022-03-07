@@ -27,7 +27,7 @@ class MapUpdater(
         if (mTimer == null) {
             mTimer = Timer()
             mTimer?.scheduleAtFixedRate(object : TimerTask() { override fun run() = fetchUpdates() },
-                    0, updateIntervalMs)
+                    10, updateIntervalMs)
         }
     }
 

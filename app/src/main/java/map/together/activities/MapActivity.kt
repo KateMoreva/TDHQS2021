@@ -43,10 +43,7 @@ import kotlinx.android.synthetic.main.item_users.*
 import kotlinx.coroutines.*
 import map.together.R
 import map.together.api.Api
-import map.together.db.entity.CategoryEntity
-import map.together.db.entity.PlaceCategoryEntity
-import map.together.db.entity.PlaceEntity
-import map.together.db.entity.UserEntity
+import map.together.db.entity.*
 import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
@@ -79,7 +76,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     val layersList: ItemsList<LayerItem> = ItemsList(mutableListOf())
     var mapUpdater: MapUpdater? = null
     //TODO: loading from bundle
-    var currentMapId = 1L
+    var token = ""
+    var currentMapEntity: MapEntity? = null
     val currentLayerId = 1L
 
     companion object {
@@ -147,9 +145,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         super.onCreate(savedInstanceState)
         MapKitFactory.initialize(this)
         SearchFactory.initialize(this)
-        //TODO: LOAD meta from sever
-        currentMapId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
-        val token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
 
         val usersAdapter = UsersAdapter(
             holderType = UsersViewHolder::class,
@@ -161,9 +156,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             onChangeRole = { item ->
                 println(item)
                 taskContainer.add(
-                        Api.changeRole(
-                                token, currentMapId, item.email, item.role,
-                        ).subscribe(
+                        Api.changeRole(token, currentMapEntity!!.serverId, item.email, item.role, ).subscribe(
                                 {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
                                     println("Success!")
                                 }},
@@ -174,9 +167,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 onRemove = { item ->
                     println(item)
                     taskContainer.add(
-                            Api.changeRole(
-                                    token, currentMapId, item.email, 0,
-                            ).subscribe(
+                            Api.changeRole(token, currentMapEntity!!.serverId, item.email, 0).subscribe(
                                     {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
                                         println("Success!")
                                     }},
@@ -198,13 +189,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             Animation(Animation.Type.SMOOTH, 1F),
             null
         )
-
-        getPlaces(currentLayerId) { places ->
-            layerPlaces.addAll(places)
-            drawPlaces(layerPlaces)
-            category_on_tap_save_changes_id.text = resources.getText(R.string.save)
-            currentPlaces.addAll(layerPlaces)
-        }
 
         zoom_in_id.setOnClickListener(fun(_: View) {
             print("IN")
@@ -418,12 +402,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             showUsersMenu()
         }
 
-        val layers = mutableListOf(
-            LayerItem("0", "Нажмите \"Показать всем\" для демонстрации", false, 0L, false, true),
-            LayerItem("1", "Слой 1", true, 2, false),
-            LayerItem("2", "Слой 2", false, 2, false)
-        )
-        layersList.setData(layers)
+        layersList.setData(mutableListOf())
         val adapter = LayersAdapter(
             holderType = LayerViewHolder::class,
             layoutId = R.layout.item_layer,
@@ -470,7 +449,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         go_to_places.setOnClickListener {
             //TODO: real layers
             val layersIds = listOf<Long>(1)
-            router?.showPlacesPage(currentMapId, layersIds.toLongArray())
+            router?.showPlacesPage(currentMapEntity!!.serverId, layersIds.toLongArray())
         }
 
         show_all_card.setOnClickListener {
@@ -484,9 +463,16 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
 
         add_layer_btn.setOnClickListener {
-            val newLayer = LayerItem(layersList.size().toString(), "Новый слой " + layersList.size(), true, userId)
-            layersList.addLast(newLayer)
-            layers_list.smoothScrollToPosition(layersList.size() - 1)
+            val newLayerName = "Новый слой " + layersList.size()
+            Api.createLayer(CurrentUserRepository.getCurrentUserToken(applicationContext)!!, newLayerName, currentMapEntity!!.serverId).subscribe(
+                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { layerDto ->
+                        println("Success! Layer {$layerDto} created")
+                        val newLayer = layerDto!!.toNewLayerItem()
+                        layersList.addLast(newLayer)
+                        layers_list.smoothScrollToPosition(layersList.size() - 1)
+                    }},
+                    { ResponseActions.onFail(it, applicationContext) }
+            )
         }
 
         demonstrate_card.setOnClickListener {
@@ -525,21 +511,47 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
-        mapUpdater = MapUpdater(5000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
-            // mapInfo.map -- done
-            updateMap(mapInfo.map)
+        //TODO: LOAD meta from sever
 
-            // mapInfo.layers -- done
-            updateLayers(mapInfo.layers)
+        val mapLocalId = (intent.extras?.get(Page.MAP_ID_KEY)) as Long
 
-            // mapInfo.users -- done
-            updateUsers(mapInfo.users)
+        getMapFromDatabase(mapLocalId) { mapEntity ->
+            currentMapEntity = mapEntity
+            token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
+            mapUpdater = MapUpdater(5000, token, mapEntity.id, applicationContext, taskContainer, database!!) { mapInfo ->
+                // mapInfo.map -- done
+                updateMap(mapInfo.map)
 
-            // mapInfo.demonstrationLayers -- done
-            updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
+                // mapInfo.layers -- done
+                updateLayers(mapInfo.layers)
+
+                // mapInfo.users -- done
+                updateUsers(mapInfo.users)
+
+                // mapInfo.demonstrationLayers -- done
+                updateDemonstration(mapInfo.demonstrationLayers, mapInfo.demonstrationTimestamp)
+            }
+            mapUpdater?.start()
         }
-        mapUpdater?.start()
 
+//        getPlaces(currentLayerId) { places ->
+//            layerPlaces.addAll(places)
+//            drawPlaces(layerPlaces)
+//            category_on_tap_save_changes_id.text = resources.getText(R.string.save)
+//            currentPlaces.addAll(layerPlaces)
+//        }
+
+    }
+
+    private fun getMapFromDatabase(mapLocalId: Long, actionsAfter: (MapEntity) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            database?.let {
+                val mapEntity = it.mapDao().getById(mapLocalId)
+                withContext(Dispatchers.Main) {
+                    actionsAfter.invoke(mapEntity)
+                }
+            }
+        }
     }
 
     private var mapDtoObject: MapDto? = null
@@ -734,11 +746,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    fun getPlaces(
-        layerId: Long, actionsAfter: (
-            List<PlaceEntity>
-        ) -> Unit
-    ) {
+    fun getPlaces(layerId: Long, actionsAfter: (List<PlaceEntity>) -> Unit) {
         GlobalScope.launch(Dispatchers.IO) {
             database?.let {
                 val placesDao = it.placeDao().getByLayerId(layerId)
