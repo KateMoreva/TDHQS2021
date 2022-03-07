@@ -77,12 +77,12 @@ interface ApiInterface {
     fun getMapinfo(@Header("Authorization") token: String,
                    @Query("mapId") mapId: Long): Single<Response<MapInfoDto>>
 
+    @FormUrlEncoded
     @POST("/api/shared/places/remove")
-    fun removePlaceByLayerAndMap(
-        mapId: Long,
-        layerId: Long,
-        placeId: Long
-    ): Single<Response<PlaceDto>>
+    fun removePlaceByLayerAndMap(@Header("Authorization") token: String,
+                                 @Field("mapId") mapId: Long,
+                                 @Field("layerId") layerId: Long,
+                                 @Field("placeId") placeId: Long): Single<Response<PlaceDto>>
 
     @POST("/api/shared/places/change")
     fun changePlace(
@@ -92,15 +92,15 @@ interface ApiInterface {
         newName: String
     ): Single<Response<PlaceDto>>
 
+    @FormUrlEncoded
     @POST("/api/shared/places/create")
-    fun createPlace(
-        placeName: String,
-        mapId: Long,
-        layerId: Long,
-        latitude: String,
-        longitude: String,
-        categoryId: Long
-    ): Single<Response<PlaceDto>>
+    fun createPlace(@Header("Authorization") token: String,
+                    @Field("placeName") placeName: String,
+                    @Field("mapId") mapId: Long,
+                    @Field("layerId") layerId: Long,
+                    @Field("latitude") latitude: String,
+                    @Field("longitude") longitude: String,
+                    @Field("categoryId") categoryId: Long): Single<Response<PlaceDto>>
 
     @FormUrlEncoded
     @POST("/api/shared/maps/remove")

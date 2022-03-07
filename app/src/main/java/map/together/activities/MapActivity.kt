@@ -65,6 +65,7 @@ import map.together.utils.recycler.adapters.UsersAdapter
 import map.together.viewholders.LayerViewHolder
 import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
+import java.net.HttpURLConnection
 import javax.net.ssl.HttpsURLConnection
 import kotlin.math.round
 import kotlin.math.roundToInt
@@ -78,7 +79,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     //TODO: loading from bundle
     var token = ""
     var currentMapEntity: MapEntity? = null
-    val currentLayerId = 1L
+    var currentLayerId = 0L
 
     companion object {
         const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
@@ -89,7 +90,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    val currentPlaces: MutableList<PlaceEntity> = ArrayList()
     val placeCategory: MutableMap<Long, CategoryItem> = HashMap()
 
     var polyline: Polyline = Polyline()
@@ -98,7 +98,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = true
-    var selectedLayerId: String = ""
     var selectedObjectId = ""
     var selectedObject: GeoObject? = null
     var loadingObjId = -1L
@@ -107,6 +106,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     val userLayer: MutableMap<Long, Long> = HashMap()
     var selectedPlaceCategory: CategoryItem? = null
     val layerPlaces = mutableListOf<PlaceEntity>()
+    var categories = mutableListOf<CategoryItem>()
 
     var usersItemsList = ItemsList(mutableListOf<UserItem>())
 
@@ -228,17 +228,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 mapview.map.addInputListener(polylineListener)
             } else {
                 mapview.map.removeInputListener(polylineListener)
-                mapview.map.mapObjects.clear()
-                for (obj in currentPlaces) {
-                    val point = Point(obj.latitude.toDouble(), obj.longitude.toDouble())
-                    val category = placeCategory.get(obj.id)
-                    if (category != null) {
-                        mapview.map.mapObjects.addPlacemark(
-                            Point(point.latitude, point.longitude),
-                            ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
-                        )
-                    }
-                }
+                // TODO: save polygons here
+                drawPlaces()
             }
         })
 
@@ -409,12 +400,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 dataSource = layersList,
                 onClick = { layer ->
                     print("Layer $layer clicked")
-                    if (layer.isVisible && selectedLayerId != layer.id) {
+                    if (layer.isVisible && currentLayerId.toString() != layer.id) {
                         layersList.items.forEach {
                             it.selected = false
                         }
                         layer.selected = true
-                        selectedLayerId = layer.id
+                        currentLayerId = layer.id.toLong()
                     } else {
                         layer.isVisible = !layer.isVisible
                     }
@@ -520,6 +511,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         getMapFromDatabase(mapLocalId) { mapEntity ->
             currentMapEntity = mapEntity
             token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
+            loadCategories()
             mapUpdater = MapUpdater(5000, token, mapEntity.id, applicationContext, taskContainer, database!!) { mapInfo ->
                 // mapInfo.map -- done
                 updateMap(mapInfo.map)
@@ -536,13 +528,19 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             mapUpdater?.start()
         }
 
-//        getPlaces(currentLayerId) { places ->
-//            layerPlaces.addAll(places)
-//            drawPlaces(layerPlaces)
-//            category_on_tap_save_changes_id.text = resources.getText(R.string.save)
-//            currentPlaces.addAll(layerPlaces)
-//        }
+    }
 
+    private fun loadCategories() {
+        taskContainer.add(
+                Api.getMyCategories(token).subscribe(
+                        { ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST) { categoriesDtos ->
+                            categories = categoriesDtos!!.map {
+                                dto -> CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
+                            }.toMutableList()
+                        } },
+                        { ResponseActions.onFail(it, applicationContext) }
+                )
+        )
     }
 
     private fun tryRemoveLayer(layerToRemove: LayerItem, onDelete: () -> Unit) {
@@ -677,6 +675,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             println("new layer $newLayer")
             layersList.addLast(newLayer)
         }
+        if (layersList.items.isNotEmpty() && currentLayerId == 0L) {
+            currentLayerId = layersList.items[0].id.toLong()
+        } else if (layersList.items.isEmpty()) {
+            currentLayerId = 0L
+        }
 
         actualLayersFromServer.forEach { layerDto ->
             if (layersToRemove.find { removedLayer -> removedLayer.id == layerDto.id.toString() } == null) {
@@ -685,6 +688,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 updatePlaces(mutableListOf(), layerDto.id)
             }
         }
+        drawPlaces()
     }
 
     private val layerToPlacesMap: MutableMap<Long, MutableList<PlaceDto>> = mutableMapOf()
@@ -744,18 +748,17 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         imm.hideSoftInputFromWindow(view.windowToken, 0)
     }
 
-    fun drawPlaces(places: List<PlaceEntity>) {
+    private fun drawPlaces() {
+        val places: MutableList<PlaceDto> = layerToPlacesMap[currentLayerId] ?: return
+        mapview.map.mapObjects.clear()
         for (place in places) {
-            getCategory(
-                place
-                    .categoryId
-            ) { category ->
-                placeCategory.put(place.id, category)
-                mapview.map.mapObjects.addPlacemark(
-                    Point(place.latitude.toDouble(), place.longitude.toDouble()),
-                    ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
-                )
-            }
+            val category = categories.find { category ->
+                category.id == place.categoryId.toString() } ?: continue
+            placeCategory[place.id] = category
+            mapview.map.mapObjects.addPlacemark(
+                Point(place.latitude.toDouble(), place.longitude.toDouble()),
+                ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
+            )
         }
     }
 
@@ -854,13 +857,17 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    protected fun deletePlace(placeEntity: PlaceEntity, actionsAfter: () -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            database!!.placeDao().delete(placeEntity)
-            withContext(Dispatchers.Main) {
-                actionsAfter.invoke()
-            }
-        }
+    protected fun deletePlace(placeEntity: PlaceEntity, actionsAfter: (PlaceDto) -> Unit) {
+        taskContainer.add(
+                Api.removePlace(token, currentMapEntity!!.serverId, currentLayerId, placeEntity.serverId).subscribe(
+                        {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { placeDto ->
+                            println("Success! Place {$placeDto} created")
+                            actionsAfter.invoke(placeDto!!)
+                        }},
+                        { ResponseActions.onFail(it, applicationContext) }
+                )
+        )
+
     }
 
     fun Double.round(decimals: Int = 4): Double {
@@ -869,39 +876,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         return round(this * multiplier) / multiplier
     }
 
-    protected fun getPlaceByParam(
-        latitude: Double,
-        longitude: Double,
-        layerId: Long,
-        actionsAfter: (PlaceEntity?) -> Unit
-    ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            database!!.let {
-                val places = it.placeDao().getByLayerId(layerId)
-                var place: PlaceEntity? = null
-                for (placeEntity in places) {
-                    val plLat = placeEntity.latitude.toDouble().round(3)
-                    val pLong = placeEntity.longitude.toDouble().round(3)
-                    if (plLat == latitude.round(3) && pLong == longitude.round(3)) {
-                        place = placeEntity
-                    }
-                }
-                withContext(Dispatchers.Main) {
-                    actionsAfter.invoke(place)
-                }
-            }
-        }
-    }
-
     protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
         var place: PlaceEntity? = null
-        for (placeEntity in currentPlaces) {
+        layerToPlacesMap[currentLayerId]?.forEach { placeEntity ->
             val plLat = placeEntity.latitude.toDouble().round(3)
             val pLong = placeEntity.longitude.toDouble().round(3)
             val lat = latitude.round(3)
             val log = longitude.round(3)
             if (plLat == lat && pLong == log) {
-                place = placeEntity
+                place = placeEntity.toPlaceEntity()
             }
         }
         return place
@@ -912,6 +895,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         val mapObjects: MapObjectCollection = mapview.map.mapObjects
         when {
             geoSearch -> {
+                if (categories.isEmpty()) {
+                    return
+                }
+
                 val searchRes = response.collection.children
                 val geoObject = searchRes[0].obj!!
                 val address = geoObject.name
@@ -919,12 +906,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 category_on_tap_adress_id.setText(address, TextView.BufferType.EDITABLE)
                 category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
                 category_on_tap_place_name_id.setText(address.toString())
-                val plName = address.toString()
                 val resultLocation = searchRes[0].obj!!.geometry[0].point
 
                 selectedObjectId = address.toString()
                 selectedObject = geoObject
-                selectedPlaceCategory = CategoryItem("-1", resources.getString(R.string.def_category), 1)
+                selectedPlaceCategory = categories[0]
                 category_on_tap_name_id.text = selectedPlaceCategory!!.name
                 category_img.setColorFilter(
                     ContextCompat.getColor(
@@ -956,69 +942,28 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 }
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
-                        if (resultLocation != null) {
-                            //TODO: correct category + save to DB
-                            var placeId = -1L
-                            val place = PlaceEntity(
-                                plName,
-                                userId!!,
-                                resultLocation.latitude.toString(),
-                                resultLocation.longitude.toString(),
-                                1
-                            )
-                            createNewPlace(
-                                plName,
-                                userId!!,
-                                resultLocation.latitude.toString(),
-                                resultLocation.longitude.toString(),
-                                1
-                            ) { newPlaceId: Long ->
-                                placeId = newPlaceId
-                                if (placeId != -1L) {
-                                    place.id = placeId
-                                    currentPlaces.add(place)
-                                    mapObjects.addPlacemark(
-                                        resultLocation,
-                                        ImageProvider.fromBitmap(selectedPlaceCategory?.let { it1 ->
-                                            drawSimpleBitmap(
-                                                it1.colorRecourse
-                                            )
-                                        })
-                                    )
-                                }
-                            }
+                        val placeName = category_on_tap_place_name_id.text.toString()
+                        createPlace(resultLocation, placeName, selectedPlaceCategory!!.id.toLong()) { placeDto ->
+                            // todo: настроить отображение категорий
+                            layerToPlacesMap[currentLayerId]?.add(placeDto)
+                            drawPlaces()
                         }
-
                         hideTagMenu()
                         mapview.map.deselectGeoObject()
                     } else {
-                        if (resultLocation != null) {
-                            var pl = getPlaceByParam(
+                        if (resultLocation == null) {
+                            return@setOnClickListener;
+                        }
+                        val placeByParams: PlaceEntity = getPlaceByParam(
                                 resultLocation.latitude,
                                 resultLocation.longitude
-                            )
-                            if (pl != null) {
-                                deletePlace(pl) {
-                                    currentPlaces.remove(pl)
-                                    mapObjects.clear()
-                                    for (place in currentPlaces) {
-                                        val point =
-                                            Point(
-                                                place.latitude.toDouble(),
-                                                place.longitude.toDouble()
-                                            )
-                                        val category = placeCategory.get(place.id)
-                                        if (category != null) {
-                                            mapObjects.addPlacemark(
-                                                point,
-                                                ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
-                                            )
-                                        }
-                                    }
-                                    selectedObjectId = ""
-                                    hideTagMenu()
-                                }
-                            }
+                        ) ?: return@setOnClickListener
+
+                        deletePlace(placeByParams) { placeDto ->
+                            layerToPlacesMap[currentLayerId]?.removeIf { dto -> dto.id == placeDto.id }
+                            drawPlaces()
+                            selectedObjectId = ""
+                            hideTagMenu()
                         }
                     }
                 }
@@ -1042,6 +987,24 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 }
             }
         }
+    }
+
+    private fun createPlace(resultLocation: Point?, placeName: String, categoryId: Long, onCreated: (PlaceDto) -> Unit) {
+        if (resultLocation == null) {
+            return
+        }
+        val latitude = resultLocation.latitude.toString()
+        val longitude = resultLocation.longitude.toString()
+        taskContainer.add(
+                Api.createPlace(token, placeName, currentMapEntity!!.serverId, currentLayerId, latitude, longitude, categoryId).subscribe(
+                        {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { placeDto ->
+                            println("Success! Place {$placeDto} created")
+                            onCreated.invoke(placeDto!!)
+                        }},
+                        { ResponseActions.onFail(it, applicationContext) }
+                )
+
+        )
     }
 
     fun drawSimpleBitmap(colorIdAtArray: Int): Bitmap {
@@ -1133,19 +1096,19 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
         val sLat = selectedObject!!.geometry[0].point?.latitude?.round(3)
         val sLong = selectedObject!!.geometry[0].point?.longitude?.round(3)
-        for (place in currentPlaces) {
+        layerToPlacesMap[currentLayerId]?.forEach { place ->
             val plLat = place.latitude.toDouble().round(3)
             val pLong = place.longitude.toDouble().round(3)
             if (plLat != sLat || pLong != sLong) {
-                continue
+                return@forEach
             }
             category_on_tap_save_changes_id.text = resources.getText(R.string.delete)
             category_on_tap_place_name_id.setText(place.name)
-            val category = placeCategory[place.id] ?: continue
+            val category = placeCategory[place.id] ?: return@forEach
             category_on_tap_name_id.text = category.name
             category_img.setColorFilter(
-                ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
-                PorterDuff.Mode.SRC_IN
+                    ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
+                    PorterDuff.Mode.SRC_IN
             )
             selectedPlaceCategory = category
         }

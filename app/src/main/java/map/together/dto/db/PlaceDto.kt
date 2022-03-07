@@ -2,6 +2,8 @@ package map.together.dto.db
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import map.together.db.entity.PlaceEntity
+import map.together.items.LayerItem
 
 data class PlaceDto(
         @SerializedName("id")
@@ -28,10 +30,15 @@ data class PlaceDto(
         @SerializedName("timestamp")
         @Expose
         var timestamp: Long,
+        @SerializedName("categoryId")
+        @Expose
+        var categoryId: Long,
         @SerializedName("categoryName")
         @Expose
         var categoryName: String,
         @SerializedName("categoryColor")
         @Expose
         var categoryColor: Int,
-)
+) {
+        fun toPlaceEntity(): PlaceEntity = PlaceEntity(name, ownerId, latitude, longitude, categoryId, id, id)
+}

@@ -80,6 +80,12 @@ object Api {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
+    fun createPlace(token: String, placeName: String, mapId: Long, layerId: Long, latitude: String,
+                    longitude: String, categoryId: Long): Single<Response<PlaceDto>> =
+            api.createPlace(token, placeName, mapId, layerId, latitude, longitude, categoryId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
     fun removeMap(token: String, mapId: Long): Single<Response<MapDto>> =
             api.removeMap(token, mapId)
                     .subscribeOn(Schedulers.io())
@@ -87,6 +93,11 @@ object Api {
 
     fun removeLayer(token: String, mapId: Long, layerId: Long): Single<Response<LayerDto>> =
             api.removeLayerByMap(token, mapId, layerId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
+    fun removePlace(token: String, mapId: Long, layerId: Long, placeId: Long): Single<Response<PlaceDto>> =
+            api.removePlaceByLayerAndMap(token, mapId, layerId, placeId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
