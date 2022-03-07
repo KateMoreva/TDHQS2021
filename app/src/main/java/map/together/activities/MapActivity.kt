@@ -44,13 +44,9 @@ import kotlinx.coroutines.*
 import map.together.R
 import map.together.api.Api
 import map.together.db.entity.CategoryEntity
-import map.together.db.entity.LayerEntity
-import map.together.db.entity.LayerMapEntity
-import map.together.db.entity.MapEntity
 import map.together.db.entity.PlaceCategoryEntity
 import map.together.db.entity.PlaceEntity
 import map.together.db.entity.UserEntity
-import map.together.db.entity.UserMapEntity
 import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
@@ -66,7 +62,6 @@ import map.together.lifecycle.MapUpdater
 import map.together.lifecycle.Page
 import map.together.repository.CurrentUserRepository
 import map.together.utils.ResponseActions
-import map.together.utils.RoleEnum
 import map.together.utils.recycler.adapters.LayersAdapter
 import map.together.utils.recycler.adapters.SearchResAdapter
 import map.together.utils.recycler.adapters.UsersAdapter
@@ -105,7 +100,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     private var searchManager: SearchManager? = null
     private var searchSession: Session? = null
     var geoSearch = true
-    var preLoad = false
     var selectedLayerId: String = ""
     var selectedObjectId = ""
     var selectedObject: GeoObject? = null
@@ -208,7 +202,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         getPlaces(currentLayerId) { places ->
             layerPlaces.addAll(places)
             drawPlaces(layerPlaces)
-            category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
+            category_on_tap_save_changes_id.text = resources.getText(R.string.save)
             currentPlaces.addAll(layerPlaces)
         }
 
@@ -255,7 +249,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     val point = Point(obj.latitude.toDouble(), obj.longitude.toDouble())
                     val category = placeCategory.get(obj.id)
                     if (category != null) {
-                        mapview.getMap().getMapObjects().addPlacemark(
+                        mapview.map.mapObjects.addPlacemark(
                             Point(point.latitude, point.longitude),
                             ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
                         )
@@ -346,7 +340,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         })
 
         val bottomSheetBehavior = from(layers_menu)
-        bottomSheetBehavior.setState(STATE_HIDDEN);
+        bottomSheetBehavior.state = STATE_HIDDEN
 
         layers_btn.setOnClickListener {
             bottomSheetBehavior.isDraggable = true
@@ -362,7 +356,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = resizable_layers_menu.layoutParams
-                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                val fullHeight = Resources.getSystem().displayMetrics.heightPixels
                 if (newState == STATE_EXPANDED) {
                     layoutParams.height = fullHeight - getNavigationBarHeight()
                     bottomSheetBehavior.isDraggable = false
@@ -384,12 +378,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
 
         val tagBottomSheetBehavior = from(tag_edit_menu)
-        tagBottomSheetBehavior.setState(STATE_HIDDEN);
+        tagBottomSheetBehavior.state = STATE_HIDDEN
 
         tagBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = tag_edit_menu.layoutParams
-                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                val fullHeight = Resources.getSystem().displayMetrics.heightPixels
                 if (newState == STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
@@ -403,12 +397,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
 
         val usersBottomSheetBehavior = from(users_edit_menu)
-        usersBottomSheetBehavior.setState(STATE_HIDDEN);
+        usersBottomSheetBehavior.state = STATE_HIDDEN
 
         usersBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = users_edit_menu.layoutParams
-                val fullHeight = Resources.getSystem().getDisplayMetrics().heightPixels
+                val fullHeight = Resources.getSystem().displayMetrics.heightPixels
                 if (newState == STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
@@ -524,14 +518,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
 
         val bottomSheetBehavior2 = from(bottom_sheet)
-        bottomSheetBehavior2.setState(STATE_HIDDEN);
+        bottomSheetBehavior2.state = STATE_HIDDEN
         menu.setOnClickListener {
             bottomSheetBehavior2.setState(STATE_EXPANDED)
         }
 
         stop_demonstrate_card.visibility = View.INVISIBLE
 
-        mapUpdater = MapUpdater(3000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
+        mapUpdater = MapUpdater(5000, token, currentMapId, applicationContext, taskContainer, database!!) { mapInfo ->
             // mapInfo.map -- done
             updateMap(mapInfo.map)
 
@@ -702,6 +696,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }.forEach { placeDto ->
             println("new place at layer $layerId is $placeDto")
             currentPlaces.add(placeDto)
+            mapview.map.mapObjects.addPlacemark(
+                    Point(placeDto.latitude.toDouble(), placeDto.longitude.toDouble()),
+                    ImageProvider.fromBitmap(drawSimpleBitmap(placeDto.categoryColor))
+            )
             // todo: add new place logic here (?)
         }
         layerToPlacesMap[layerId] = currentPlaces
@@ -728,7 +726,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     .categoryId
             ) { category ->
                 placeCategory.put(place.id, category)
-                mapview.getMap().getMapObjects().addPlacemark(
+                mapview.map.mapObjects.addPlacemark(
                     Point(place.latitude.toDouble(), place.longitude.toDouble()),
                     ImageProvider.fromBitmap(drawSimpleBitmap(category.colorRecourse))
                 )
@@ -890,73 +888,50 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     override fun onSearchResponse(response: Response) {
 
-        val mapObjects: MapObjectCollection = mapview.getMap().getMapObjects()
+        val mapObjects: MapObjectCollection = mapview.map.mapObjects
         when {
             geoSearch -> {
-                val searchRes = response.getCollection().getChildren()
+                val searchRes = response.collection.children
                 val geoObject = searchRes[0].obj!!
                 val address = geoObject.name
                 val desc = geoObject.descriptionText
                 category_on_tap_adress_id.setText(address, TextView.BufferType.EDITABLE)
                 category_on_tap_place_description_id.setText(desc, TextView.BufferType.EDITABLE)
                 category_on_tap_place_name_id.setText(address.toString())
-                var plName = address.toString()
+                val plName = address.toString()
                 val resultLocation = searchRes[0].obj!!.geometry[0].point
-                if (preLoad) {
-                    if (resultLocation != null) {
-                        val placeEntity =
-                            currentPlaces.filter { placeEntity -> placeEntity.id == loadingObjId }
-                        if (placeEntity.isNotEmpty()) {
-                            category_on_tap_place_name_id.setText(placeEntity[0].name)
-                            val category = placeCategory.get(loadingObjId)
-                            if (category != null) {
-                                category_on_tap_name_id.setText(category.name)
-                                category_img.setColorFilter(
-                                    ContextCompat.getColor(
-                                        baseContext,
-                                            CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]
-                                    ),
-                                    android.graphics.PorterDuff.Mode.SRC_IN
-                                )
-                                selectedPlaceCategory = category
-                            }
-                        }
-                    }
-                } else {
-                    selectedObjectId = address.toString()
-                    selectedObject = geoObject
-                    selectedPlaceCategory =
-                        CategoryItem("-1", resources.getString(R.string.def_category), 1)
-                    category_on_tap_name_id.setText(selectedPlaceCategory!!.name)
-                    category_img.setColorFilter(
-                        ContextCompat.getColor(
-                            applicationContext,
-                                CategoryColorDialog.COLORS_ARRAY[selectedPlaceCategory!!.colorRecourse]
-                        ),
-                        android.graphics.PorterDuff.Mode.SRC_IN
-                    )
-                    checkPlaceMarked()
-                    category_on_tap_name_id.setOnClickListener {
-                        CategoryChoosingDialog(
-                            selectedPlaceCategory!!,
-                            placeCategory.values.toMutableList().distinctBy { it.id }
-                                .toMutableList(), this
-                        ).show(
-                            supportFragmentManager,
-                            "CategoryChoosingDialog"
-                        )
-                    }
-                    category_on_tap_change_name_id.setOnClickListener {
-                        CategoryColorDialog(
-                            selectedPlaceCategory!!,
-                            placeCategory.values.toMutableList().distinctBy { it.id }
-                                .toMutableList(), this
-                        ).show(
-                            supportFragmentManager,
-                            "CategoryColorDialog"
-                        )
-                    }
 
+                selectedObjectId = address.toString()
+                selectedObject = geoObject
+                selectedPlaceCategory = CategoryItem("-1", resources.getString(R.string.def_category), 1)
+                category_on_tap_name_id.text = selectedPlaceCategory!!.name
+                category_img.setColorFilter(
+                    ContextCompat.getColor(
+                        applicationContext,
+                            CategoryColorDialog.COLORS_ARRAY[selectedPlaceCategory!!.colorRecourse]
+                    ),
+                    PorterDuff.Mode.SRC_IN
+                )
+                checkPlaceMarked()
+                category_on_tap_name_id.setOnClickListener {
+                    CategoryChoosingDialog(
+                        selectedPlaceCategory!!,
+                        placeCategory.values.toMutableList().distinctBy { it.id }
+                            .toMutableList(), this
+                    ).show(
+                        supportFragmentManager,
+                        "CategoryChoosingDialog"
+                    )
+                }
+                category_on_tap_change_name_id.setOnClickListener {
+                    CategoryColorDialog(
+                        selectedPlaceCategory!!,
+                        placeCategory.values.toMutableList().distinctBy { it.id }
+                            .toMutableList(), this
+                    ).show(
+                        supportFragmentManager,
+                        "CategoryColorDialog"
+                    )
                 }
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
@@ -1029,19 +1004,19 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             }
             else -> {
                 searchResults.clear()
-                for (searchResult in response.getCollection().getChildren()) {
+                for (searchResult in response.collection.children) {
                     val geoObject = searchResult.obj!!
                     val address = geoObject.name
                     val desc = geoObject.descriptionText
                     val resultLocation = geoObject.geometry[0].point
                     if (resultLocation != null) {
-                        val serch = SearchItem(
+                        val search = SearchItem(
                             searchResults.size.toString(),
                             address.toString(),
                             desc.toString(),
                             resultLocation
                         )
-                        searchResults.add(serch)
+                        searchResults.add(search)
                     }
                 }
             }
@@ -1049,28 +1024,27 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     fun drawSimpleBitmap(colorIdAtArray: Int): Bitmap {
-        val source =
-            BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
+        val source = BitmapFactory.decodeResource(this.resources, R.drawable.search_result)
         val bitmap = source.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(bitmap)
-        var paint = Paint();
-        paint.setColor(resources.getColor(CategoryColorDialog.COLORS_ARRAY[colorIdAtArray], theme));
-        paint.setStyle(Paint.Style.FILL);
+        val paint = Paint()
+        paint.color = resources.getColor(CategoryColorDialog.COLORS_ARRAY[colorIdAtArray], theme)
+        paint.style = Paint.Style.FILL
         canvas.drawCircle(
             (source.height / 2).toFloat(),
             (source.width / 2).toFloat(),
             (source.width / 2).toFloat() / 2,
             paint
-        );
-        paint.setColor(Color.WHITE)
-        paint.setAntiAlias(true);
-        paint.setTextSize(9F);
-        paint.setTextAlign(Paint.Align.CENTER);
+        )
+        paint.color = Color.WHITE
+        paint.isAntiAlias = true
+        paint.textSize = 9F
+        paint.textAlign = Paint.Align.CENTER
         canvas.drawText(
             " ", (source.height / 2).toFloat(),
             (source.width / 2).toFloat() - ((paint.descent() + paint.ascent()) / 2), paint
-        );
-        return bitmap;
+        )
+        return bitmap
     }
 
     override fun onSearchError(error: com.yandex.runtime.Error) {
@@ -1120,58 +1094,53 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         search_text_field.setText("")
         searchResults.clear()
         geoSearch = true
-        if (!isLinePointClick) {
-            geoSearch = true
-            val y = mapview.map.maxZoom.roundToInt()
-            searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
-            if (category_on_tap_save_changes_id.text == resources.getText(R.string.delete)) {
-                showTagMenu()
-            }
+        if (isLinePointClick) {
+            return
+        }
+        geoSearch = true
+        val y = mapview.map.maxZoom.roundToInt()
+        searchSession = searchManager!!.submit(p1, y, SearchOptions(), this)
+        if (category_on_tap_save_changes_id.text == resources.getText(R.string.delete)) {
+            showTagMenu()
         }
     }
 
     private fun checkPlaceMarked() {
-        category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
-        if (selectedObject != null) {
-            for (place in currentPlaces) {
-                val plLat = place.latitude.toDouble().round(3)
-                val pLong = place.longitude.toDouble().round(3)
-                val sLat = selectedObject!!.geometry[0].point?.latitude?.round(3)
-                val sLong = selectedObject!!.geometry[0].point?.longitude?.round(3)
-                if (plLat == sLat && pLong == sLong) {
-//                    place = placeEntity
-//                }
-//                if (selectedObgect?.name!! == place.value.name!!) {
-                    category_on_tap_save_changes_id.setText(resources.getText(R.string.delete))
-                    category_on_tap_place_name_id.setText(place.name)
-                    val category = placeCategory.get(place.id)
-                    if (category != null) {
-                        category_on_tap_name_id.setText(category.name)
-                        category_img.setColorFilter(
-                            ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
-                            android.graphics.PorterDuff.Mode.SRC_IN
-                        )
-                        selectedPlaceCategory = category
-                    }
-
-                }
+        category_on_tap_save_changes_id.text = resources.getText(R.string.save)
+        if (selectedObject == null) {
+            return
+        }
+        val sLat = selectedObject!!.geometry[0].point?.latitude?.round(3)
+        val sLong = selectedObject!!.geometry[0].point?.longitude?.round(3)
+        for (place in currentPlaces) {
+            val plLat = place.latitude.toDouble().round(3)
+            val pLong = place.longitude.toDouble().round(3)
+            if (plLat != sLat || pLong != sLong) {
+                continue
             }
+            category_on_tap_save_changes_id.text = resources.getText(R.string.delete)
+            category_on_tap_place_name_id.setText(place.name)
+            val category = placeCategory[place.id] ?: continue
+            category_on_tap_name_id.text = category.name
+            category_img.setColorFilter(
+                ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
+                PorterDuff.Mode.SRC_IN
+            )
+            selectedPlaceCategory = category
         }
     }
 
     private fun dynamicSearch(s: String) {
-        var searchOptions = SearchOptions()
+        val searchOptions = SearchOptions()
         searchOptions.searchTypes = SearchType.GEO.value
-        searchSession = searchManager!!.submit(
-            s,
-            Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this
-        )
+        searchSession = searchManager!!.submit(s,
+                Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this)
     }
 
     private fun hideTagMenu() {
         val tagBottomSheetBehavior = from(tag_edit_menu)
-        tagBottomSheetBehavior.setState(STATE_HIDDEN)
-        category_on_tap_save_changes_id.setText(resources.getText(R.string.save))
+        tagBottomSheetBehavior.state = STATE_HIDDEN
+        category_on_tap_save_changes_id.text = resources.getText(R.string.save)
     }
 
     override fun onMapLongTap(p0: Map, p1: Point) {
@@ -1188,7 +1157,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         val tagBottomSheetBehavior = from(tag_edit_menu)
         if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
             tagBottomSheetBehavior.isDraggable = true
-            tagBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+            tagBottomSheetBehavior.state = STATE_HALF_EXPANDED
         }
     }
 
@@ -1196,7 +1165,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         val usersBottomSheetBehavior = from(users_edit_menu)
         if (!usersBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
             usersBottomSheetBehavior.isDraggable = true
-            usersBottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+            usersBottomSheetBehavior.state = STATE_HALF_EXPANDED
         }
     }
 
@@ -1206,10 +1175,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     override fun onSaveParameterClick(item: CategoryItem) {
         selectedPlaceCategory = item
-        category_on_tap_name_id.setText(item.name)
+        category_on_tap_name_id.text = item.name
         category_img.setColorFilter(
             ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[item.colorRecourse]),
-            android.graphics.PorterDuff.Mode.SRC_IN
+            PorterDuff.Mode.SRC_IN
         )
     }
 }
