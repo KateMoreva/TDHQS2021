@@ -81,15 +81,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     var currentMapEntity: MapEntity? = null
     var currentLayerId = 0L
 
-    companion object {
-        const val SHARED_PREFERENCE_LAST_MAP_ID = "LAST_MAP_ID"
-        private var last_map_id: Long  = -1
-        fun get_last_map(): Long
-        {
-            return last_map_id
-        }
-    }
-
     val placeCategory: MutableMap<Long, CategoryItem> = HashMap()
 
     var polyline: Polyline = Polyline()
@@ -100,12 +91,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     var geoSearch = true
     var selectedObjectId = ""
     var selectedObject: GeoObject? = null
-    var loadingObjId = -1L
     val searchResults: MutableList<SearchItem> = ArrayList()
-    val mapUsers: MutableList<UserItem> = ArrayList()
-    val userLayer: MutableMap<Long, Long> = HashMap()
     var selectedPlaceCategory: CategoryItem? = null
-    val layerPlaces = mutableListOf<PlaceEntity>()
     var categories = mutableListOf<CategoryItem>()
 
     var usersItemsList = ItemsList(mutableListOf<UserItem>())
@@ -762,17 +749,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    fun getPlaces(layerId: Long, actionsAfter: (List<PlaceEntity>) -> Unit) {
-        GlobalScope.launch(Dispatchers.IO) {
-            database?.let {
-                val placesDao = it.placeDao().getByLayerId(layerId)
-                withContext(Dispatchers.Main) {
-                    actionsAfter.invoke(placesDao)
-                }
-            }
-        }
-    }
-
     fun getUsers(
         mapId: Long, actionsAfter: (
             List<UserEntity>
@@ -788,31 +764,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 }
             }
         }
-    }
-
-    fun getCategory(
-        categoryId: Long, actionsAfter: (
-            CategoryItem
-        ) -> Unit
-    ) {
-        GlobalScope.launch(Dispatchers.IO) {
-            database?.let {
-                val categorydao = it.categoryDao().getById(categoryId)
-                val category = fromCategory(categorydao)
-                withContext(Dispatchers.Main) {
-                    actionsAfter.invoke(category)
-                }
-            }
-        }
-    }
-
-    fun fromCategory(categoryEntity: CategoryEntity): CategoryItem {
-        return CategoryItem(
-            categoryEntity.id.toString(),
-            categoryEntity.name,
-            categoryEntity.colorRecourse,
-            categoryEntity.ownerId
-        )
     }
 
     override fun getToolbarView(): Toolbar = base_toolbar
@@ -891,8 +842,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     override fun onSearchResponse(response: Response) {
-
-        val mapObjects: MapObjectCollection = mapview.map.mapObjects
         when {
             geoSearch -> {
                 if (categories.isEmpty()) {
@@ -952,7 +901,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                         mapview.map.deselectGeoObject()
                     } else {
                         if (resultLocation == null) {
-                            return@setOnClickListener;
+                            return@setOnClickListener
                         }
                         val placeByParams: PlaceEntity = getPlaceByParam(
                                 resultLocation.latitude,
