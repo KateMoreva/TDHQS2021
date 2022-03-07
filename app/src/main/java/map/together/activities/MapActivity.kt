@@ -422,7 +422,9 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 },
                 onRemove = {
                     // todo: check that user can delete this layer and delete it
-                   layersList.remove(it)
+                    tryRemoveLayer(it) {
+                        layersList.remove(it)
+                    }
                 },
                 onChangeCommonLayer = {
                     layersList.items.forEach {
@@ -541,6 +543,17 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 //            currentPlaces.addAll(layerPlaces)
 //        }
 
+    }
+
+    private fun tryRemoveLayer(layerToRemove: LayerItem, onDelete: () -> Unit) {
+        this.taskContainer.add(
+            Api.removeLayer(token, currentMapEntity!!.serverId, layerToRemove.id.toLong()).subscribe(
+                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { layerDto ->
+                        println("Success! Layer {$layerDto} was deleted")
+                        onDelete.invoke()
+                    }},
+                    { ResponseActions.onFail(it, applicationContext) })
+        )
     }
 
     private fun getMapFromDatabase(mapLocalId: Long, actionsAfter: (MapEntity) -> Unit) {

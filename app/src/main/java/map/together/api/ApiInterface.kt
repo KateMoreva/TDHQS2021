@@ -121,8 +121,11 @@ interface ApiInterface {
     @GET("/api/shared/layers/list")
     fun getLayersByMap(mapId: Long, search: String?): Single<Response<List<LayerDto>>>
 
+    @FormUrlEncoded
     @POST("/api/shared/layers/remove")
-    fun removeLayerByMap(mapId: Long, layerId: Long): Single<Response<LayerDto>>
+    fun removeLayerByMap(@Header("Authorization") token: String,
+                         @Field("mapId") mapId: Long,
+                         @Field("layerId") layerId: Long): Single<Response<LayerDto>>
 
     @FormUrlEncoded
     @POST("/api/shared/layers/create")

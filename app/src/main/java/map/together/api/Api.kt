@@ -85,6 +85,11 @@ object Api {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
 
+    fun removeLayer(token: String, mapId: Long, layerId: Long): Single<Response<LayerDto>> =
+            api.removeLayerByMap(token, mapId, layerId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+
     fun leaveMap(token: String, mapId: Long): Single<Response<MapDto>> =
             api.leaveMap(token, mapId)
                     .subscribeOn(Schedulers.io())
