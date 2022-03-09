@@ -30,15 +30,10 @@ data class PlaceDto(
         @SerializedName("timestamp")
         @Expose
         var timestamp: Long,
-        @SerializedName("categoryId")
-        @Expose
-        var categoryId: Long,
         @SerializedName("categoryName")
         @Expose
         var categoryName: String,
         @SerializedName("categoryColor")
         @Expose
         var categoryColor: Int,
-) {
-        fun toPlaceEntity(): PlaceEntity = PlaceEntity(name, ownerId, latitude, longitude, categoryId, id, id)
-}
+)
