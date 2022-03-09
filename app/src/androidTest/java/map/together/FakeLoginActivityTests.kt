@@ -13,7 +13,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
-class Tests {
+class FakeLoginActivityTests {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
