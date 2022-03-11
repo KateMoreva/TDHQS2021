@@ -39,6 +39,10 @@ class ProfileScreenTests {
                 .enterValue(newUserName)
                 .pressPositiveButton()
                 .isUsernameEqualsValue(newUserName)
+
+        val usernameFromServer2 = getUsernameFromServer()
+        Assert.assertNotNull(usernameFromServer2)
+        Assert.assertEquals(usernameFromServer2, newUserName)
     }
 
     private fun getUsernameFromServer(): String? {

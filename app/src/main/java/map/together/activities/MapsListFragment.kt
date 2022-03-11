@@ -33,13 +33,20 @@ class MapsListFragment : BaseFragment() {
 
     override fun getAppbarTitle(): Int = R.string.maps_list
 
+    private fun setLoading(isLoading: Boolean) {
+        if (isLoading) {
+            progress_bar.visibility = View.VISIBLE
+        } else {
+            progress_bar.visibility = View.INVISIBLE
+        }
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         progress_bar.visibility = View.VISIBLE
         loadMapsAsync { mapsList ->
             mapsInfo.setData(mapsList)
-            progress_bar.visibility = View.INVISIBLE
             maps_list.layoutManager = LinearLayoutManager(context)
             maps_list.adapter = MapsAdapter(
                     MapViewHolder::class,
@@ -55,11 +62,9 @@ class MapsListFragment : BaseFragment() {
         }
 
         imageView.setOnClickListener {
-            progress_bar.visibility = View.VISIBLE
             addMapAsync { newMap: MapEntity ->
                 mapsInfo.addLast(newMap)
                 maps_list.smoothScrollToPosition(mapsInfo.size() - 1)
-                progress_bar.visibility = View.INVISIBLE
             }
         }
         setHasOptionsMenu(true)
@@ -78,6 +83,7 @@ class MapsListFragment : BaseFragment() {
     }
 
     private fun addMapAsync(callback: (MapEntity) -> Unit) {
+        setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.createMap(getToken(), "Новая карта " + (mapsInfo.size() + 1)).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_BAD_REQUEST) { createdMap ->
@@ -89,15 +95,20 @@ class MapsListFragment : BaseFragment() {
                         }
                         withContext(Dispatchers.Main) {
                             callback.invoke(mapEntity!!)
+                            setLoading(false)
                         }
                     }
                 } },
-                {ResponseActions.onFail(it, requireContext())}
+                {
+                    ResponseActions.onFail(it, requireContext())
+                    setLoading(false)
+                }
             )
         )
     }
 
     private fun removeMapAsync(mapId: Long, callback: () -> Unit) {
+        setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.removeMap(getToken(), mapId).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_UNAUTHORIZED) { removedMap ->
@@ -106,15 +117,20 @@ class MapsListFragment : BaseFragment() {
                         database.mapDao().getById(removedMap!!.id)
                         withContext(Dispatchers.Main) {
                             callback.invoke()
+                            setLoading(false)
                         }
                     }
                 } },
-                {ResponseActions.onFail(it, requireContext())}
+                {
+                    ResponseActions.onFail(it, requireContext())
+                    setLoading(false)
+                }
             )
         )
     }
 
     private fun leaveMapAsync(mapId: Long, callback: () -> Unit) {
+        setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.leaveMap(getToken(), mapId).subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { removedMap ->
@@ -123,15 +139,20 @@ class MapsListFragment : BaseFragment() {
                         database.mapDao().getById(removedMap!!.id)
                         withContext(Dispatchers.Main) {
                             callback.invoke()
+                            setLoading(false)
                         }
                     }
                 } },
-                {ResponseActions.onFail(it, requireContext())}
+                {
+                    ResponseActions.onFail(it, requireContext())
+                    setLoading(false)
+                }
             )
         )
     }
 
     private fun loadMapsAsync(onLoaded: (MutableList<MapEntity>) -> Unit) {
+        setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.getMyMaps(getToken(), "").subscribe(
                 {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { actualMaps ->
@@ -148,10 +169,16 @@ class MapsListFragment : BaseFragment() {
                                 mapEntity.id = ids[index]
                             }
                         }
-                        withContext(Dispatchers.Main) { onLoaded.invoke(currentMaps) }
+                        withContext(Dispatchers.Main) {
+                            onLoaded.invoke(currentMaps)
+                            setLoading(false)
+                        }
                     }
                 } },
-                {ResponseActions.onFail(it, requireContext())}
+                {
+                    ResponseActions.onFail(it, requireContext())
+                    setLoading(false)
+                }
             )
         )
     }
