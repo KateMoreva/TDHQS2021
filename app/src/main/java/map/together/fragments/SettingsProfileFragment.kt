@@ -111,10 +111,8 @@ class SettingsProfileFragment : BaseFragment() {
                 )
             }
         }
-        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName
-            ?: "Username"
-        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email
-            ?: "email@email.email"
+        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName ?: "Username"
+        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email ?: "email@email.email"
 
     }
 
@@ -122,9 +120,7 @@ class SettingsProfileFragment : BaseFragment() {
         val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
         (activity as BaseActivity).taskContainer.add(
             Api.changeUserData(token!!, null, null, null, url).subscribe(
-                    { ResponseActions.onResponse(it, this.requireContext(),
-                            HttpURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST
-                    , this::updateUser)},
+                    { ResponseActions.onResponse(it, this.requireContext(), HTTP_OK, HTTP_BAD_REQUEST, this::updateUser)},
                     { ResponseActions.onFail(it, this.requireContext()) }
             )
         )
@@ -134,9 +130,7 @@ class SettingsProfileFragment : BaseFragment() {
         AuthRepository.doOnLogin(
                 this.activity as BaseActivity, CurrentUserRepository.getCurrentUserToken(this.requireContext())!!, false,
                 userDto?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY, false
-        ) {
-            setImage()
-        }
+        ) { setImage() }
     }
 
     private fun getPhotoUri(): String? {
