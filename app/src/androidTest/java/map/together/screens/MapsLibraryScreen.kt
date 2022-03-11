@@ -23,7 +23,7 @@ class MapsLibraryScreen {
     }
 
     fun chooseFirstMap(): MainScreen {
-        Espresso.onView(ViewMatchers.withId(R.id.map_name))
+        Espresso.onView(ViewMatchers.withId(R.id.open_map_btn))
             .perform(ViewActions.click())
         return MainScreen()
     }

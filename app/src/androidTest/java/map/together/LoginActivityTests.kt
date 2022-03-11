@@ -6,7 +6,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withSubstring
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
-import map.together.mockActivities.auth.FakeLoginActivity
+import map.together.activities.auth.LoginActivity
 import map.together.screens.LoginScreen
 import org.hamcrest.core.AllOf.allOf
 import org.junit.Rule
@@ -16,7 +16,7 @@ import org.junit.Test
 class LoginActivityTests {
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     private val loginScreen = LoginScreen()
 
