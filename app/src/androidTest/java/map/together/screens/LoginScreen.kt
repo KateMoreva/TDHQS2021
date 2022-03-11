@@ -30,14 +30,14 @@ class LoginScreen {
         return this
     }
 
-    fun fakeLogin(): MainMenuScreen {
+    fun fakeLogin(): MapsListScreen {
         return pressConfirmButton()
     }
 
-    fun pressConfirmButton(): MainMenuScreen {
+    fun pressConfirmButton(): MapsListScreen {
         Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
             .perform(ViewActions.click())
-        return MainMenuScreen()
+        return MapsListScreen()
     }
 
     fun pressNotExistAccountButton(): RegistrationScreen {

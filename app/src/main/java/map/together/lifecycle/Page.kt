@@ -10,6 +10,7 @@ import map.together.fragments.PlacesFragment
 import map.together.fragments.SettingsCategoriesFragment
 import map.together.fragments.SettingsProfileFragment
 import map.together.fragments.SettingsFragment
+import map.together.mockActivities.auth.FakeLoginActivity
 import java.io.Serializable
 import kotlin.reflect.KClass
 

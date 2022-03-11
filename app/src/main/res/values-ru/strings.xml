@@ -12,29 +12,15 @@
     <string name="confirm">Подтвердить</string>
     <string name="confirmation">Подтверждение</string>
     <string name="registration">Регистрация</string>
-    <string name="add_workout">Добавить тренировку</string>
     <string name="action_add">Добавить</string>
-    <string name="add_to_bookmarks">Добавить в закладки</string>
-    <string name="exercise_type">Тип упражнения</string>
 
-    <string name="choose_exercise_type">Выберите тип упражнения</string>
-    <string name="enter_exercise_name">Название упражнения</string>
     <string name="cancellation">Отмена</string>
     <string name="save">Сохранить</string>
     <string name="delete">Удалить</string>
-    <string name="exercise_elements">Элементы упражнения</string>
-    <string name="exercise">Упражнение</string>
-    <string name="parameter_name">Имя параметра</string>
-    <string name="value">Значение</string>
-    <string name="workout">Тренировка</string>
     <string name="settings">Настройки</string>
-    <string name="enter_workout_name">Название тренировки</string>
     <string name="drawer_item_settings">Настройки</string>
     <string name="account_settings">Настройки аакаунта</string>
     <string name="drawer_item_bookmarks">Закладки</string>
-    <string name="drawer_item_favourites">Избранное</string>
-    <string name="drawer_item_search">Найти тренировку</string>
-
     <string name="image">Фото</string>
     <string name="change_imnage">Изменить ваше фото</string>
     <string name="remember">Запомнить</string>
