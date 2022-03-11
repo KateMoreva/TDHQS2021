@@ -8,7 +8,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
-import map.together.screens.MapsListScreen
 import org.hamcrest.core.AllOf.allOf
 import org.junit.Rule
 import org.junit.Test
@@ -20,8 +19,6 @@ class LoginActivityTests {
     val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
 
     private val loginScreen = LoginScreen()
-    private val mapsListScreen = MapsListScreen()
-
 
     @Test
     fun mainLabelExists() {

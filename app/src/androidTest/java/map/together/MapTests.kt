@@ -1,12 +1,9 @@
 package map.together
 
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
-import map.together.screens.MapsListScreen
-import org.hamcrest.core.AllOf
+import map.together.screens.MapsLibraryScreen
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -16,7 +13,7 @@ class MapTests {
     val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
 
     private val loginScreen = LoginScreen()
-    private var mapsListScreen = MapsListScreen()
+    private var mapsListScreen = MapsLibraryScreen()
 
     @Before
     fun login() {
@@ -29,6 +26,6 @@ class MapTests {
     @Test
     fun openMap() {
         mapsListScreen
-            .chooseFirstMap()
+
     }
 }
