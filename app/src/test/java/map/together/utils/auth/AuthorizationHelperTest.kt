@@ -81,6 +81,21 @@ class AuthorizationHelperTest {
     }
 
     @Test
+    internal fun checkCorrectnessInputData_correctPassword() {
+        val user = UserSignUpInfo(
+            "test@test.test",
+            "1234567891012131415161711819202123222425",
+            "1234567891012131415161711819202123222425",
+            "User",
+            ""
+        )
+        Assertions.assertEquals(
+            SignUpDataCorrectType.CORRECT,
+            AuthorizationHelper.checkCorrectnessInputData(user)
+        )
+    }
+
+    @Test
     internal fun checkCorrectnessInputData_incorrectPassword_Big() {
         val user = UserSignUpInfo(
             "test@test.test",
