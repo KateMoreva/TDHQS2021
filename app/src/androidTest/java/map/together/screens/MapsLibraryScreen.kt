@@ -27,7 +27,7 @@ class MapsLibraryScreen {
     }
 
     fun chooseFirstMap(): MainScreen {
-        Espresso.onView(withIndex(ViewMatchers.withId(R.id.map_name), 0))
+        Espresso.onView(withIndex(ViewMatchers.withId(R.id.open_map_btn), 0))
             .perform(ViewActions.click())
         return MainScreen()
     }

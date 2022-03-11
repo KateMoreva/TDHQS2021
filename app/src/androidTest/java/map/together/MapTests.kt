@@ -4,6 +4,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import map.together.api.Api
 import map.together.api.ApiUtils
 import map.together.dto.db.MapDto
+import map.together.activities.auth.LoginActivity
 import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
 import map.together.screens.MapsLibraryScreen
@@ -17,7 +18,6 @@ import java.util.concurrent.CountDownLatch
 class MapTests {
     @get:Rule
     val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
-
     private val loginScreen = LoginScreen()
     private var mapsListScreen = MapsLibraryScreen()
 
@@ -34,7 +34,10 @@ class MapTests {
 
     @Test
     fun openMap() {
-        mapsListScreen
+        loginScreen
+            .pressConfirmButton()
+            .chooseFirstMap()
+            .click()
 
     }
 
