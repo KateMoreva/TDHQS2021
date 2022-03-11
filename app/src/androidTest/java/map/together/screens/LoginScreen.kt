@@ -15,8 +15,9 @@ class LoginScreen {
     fun typeLogin(login: String): LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.email_et))
             .perform(
-                ViewActions.typeText(login),
-                ViewActions.closeSoftKeyboard()
+                    ViewActions.clearText(),
+                    ViewActions.typeText(login),
+                    ViewActions.closeSoftKeyboard()
             )
         return this
     }
@@ -24,20 +25,27 @@ class LoginScreen {
     fun typePassword(password: String): LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.password_et))
             .perform(
-                ViewActions.typeText(password),
-                ViewActions.closeSoftKeyboard()
+                    ViewActions.clearText(),
+                    ViewActions.typeText(password),
+                    ViewActions.closeSoftKeyboard()
             )
         return this
     }
 
-    fun fakeLogin(): MainMenuScreen {
+    fun login(login: String, password: String): MapsLibraryScreen {
+        return typeLogin(login)
+                .typePassword(password)
+                .pressConfirmButton()
+    }
+
+    fun fakeLogin(): MapsLibraryScreen {
         return pressConfirmButton()
     }
 
-    fun pressConfirmButton(): MainMenuScreen {
+    fun pressConfirmButton(): MapsLibraryScreen {
         Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
             .perform(ViewActions.click())
-        return MainMenuScreen()
+        return MapsLibraryScreen()
     }
 
     fun pressNotExistAccountButton(): RegistrationScreen {

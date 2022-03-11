@@ -2,6 +2,9 @@ package map.together.activities
 
 import android.content.DialogInterface
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -59,7 +62,19 @@ class MapsListFragment : BaseFragment() {
                 progress_bar.visibility = View.INVISIBLE
             }
         }
+        setHasOptionsMenu(true)
+    }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        println("On create options menu")
+        inflater.inflate(R.menu.map_menu, menu)
+
+        val settingsBtn: MenuItem? = menu.findItem(R.id.settings_btn)
+        settingsBtn?.setOnMenuItemClickListener {
+            println("Open settings fragment!")
+            router?.showSettingsPage()
+            true
+        }
     }
 
     private fun addMapAsync(callback: (MapEntity) -> Unit) {
