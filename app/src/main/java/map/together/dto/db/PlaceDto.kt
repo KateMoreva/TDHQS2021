@@ -40,5 +40,6 @@ data class PlaceDto(
         @Expose
         var categoryColor: Int,
 ) {
-        fun toPlaceEntity(): PlaceEntity = PlaceEntity(name, ownerId, latitude, longitude, categoryId, id, id)
+        fun toPlaceEntity(): PlaceEntity =
+                PlaceEntity(name, ownerId, latitude, longitude, categoryId, id, id)
 }
