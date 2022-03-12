@@ -39,7 +39,10 @@ interface ApiInterface {
     ): Single<Response<UserDto>>
 
     @GET("/api/owner/places")
-    fun getMyPlaces(search: String?): Single<Response<List<PlaceDto>>>
+    fun getMyPlaces(
+        @Header("Authorization") token: String,
+        @Query("search") search: String?
+    ): Single<Response<List<PlaceDto>>>
 
     @GET("/api/owner/categories/list")
     fun getMyCategories(@Header("Authorization") token: String): Single<Response<List<CategoryDto>>>

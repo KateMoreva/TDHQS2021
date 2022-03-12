@@ -26,8 +26,9 @@ class FakeLoginActivity : BaseActivity() {
         }
 
         confirm_button.setOnClickListener {
+            val email = email_et.text.toString().replace("\\s".toRegex(), "")
             val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(
-                email_et.text.toString(),
+                email,
                 password_et.text.toString()
             )
             taskContainer.add(

@@ -66,19 +66,24 @@ object Api {
             .observeOn(AndroidSchedulers.mainThread())
 
     fun getMyMaps(token: String, search: String?): Single<Response<List<MapDto>>> =
-            api.getMyMaps(token, search)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+        api.getMyMaps(token, search)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+
+    fun getMyPlaces(token: String, search: String?): Single<Response<List<PlaceDto>>> =
+        api.getMyPlaces(token, search)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     fun createMap(token: String, name: String): Single<Response<MapDto>> =
-            api.createMap(token, name)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+        api.createMap(token, name)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     fun createLayer(token: String, name: String, mapId: Long): Single<Response<LayerDto>> =
-            api.createLayer(token, name, mapId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+        api.createLayer(token, name, mapId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     fun createPlace(token: String, placeName: String, mapId: Long, layerId: Long, latitude: String,
                     longitude: String, categoryId: Long): Single<Response<PlaceDto>> =

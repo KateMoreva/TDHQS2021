@@ -344,12 +344,12 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
         tagBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
-                val layoutParams = tag_edit_menu.layoutParams
+                val layoutParams = resizable_tag_menu.layoutParams
                 val fullHeight = Resources.getSystem().displayMetrics.heightPixels
                 if (newState == STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
-                tag_edit_menu.layoutParams = layoutParams
+                resizable_tag_menu.layoutParams = layoutParams
             }
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {

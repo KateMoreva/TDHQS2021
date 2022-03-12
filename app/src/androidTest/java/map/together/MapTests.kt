@@ -4,7 +4,7 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import map.together.api.Api
 import map.together.api.ApiUtils
 import map.together.dto.db.MapDto
-import map.together.activities.auth.LoginActivity
+import map.together.dto.db.PlaceDto
 import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
 import map.together.screens.MapsLibraryScreen
@@ -34,11 +34,42 @@ class MapTests {
 
     @Test
     fun openMap() {
-        loginScreen
-            .pressConfirmButton()
-            .chooseFirstMap()
-            .click()
+        val maps1 = getMaps()
+        Assert.assertNotNull(maps1)
 
+        mapsListScreen
+            .chooseMapByIndex(1)
+    }
+
+    @Test
+    fun selectWinterPalace() {
+        val places = getPlaces()
+        Assert.assertNotNull(places)
+        Assert.assertTrue(places!!.size > 2)
+
+        val placeAddress = mapsListScreen
+            .chooseMapByIndex(1)
+            .zoomIn()
+            .clickOnMap()
+            .getAddress()
+        Assert.assertEquals("Дворцовая площадь, 2", placeAddress)
+    }
+
+    @Test
+    fun savePlace() {
+        val places = getPlaces()
+        Assert.assertNotNull(places)
+        Assert.assertTrue(places!!.size > 2)
+
+        mapsListScreen
+            .chooseMapByIndex(1)
+            .zoomIn()
+            .clickOnMap()
+            .clickSavePlace()
+
+        val places2 = getPlaces()
+        Assert.assertNotNull(places2)
+        Assert.assertTrue(places2!!.size == (places.size + 1))
     }
 
     @Test
@@ -92,12 +123,29 @@ class MapTests {
             val maps = response.body()!!
             mapsListFromServer = maps
             latch.countDown()
-        }, {error ->
+        }, { error ->
             Logger.e(error)
             latch.countDown()
         })
         latch.await()
         disposable.dispose()
         return mapsListFromServer
+    }
+
+    private fun getPlaces(): List<PlaceDto>? {
+        var placesListFromServer: List<PlaceDto>? = null
+        val latch = CountDownLatch(1)
+        val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(email, password)
+        val disposable = Api.getMyPlaces(token, "").subscribe({ response ->
+            val places = response.body()!!
+            placesListFromServer = places
+            latch.countDown()
+        }, { error ->
+            Logger.e(error)
+            latch.countDown()
+        })
+        latch.await()
+        disposable.dispose()
+        return placesListFromServer
     }
 }

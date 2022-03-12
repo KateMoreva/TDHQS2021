@@ -10,16 +10,22 @@
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <TextView
-        android:id="@+id/category_on_tap_adress_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:fontFamily="@font/montserrat"
-        android:text="category_on_tap_address"
-        android:textColor="#000000"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/resizable_tag_menu"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/category_on_tap_adress_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:fontFamily="@font/montserrat"
+            android:text="category_on_tap_address"
+            android:textColor="#000000"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -142,9 +148,7 @@
         android:id="@+id/category_on_tap_save_changes_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginEnd="20dp"
-        android:layout_marginBottom="10dp"
         android:background="#009688"
         android:fontFamily="@font/roboto"
         android:gravity="center"
@@ -153,7 +157,8 @@
         android:textSize="14sp"
         android:layout_marginVertical="@dimen/padding_20"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/category_on_tap_place_description_id"
         tools:ignore="TouchTargetSizeCheck,TextContrastCheck" />
-
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

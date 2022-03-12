@@ -3,12 +3,10 @@ package map.together.screens
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
-import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
 import map.together.utils.WaitForAction
 import map.together.utils.WithIndexMatcher.withIndex
-import map.together.viewholders.MapViewHolder
 
 class MapsLibraryScreen {
 
