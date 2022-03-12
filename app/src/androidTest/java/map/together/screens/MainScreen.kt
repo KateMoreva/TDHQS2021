@@ -26,6 +26,8 @@ class MainScreen {
     }
 
     fun createLayer(): MainScreen {
+        Espresso.onView(ViewMatchers.withId(R.id.resizable_layers_menu))
+            .perform(ViewActions.swipeUp())
         Espresso.onView(ViewMatchers.withId(R.id.add_layer_btn))
             .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
