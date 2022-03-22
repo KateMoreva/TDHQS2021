@@ -498,7 +498,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         getMapFromDatabase(mapLocalId) { mapEntity ->
             currentMapEntity = mapEntity
             token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
-            loadCategories()
+            loadCategories(token)
             mapUpdater = MapUpdater(5000, token, mapEntity.id, applicationContext, taskContainer, database!!) { mapInfo ->
                 // mapInfo.map -- done
                 updateMap(mapInfo.map)
@@ -517,7 +517,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     }
 
-    private fun loadCategories() {
+    private fun loadCategories(token: String) {
         taskContainer.add(
                 Api.getMyCategories(token).subscribe(
                         { ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST) { categoriesDtos ->

@@ -52,7 +52,7 @@ class MapTests {
             .zoomIn()
             .clickOnMap()
             .getAddress()
-        Assert.assertEquals("Дворцовая площадь, 2", placeAddress)
+        Assert.assertTrue(placeAddress == "Дворцовая площадь, 2" || placeAddress == "Palace Square, 2")
     }
 
     @Test
