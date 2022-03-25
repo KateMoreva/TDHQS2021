@@ -11,6 +11,9 @@ import map.together.fragments.SettingsCategoriesFragment
 import map.together.fragments.SettingsProfileFragment
 import map.together.fragments.SettingsFragment
 import map.together.mockActivities.auth.FakeLoginActivity
+import map.together.mockActivities.auth.FakeMapActivity
+import map.together.mockActivities.auth.FakeMapsList
+import map.together.mockActivities.auth.FakeRegistrationActivity
 import java.io.Serializable
 import kotlin.reflect.KClass
 
@@ -28,8 +31,17 @@ sealed class Page : Serializable {
             override val clazz = MapActivity::class
         }
 
+        object FakeMain : Activity() {
+            override val clazz = FakeMapActivity::class
+        }
+
+
         object Registration : Activity() {
             override val clazz = RegistrationActivity::class
+        }
+
+        object FakeRegistration : Activity() {
+            override val clazz = FakeRegistrationActivity::class
         }
     }
 
@@ -59,6 +71,10 @@ sealed class Page : Serializable {
 
         object MapsLibrary : Fragment() {
             override val clazz = MapsListFragment::class
+        }
+
+        object FakeMapsLibrary : Fragment() {
+            override val clazz = FakeMapsList::class
         }
 
     }

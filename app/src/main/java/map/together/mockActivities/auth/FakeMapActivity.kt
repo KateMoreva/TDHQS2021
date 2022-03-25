@@ -1,10 +1,14 @@
-package map.together.activities
-
+package map.together.mockActivities.auth
 
 import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
-import android.graphics.*
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -19,7 +23,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.yandex.mapkit.Animation
 import com.yandex.mapkit.GeoObject
 import com.yandex.mapkit.MapKitFactory
@@ -28,22 +32,37 @@ import com.yandex.mapkit.geometry.Point
 import com.yandex.mapkit.geometry.Polyline
 import com.yandex.mapkit.layers.GeoObjectTapEvent
 import com.yandex.mapkit.layers.GeoObjectTapListener
-import com.yandex.mapkit.map.*
+import com.yandex.mapkit.map.CameraPosition
+import com.yandex.mapkit.map.GeoObjectSelectionMetadata
+import com.yandex.mapkit.map.InputListener
 import com.yandex.mapkit.map.Map
-import com.yandex.mapkit.search.*
+import com.yandex.mapkit.search.Response
+import com.yandex.mapkit.search.SearchFactory
+import com.yandex.mapkit.search.SearchManager
+import com.yandex.mapkit.search.SearchManagerType
+import com.yandex.mapkit.search.SearchOptions
+import com.yandex.mapkit.search.SearchType
+import com.yandex.mapkit.search.Session
 import com.yandex.runtime.image.ImageProvider
 import com.yandex.runtime.network.NetworkError
 import com.yandex.runtime.network.RemoteError
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.android.synthetic.main.category_on_tap_fragment.*
 import kotlinx.android.synthetic.main.item_layers_menu.*
-import kotlinx.android.synthetic.main.item_layers_menu.layers_menu
 import kotlinx.android.synthetic.main.item_menu.*
 import kotlinx.android.synthetic.main.item_users.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import map.together.R
+import map.together.activities.AppbarActivity
 import map.together.api.Api
-import map.together.db.entity.*
+import map.together.db.entity.MapEntity
+import map.together.db.entity.PlaceCategoryEntity
+import map.together.db.entity.PlaceEntity
+import map.together.db.entity.UserEntity
 import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.PlaceDto
@@ -67,15 +86,15 @@ import map.together.viewholders.SearchViewHolder
 import map.together.viewholders.UsersViewHolder
 import java.net.HttpURLConnection
 import javax.net.ssl.HttpsURLConnection
-import kotlin.math.round
 import kotlin.math.roundToInt
 
-
-class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Session.SearchListener,
+class FakeMapActivity : AppbarActivity(), GeoObjectTapListener, InputListener,
+    Session.SearchListener,
     CategoryColorDialog.CategoryDialogListener {
     val SPB = Point(59.9408455, 30.3131542)
     val layersList: ItemsList<LayerItem> = ItemsList(mutableListOf())
-    var mapUpdater: MapUpdater? = null
+    var mapUpdater: FakeMapUpdater? = null
+
     //TODO: loading from bundle
     var token = ""
     var currentMapEntity: MapEntity? = null
@@ -143,27 +162,41 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             onChangeRole = { item ->
                 println(item)
                 taskContainer.add(
-                        Api.changeRole(token, currentMapEntity!!.serverId, item.email, item.role, ).subscribe(
-                                {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
-                                    println("Success!")
-                                }},
-                                { ResponseActions.onFail(it, applicationContext) }
-                        )
+                    Api.fakechangeRole(token, item.id, item.name, item.email, item.role).subscribe(
+                        {
+                            ResponseActions.onResponse(
+                                it,
+                                applicationContext,
+                                HttpsURLConnection.HTTP_OK,
+                                HttpsURLConnection.HTTP_FORBIDDEN
+                            ) { dto ->
+                                println("Success!")
+                            }
+                        },
+                        { ResponseActions.onFail(it, applicationContext) }
+                    )
                 )
             },
-                onRemove = { item ->
-                    println(item)
-                    taskContainer.add(
-                            Api.changeRole(token, currentMapEntity!!.serverId, item.email, 0).subscribe(
-                                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { dto ->
-                                        println("Success!")
-                                    }},
-                                    { ResponseActions.onFail(it, applicationContext) }
-                            )
+            onRemove = { item ->
+                println(item)
+                taskContainer.add(
+                    Api.fakechangeRole(token, item.id, item.name, item.email, 0).subscribe(
+                        {
+                            ResponseActions.onResponse(
+                                it,
+                                applicationContext,
+                                HttpsURLConnection.HTTP_OK,
+                                HttpsURLConnection.HTTP_FORBIDDEN
+                            ) { dto ->
+                                println("Success!")
+                            }
+                        },
+                        { ResponseActions.onFail(it, applicationContext) }
                     )
-                },
+                )
+            },
 
-        )
+            )
 
         users_list.adapter = usersAdapter
         val usersManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -275,15 +308,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                                     item.coord,
                                     y,
                                     SearchOptions(),
-                                    this@MapActivity
+                                    this@FakeMapActivity
                                 )
                                 search_text_field.visibility = View.INVISIBLE
                                 search_res_list.visibility = View.GONE
                                 searchResults.clear()
                                 val imm =
-                                    getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                                    getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
                                 imm.hideSoftInputFromWindow(
-                                    this@MapActivity.currentFocus?.windowToken,
+                                    this@FakeMapActivity.currentFocus?.windowToken,
                                     0
                                 )
                                 showTagMenu()
@@ -292,7 +325,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                     )
                     search_res_list.adapter = adapter
                     val layoutManager =
-                        LinearLayoutManager(this@MapActivity, RecyclerView.VERTICAL, false)
+                        LinearLayoutManager(this@FakeMapActivity, RecyclerView.VERTICAL, false)
                     search_res_list.layoutManager = layoutManager
                     search_res_list.visibility = View.VISIBLE
 
@@ -301,30 +334,31 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             }
         })
 
-        val bottomSheetBehavior = from(layers_menu)
-        bottomSheetBehavior.state = STATE_HIDDEN
+        val bottomSheetBehavior = BottomSheetBehavior.from(layers_menu)
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
         layers_btn.setOnClickListener {
             bottomSheetBehavior.isDraggable = true
             hide_menu_btn.visibility = View.GONE
             hide_menu_img.visibility = View.VISIBLE
-            bottomSheetBehavior.setState(STATE_HALF_EXPANDED)
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED)
         }
 
         hide_menu_btn.setOnClickListener {
-            bottomSheetBehavior.setState(STATE_HIDDEN)
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN)
         }
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = resizable_layers_menu.layoutParams
                 val fullHeight = Resources.getSystem().displayMetrics.heightPixels
-                if (newState == STATE_EXPANDED) {
+                if (newState == BottomSheetBehavior.STATE_EXPANDED) {
                     layoutParams.height = fullHeight - getNavigationBarHeight()
                     bottomSheetBehavior.isDraggable = false
                     hide_menu_btn.visibility = View.VISIBLE
                     hide_menu_img.visibility = View.GONE
-                } else if (newState == STATE_HALF_EXPANDED) {
+                } else if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
                 resizable_layers_menu.layoutParams = layoutParams
@@ -339,14 +373,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             router?.showMapsLibraryPage()
         }
 
-        val tagBottomSheetBehavior = from(tag_edit_menu)
-        tagBottomSheetBehavior.state = STATE_HIDDEN
+        val tagBottomSheetBehavior = BottomSheetBehavior.from(tag_edit_menu)
+        tagBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        tagBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+        tagBottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = resizable_tag_menu.layoutParams
                 val fullHeight = Resources.getSystem().displayMetrics.heightPixels
-                if (newState == STATE_HALF_EXPANDED) {
+                if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
                 resizable_tag_menu.layoutParams = layoutParams
@@ -358,14 +393,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         })
 
 
-        val usersBottomSheetBehavior = from(users_edit_menu)
-        usersBottomSheetBehavior.state = STATE_HIDDEN
+        val usersBottomSheetBehavior = BottomSheetBehavior.from(users_edit_menu)
+        usersBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
 
-        usersBottomSheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+        usersBottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 val layoutParams = users_edit_menu.layoutParams
                 val fullHeight = Resources.getSystem().displayMetrics.heightPixels
-                if (newState == STATE_HALF_EXPANDED) {
+                if (newState == BottomSheetBehavior.STATE_HALF_EXPANDED) {
                     layoutParams.height = (fullHeight - getNavigationBarHeight()) / 2
                 }
                 users_edit_menu.layoutParams = layoutParams
@@ -384,33 +420,33 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         val adapter = LayersAdapter(
             holderType = LayerViewHolder::class,
             layoutId = R.layout.item_layer,
-                dataSource = layersList,
-                onClick = { layer ->
-                    print("Layer $layer clicked")
-                    if (layer.isVisible && currentLayerId.toString() != layer.id) {
-                        layersList.items.forEach {
-                            it.selected = false
-                        }
-                        layer.selected = true
-                        currentLayerId = layer.id.toLong()
-                    } else {
-                        layer.isVisible = !layer.isVisible
-                    }
-                    layersList.rangeUpdate(0, layersList.size())
-                },
-                onRemove = {
-                    // todo: check that user can delete this layer and delete it
-                    tryRemoveLayer(it) {
-                        layersList.remove(it)
-                    }
-                },
-                onChangeCommonLayer = {
+            dataSource = layersList,
+            onClick = { layer ->
+                print("Layer $layer clicked")
+                if (layer.isVisible && currentLayerId.toString() != layer.id) {
                     layersList.items.forEach {
-                        if (it.ownerId != 0L)
-                            it.disabled = !it.disabled
+                        it.selected = false
                     }
-                    layersList.rangeUpdate(0, layersList.size())
+                    layer.selected = true
+                    currentLayerId = layer.id.toLong()
+                } else {
+                    layer.isVisible = !layer.isVisible
                 }
+                layersList.rangeUpdate(0, layersList.size())
+            },
+            onRemove = {
+                // todo: check that user can delete this layer and delete it
+                tryRemoveLayer(it) {
+                    layersList.remove(it)
+                }
+            },
+            onChangeCommonLayer = {
+                layersList.items.forEach {
+                    if (it.ownerId != 0L)
+                        it.disabled = !it.disabled
+                }
+                layersList.rangeUpdate(0, layersList.size())
+            }
         )
         layers_list.adapter = adapter
         val layoutManager = LinearLayoutManager(this, RecyclerView.VERTICAL, false)
@@ -444,14 +480,25 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
         add_layer_btn.setOnClickListener {
             val newLayerName = "Новый слой " + layersList.size()
-            Api.createLayer(CurrentUserRepository.getCurrentUserToken(applicationContext)!!, newLayerName, currentMapEntity!!.serverId).subscribe(
-                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { layerDto ->
+            Api.fakecreateLayer(
+                CurrentUserRepository.getCurrentUserToken(applicationContext)!!,
+                newLayerName,
+                currentMapEntity!!.serverId
+            ).subscribe(
+                {
+                    ResponseActions.onResponse(
+                        it,
+                        applicationContext,
+                        HttpsURLConnection.HTTP_OK,
+                        HttpsURLConnection.HTTP_FORBIDDEN
+                    ) { layerDto ->
                         println("Success! Layer {$layerDto} created")
                         val newLayer = layerDto!!.toNewLayerItem()
                         layersList.addLast(newLayer)
                         layers_list.smoothScrollToPosition(layersList.size() - 1)
-                    }},
-                    { ResponseActions.onFail(it, applicationContext) }
+                    }
+                },
+                { ResponseActions.onFail(it, applicationContext) }
             )
         }
 
@@ -483,10 +530,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             layersList.rangeUpdate(0, layersList.size())
         }
 
-        val bottomSheetBehavior2 = from(bottom_sheet)
-        bottomSheetBehavior2.state = STATE_HIDDEN
+        val bottomSheetBehavior2 = BottomSheetBehavior.from(bottom_sheet)
+        bottomSheetBehavior2.state = BottomSheetBehavior.STATE_HIDDEN
         menu.setOnClickListener {
-            bottomSheetBehavior2.setState(STATE_EXPANDED)
+            bottomSheetBehavior2.setState(BottomSheetBehavior.STATE_EXPANDED)
         }
 
         stop_demonstrate_card.visibility = View.INVISIBLE
@@ -499,7 +546,14 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             currentMapEntity = mapEntity
             token = CurrentUserRepository.getCurrentUserToken(applicationContext)!!
             loadCategories(token)
-            mapUpdater = MapUpdater(5000, token, mapEntity.id, applicationContext, taskContainer, database!!) { mapInfo ->
+            mapUpdater = FakeMapUpdater(
+                5000000,
+                token,
+                mapEntity.id,
+                applicationContext,
+                taskContainer,
+                database!!
+            ) { mapInfo ->
                 // mapInfo.map -- done
                 updateMap(mapInfo.map)
 
@@ -519,24 +573,39 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     private fun loadCategories(token: String) {
         taskContainer.add(
-                Api.getMyCategories(token).subscribe(
-                        { ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpURLConnection.HTTP_BAD_REQUEST) { categoriesDtos ->
-                            categories = categoriesDtos!!.map {
-                                dto -> CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
-                            }.toMutableList()
-                        } },
-                        { ResponseActions.onFail(it, applicationContext) }
-                )
+            Api.fakegetMyCategories(token).subscribe(
+                {
+                    ResponseActions.onResponse(
+                        it,
+                        applicationContext,
+                        HttpsURLConnection.HTTP_OK,
+                        HttpURLConnection.HTTP_BAD_REQUEST
+                    ) { categoriesDtos ->
+                        categories = categoriesDtos!!.map { dto ->
+                            CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
+                        }.toMutableList()
+                    }
+                },
+                { ResponseActions.onFail(it, applicationContext) }
+            )
         )
     }
 
     private fun tryRemoveLayer(layerToRemove: LayerItem, onDelete: () -> Unit) {
         this.taskContainer.add(
-            Api.removeLayer(token, currentMapEntity!!.serverId, layerToRemove.id.toLong()).subscribe(
-                    {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { layerDto ->
-                        println("Success! Layer {$layerDto} was deleted")
-                        onDelete.invoke()
-                    }},
+            Api.fakeremoveLayer(token, currentMapEntity!!.serverId, layerToRemove.id.toLong())
+                .subscribe(
+                    {
+                        ResponseActions.onResponse(
+                            it,
+                            applicationContext,
+                            HttpsURLConnection.HTTP_OK,
+                            HttpsURLConnection.HTTP_FORBIDDEN
+                        ) { layerDto ->
+                            println("Success! Layer {$layerDto} was deleted")
+                            onDelete.invoke()
+                        }
+                    },
                     { ResponseActions.onFail(it, applicationContext) })
         )
     }
@@ -632,7 +701,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         val layersToUpdate = mutableListOf<Pair<Int, LayerDto>>()
         // we need to understand which one should be updated, created or removed
         currentLayers.forEachIndexed { index, layerItem ->
-            val foundLayerDto = actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
+            val foundLayerDto =
+                actualLayersFromServer.find { layerDto -> layerDto.id.toString() == layerItem.id }
             if (foundLayerDto == null) {
                 if (layerItem.id != "0") {
                     // this layer was deleted
@@ -647,7 +717,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         // update updated layers
         layersToUpdate.forEach { indexAndLayerDto ->
             val layerItem = currentLayers[indexAndLayerDto.first]
-            layersList.update(indexAndLayerDto.first, indexAndLayerDto.second.updateLayerItem(layerItem))
+            layersList.update(
+                indexAndLayerDto.first,
+                indexAndLayerDto.second.updateLayerItem(layerItem)
+            )
         }
         // remove removed layers
         layersToRemove.forEach { layerItem ->
@@ -713,8 +786,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             println("new place at layer $layerId is $placeDto")
             currentPlaces.add(placeDto)
             mapview.map.mapObjects.addPlacemark(
-                    Point(placeDto.latitude.toDouble(), placeDto.longitude.toDouble()),
-                    ImageProvider.fromBitmap(drawSimpleBitmap(placeDto.categoryColor))
+                Point(placeDto.latitude.toDouble(), placeDto.longitude.toDouble()),
+                ImageProvider.fromBitmap(drawSimpleBitmap(placeDto.categoryColor))
             )
             // todo: add new place logic here (?)
         }
@@ -740,7 +813,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         mapview.map.mapObjects.clear()
         for (place in places) {
             val category = categories.find { category ->
-                category.id == place.categoryId.toString() } ?: continue
+                category.id == place.categoryId.toString()
+            } ?: continue
             placeCategory[place.id] = category
             mapview.map.mapObjects.addPlacemark(
                 Point(place.latitude.toDouble(), place.longitude.toDouble()),
@@ -810,13 +884,25 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
 
     protected fun deletePlace(placeEntity: PlaceEntity, actionsAfter: (PlaceDto) -> Unit) {
         taskContainer.add(
-                Api.removePlace(token, currentMapEntity!!.serverId, currentLayerId, placeEntity.serverId).subscribe(
-                        {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { placeDto ->
-                            println("Success! Place {$placeDto} created")
-                            actionsAfter.invoke(placeDto!!)
-                        }},
-                        { ResponseActions.onFail(it, applicationContext) }
-                )
+            Api.fakeremovePlace(
+                token,
+                currentMapEntity!!.serverId,
+                currentLayerId,
+                placeEntity.serverId
+            ).subscribe(
+                {
+                    ResponseActions.onResponse(
+                        it,
+                        applicationContext,
+                        HttpsURLConnection.HTTP_OK,
+                        HttpsURLConnection.HTTP_FORBIDDEN
+                    ) { placeDto ->
+                        println("Success! Place {$placeDto} created")
+                        actionsAfter.invoke(placeDto!!)
+                    }
+                },
+                { ResponseActions.onFail(it, applicationContext) }
+            )
         )
 
     }
@@ -824,7 +910,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     fun Double.round(decimals: Int = 4): Double {
         var multiplier = 1.0
         repeat(decimals) { multiplier *= 10 }
-        return round(this * multiplier) / multiplier
+        return kotlin.math.round(this * multiplier) / multiplier
     }
 
     protected fun getPlaceByParam(latitude: Double, longitude: Double): PlaceEntity? {
@@ -864,7 +950,7 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 category_img.setColorFilter(
                     ContextCompat.getColor(
                         applicationContext,
-                            CategoryColorDialog.COLORS_ARRAY[selectedPlaceCategory!!.colorRecourse]
+                        CategoryColorDialog.COLORS_ARRAY[selectedPlaceCategory!!.colorRecourse]
                     ),
                     PorterDuff.Mode.SRC_IN
                 )
@@ -892,7 +978,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                 category_on_tap_save_changes_id.setOnClickListener {
                     if (category_on_tap_save_changes_id.text == resources.getText(R.string.save)) {
                         val placeName = category_on_tap_place_name_id.text.toString()
-                        createPlace(resultLocation, placeName, selectedPlaceCategory!!.id.toLong()) { placeDto ->
+                        createPlace(
+                            resultLocation,
+                            placeName,
+                            selectedPlaceCategory!!.id.toLong()
+                        ) { placeDto ->
                             // todo: настроить отображение категорий
                             layerToPlacesMap[currentLayerId]?.add(placeDto)
                             drawPlaces()
@@ -904,8 +994,8 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
                             return@setOnClickListener
                         }
                         val placeByParams: PlaceEntity = getPlaceByParam(
-                                resultLocation.latitude,
-                                resultLocation.longitude
+                            resultLocation.latitude,
+                            resultLocation.longitude
                         ) ?: return@setOnClickListener
 
                         deletePlace(placeByParams) { placeDto ->
@@ -938,20 +1028,40 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         }
     }
 
-    private fun createPlace(resultLocation: Point?, placeName: String, categoryId: Long, onCreated: (PlaceDto) -> Unit) {
+    private fun createPlace(
+        resultLocation: Point?,
+        placeName: String,
+        categoryId: Long,
+        onCreated: (PlaceDto) -> Unit
+    ) {
         if (resultLocation == null) {
             return
         }
         val latitude = resultLocation.latitude.toString()
         val longitude = resultLocation.longitude.toString()
         taskContainer.add(
-                Api.createPlace(token, placeName, currentMapEntity!!.serverId, currentLayerId, latitude, longitude, categoryId).subscribe(
-                        {ResponseActions.onResponse(it, applicationContext, HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { placeDto ->
-                            println("Success! Place {$placeDto} created")
-                            onCreated.invoke(placeDto!!)
-                        }},
-                        { ResponseActions.onFail(it, applicationContext) }
-                )
+            Api.fakecreatePlace(
+                token,
+                placeName,
+                currentMapEntity!!.serverId,
+                currentLayerId,
+                latitude,
+                longitude,
+                categoryId
+            ).subscribe(
+                {
+                    ResponseActions.onResponse(
+                        it,
+                        applicationContext,
+                        HttpsURLConnection.HTTP_OK,
+                        HttpsURLConnection.HTTP_FORBIDDEN
+                    ) { placeDto ->
+                        println("Success! Place {$placeDto} created")
+                        onCreated.invoke(placeDto!!)
+                    }
+                },
+                { ResponseActions.onFail(it, applicationContext) }
+            )
 
         )
     }
@@ -1056,8 +1166,11 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             val category = placeCategory[place.id] ?: return@forEach
             category_on_tap_name_id.text = category.name
             category_img.setColorFilter(
-                    ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]),
-                    PorterDuff.Mode.SRC_IN
+                ContextCompat.getColor(
+                    applicationContext,
+                    CategoryColorDialog.COLORS_ARRAY[category.colorRecourse]
+                ),
+                PorterDuff.Mode.SRC_IN
             )
             selectedPlaceCategory = category
         }
@@ -1066,13 +1179,15 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     private fun dynamicSearch(s: String) {
         val searchOptions = SearchOptions()
         searchOptions.searchTypes = SearchType.GEO.value
-        searchSession = searchManager!!.submit(s,
-                Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this)
+        searchSession = searchManager!!.submit(
+            s,
+            Geometry.fromPoint(Point(59.9408455, 30.3131542)), SearchOptions(), this
+        )
     }
 
     private fun hideTagMenu() {
-        val tagBottomSheetBehavior = from(tag_edit_menu)
-        tagBottomSheetBehavior.state = STATE_HIDDEN
+        val tagBottomSheetBehavior = BottomSheetBehavior.from(tag_edit_menu)
+        tagBottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         category_on_tap_save_changes_id.text = resources.getText(R.string.save)
     }
 
@@ -1087,18 +1202,18 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
     }
 
     private fun showTagMenu() {
-        val tagBottomSheetBehavior = from(tag_edit_menu)
-        if (!tagBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
+        val tagBottomSheetBehavior = BottomSheetBehavior.from(tag_edit_menu)
+        if (!tagBottomSheetBehavior.state.equals(BottomSheetBehavior.STATE_HALF_EXPANDED)) {
             tagBottomSheetBehavior.isDraggable = true
-            tagBottomSheetBehavior.state = STATE_HALF_EXPANDED
+            tagBottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
     }
 
     private fun showUsersMenu() {
-        val usersBottomSheetBehavior = from(users_edit_menu)
-        if (!usersBottomSheetBehavior.state.equals(STATE_HALF_EXPANDED)) {
+        val usersBottomSheetBehavior = BottomSheetBehavior.from(users_edit_menu)
+        if (!usersBottomSheetBehavior.state.equals(BottomSheetBehavior.STATE_HALF_EXPANDED)) {
             usersBottomSheetBehavior.isDraggable = true
-            usersBottomSheetBehavior.state = STATE_HALF_EXPANDED
+            usersBottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         }
     }
 
@@ -1110,7 +1225,10 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
         selectedPlaceCategory = item
         category_on_tap_name_id.text = item.name
         category_img.setColorFilter(
-            ContextCompat.getColor(applicationContext, CategoryColorDialog.COLORS_ARRAY[item.colorRecourse]),
+            ContextCompat.getColor(
+                applicationContext,
+                CategoryColorDialog.COLORS_ARRAY[item.colorRecourse]
+            ),
             PorterDuff.Mode.SRC_IN
         )
     }

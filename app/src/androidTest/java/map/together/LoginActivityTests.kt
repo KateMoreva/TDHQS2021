@@ -1,15 +1,12 @@
 package map.together
 
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withSubstring
-import androidx.test.espresso.matcher.ViewMatchers.withText
+import androidx.test.espresso.assertion.ViewAssertions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import map.together.activities.auth.LoginActivity
-import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
-import org.hamcrest.core.AllOf.allOf
+import org.hamcrest.core.AllOf
 import org.junit.Rule
 import org.junit.Test
 
@@ -17,7 +14,7 @@ import org.junit.Test
 class LoginActivityTests {
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     private val loginScreen = LoginScreen()
 
@@ -25,11 +22,11 @@ class LoginActivityTests {
     fun mainLabelExists() {
         loginScreen.getMainLabel()
             .check(
-                matches(
-                    allOf(
-                        isDisplayed(),
-                        withSubstring("Map"),
-                        withText(R.string.login_title)
+                ViewAssertions.matches(
+                    AllOf.allOf(
+                        ViewMatchers.isDisplayed(),
+                        ViewMatchers.withSubstring("Map"),
+                        ViewMatchers.withText(R.string.login_title)
                     )
                 )
             )
@@ -41,9 +38,25 @@ class LoginActivityTests {
             .pressConfirmButton()
             .getList()
             .check(
-                matches(
-                    allOf(
-                        isDisplayed()
+                ViewAssertions.matches(
+                    AllOf.allOf(
+                        ViewMatchers.isDisplayed()
+                    )
+                )
+            )
+
+    }
+
+    @Test
+    fun loginIsINCorrect() {
+        loginScreen
+            .typePassword("Wrong")
+            .pressConfirmButton()
+            .getList()
+            .check(
+                ViewAssertions.matches(
+                    AllOf.allOf(
+                        ViewMatchers.isDisplayed()
                     )
                 )
             )

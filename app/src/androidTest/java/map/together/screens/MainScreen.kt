@@ -3,9 +3,11 @@ package map.together.screens
 import android.view.View
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.UiController
 import androidx.test.espresso.ViewAction
+import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.contrib.RecyclerViewActions
@@ -20,8 +22,6 @@ import org.hamcrest.Matcher
 
 class MainScreen {
     fun zoomIn(): MainScreen {
-        onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
         for (i in (0..8)) {
             onView(ViewMatchers.isRoot())
                 .perform(WaitForAction.waitFor(1000L))
@@ -37,6 +37,12 @@ class MainScreen {
         onView(ViewMatchers.withId(R.id.mapview))
             .perform(ViewActions.click())
         return this
+    }
+
+    fun getPlaceMenu(): ViewInteraction {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
+        return Espresso.onView(ViewMatchers.withId(R.id.category_on_tap_adress_id))
     }
 
     fun getAddress(): String {

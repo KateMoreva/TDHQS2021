@@ -5,10 +5,13 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
+import map.together.utils.WaitForAction
 
 class LoginScreen {
 
     fun getMainLabel(): ViewInteraction {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         return Espresso.onView(ViewMatchers.withId(R.id.login_title_tv))
     }
 
@@ -46,6 +49,12 @@ class LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
             .perform(ViewActions.click())
         return MapsLibraryScreen()
+    }
+
+    fun tryPressConfirmButton(): LoginScreen {
+        Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
+            .perform(ViewActions.click())
+        return LoginScreen()
     }
 
     fun pressNotExistAccountButton(): RegistrationScreen {

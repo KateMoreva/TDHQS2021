@@ -44,6 +44,15 @@
             android:windowSoftInputMode="adjustPan" />
 
         <activity
+            android:name=".mockActivities.auth.FakeRegistrationActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
+            android:name=".mockActivities.auth.FakeMapActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+
+        <activity
             android:name=".mockActivities.auth.FakeLoginActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />

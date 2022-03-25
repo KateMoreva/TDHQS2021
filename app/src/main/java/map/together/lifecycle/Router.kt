@@ -23,9 +23,20 @@ class Router(private val activity: Activity) {
         showPage(Page.Activity.Main, bundle)
     }
 
+    fun showFakeMainPage(mapId: Long) {
+        val bundle = Bundle(1)
+        bundle.putLong(MAP_ID_KEY, mapId)
+        showPage(Page.Activity.FakeMain, bundle)
+    }
+
     fun showRegistrationPage() {
         showPage(Page.Activity.Registration)
     }
+
+    fun showFakeRegistrationPage() {
+        showPage(Page.Activity.FakeRegistration)
+    }
+
 
     fun showSettingsPage() {
         showPage(Page.Fragment.Settings)
@@ -52,6 +63,10 @@ class Router(private val activity: Activity) {
 
     fun showMapsLibraryPage() {
         showPage(Page.Fragment.MapsLibrary)
+    }
+
+    fun showFakeMapsLibraryPage() {
+        showPage(Page.Fragment.FakeMapsLibrary)
     }
 
 

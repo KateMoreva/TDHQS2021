@@ -37,8 +37,10 @@ object AuthRepository {
                 }
                 withContext(Dispatchers.Main) {
                     if (needRemember) {
-                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_TOKEN, token).apply()
-                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().putString(USER_INFO_KEY, Gson().toJson(user)).apply()
+                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit()
+                            .putString(USER_TOKEN, token).apply()
+                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit()
+                            .putString(USER_INFO_KEY, Gson().toJson(user)).apply()
                     }
                     if (goToMain) {
                         // TODO: save recently used map and load it again
@@ -51,11 +53,58 @@ object AuthRepository {
         }
     }
 
+    fun doOnLoginFake(
+        activity: BaseActivity,
+        token: String,
+        needRemember: Boolean,
+        userInfo: UserInfo,
+        goToMain: Boolean = true,
+        actionsAfter: () -> Unit = {}
+    ) {
+        activity.apply {
+            CurrentUserRepository.currentUser.value = userInfo
+            GlobalScope.launch(Dispatchers.IO) {
+                var user = database?.userDao()?.getByEmail(userInfo.email)
+                if (user == null) {
+                    user = UserEntity(
+                        userInfo.userName,
+                        userInfo.email,
+                        userInfo.photoUrl,
+                        userInfo.id
+                    )
+                    database?.userDao()?.insert(user)
+                } else {
+                    user.userName = userInfo.userName
+                    user.email = userInfo.email
+                    user.photoUrl = userInfo.photoUrl
+                    user.id = userInfo.id
+                    database?.userDao()?.update(user)
+                }
+                withContext(Dispatchers.Main) {
+                    if (needRemember) {
+                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit()
+                            .putString(USER_TOKEN, token).apply()
+                        getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit()
+                            .putString(USER_INFO_KEY, Gson().toJson(user)).apply()
+                    }
+                    if (goToMain) {
+                        // TODO: save recently used map and load it again
+                        router?.showFakeMapsLibraryPage()
+                        finish()
+                    }
+                    actionsAfter.invoke()
+                }
+            }
+        }
+    }
+
     fun doOnLogout(activity: BaseActivity) {
         activity.apply {
             CurrentUserRepository.currentUser.value = null
-            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_TOKEN).apply()
-            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_INFO_KEY).apply()
+            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_TOKEN)
+                .apply()
+            getSharedPreferences(MAP_PREFERENCE, Context.MODE_PRIVATE).edit().remove(USER_INFO_KEY)
+                .apply()
             router?.showLoginPage()
             finish()
         }
