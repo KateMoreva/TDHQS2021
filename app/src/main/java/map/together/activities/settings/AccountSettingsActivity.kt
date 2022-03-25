@@ -1,0 +1,19 @@
+package map.together.activities.settings
+
+import android.os.Bundle
+import kotlinx.coroutines.InternalCoroutinesApi
+import map.together.R
+import map.together.activities.BaseFragmentActivity
+
+@InternalCoroutinesApi
+class AccountSettingsActivity : BaseFragmentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+//        router?.showAccountSettingsSubPage()
+    }
+
+    override fun getToolbarTitle(): String = getString(R.string.account_settings)
+
+    override fun canOpenNavMenuFromToolbar(): Boolean = false
+}
