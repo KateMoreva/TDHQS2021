@@ -40,7 +40,7 @@ class MapsLibraryScreen {
         Espresso.onView(ViewMatchers.withId(R.id.imageView))
                 .perform(ViewActions.click())
         Espresso.onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(1000L))
+                .perform(WaitForAction.waitFor(2000L))
         return this
     }
 }
