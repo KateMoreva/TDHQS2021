@@ -89,7 +89,7 @@ object AuthRepository {
                     }
                     if (goToMain) {
                         // TODO: save recently used map and load it again
-                        router?.showFakeMapsLibraryPage()
+                        router?.showMapsLibraryPage()
                         finish()
                     }
                     actionsAfter.invoke()
