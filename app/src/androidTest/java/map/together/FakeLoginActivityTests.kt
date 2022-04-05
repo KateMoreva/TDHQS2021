@@ -7,11 +7,9 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.InternalCoroutinesApi
-import map.together.activities.auth.LoginActivity
 import map.together.mockActivities.auth.FakeLoginActivity
 import map.together.screens.LoginScreen
 import org.hamcrest.core.AllOf.allOf
-import org.hamcrest.core.AllOf.isNotNull
 import org.junit.Rule
 import org.junit.Test
 

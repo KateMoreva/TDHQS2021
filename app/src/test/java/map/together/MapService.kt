@@ -1,9 +1,7 @@
 package map.together
 
-import map.together.dto.db.LayerDto
 import map.together.dto.db.MapDto
 import map.together.dto.db.MapInfoDto
-import map.together.dto.db.UserMapDto
 import java.util.*
 
 interface MapService {
