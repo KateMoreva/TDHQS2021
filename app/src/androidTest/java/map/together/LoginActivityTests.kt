@@ -1,5 +1,6 @@
 package map.together
 
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -48,19 +49,12 @@ class LoginActivityTests {
     }
 
     @Test
-    fun loginIsINCorrect() {
+    fun loginIsIncorrect() {
         loginScreen
-            .typePassword("Wrong")
-            .pressConfirmButton()
-            .getList()
-            .check(
-                ViewAssertions.matches(
-                    AllOf.allOf(
-                        ViewMatchers.isDisplayed()
-                    )
-                )
-            )
-
+            .typeLogin("Wrong")
+            .tryPressConfirmButton()
+        Espresso.onView(ViewMatchers.withText(R.string.cannot_login))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
 }

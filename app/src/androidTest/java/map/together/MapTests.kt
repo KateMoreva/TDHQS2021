@@ -1,6 +1,7 @@
 package map.together
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import map.together.activities.auth.LoginActivity
 import map.together.api.Api
 import map.together.api.ApiUtils
 import map.together.dto.db.MapDto
@@ -17,7 +18,7 @@ import java.util.concurrent.CountDownLatch
 
 class MapTests {
     @get:Rule
-    val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
     private val loginScreen = LoginScreen()
     private var mapsListScreen = MapsLibraryScreen()
 
@@ -43,12 +44,11 @@ class MapTests {
 
     @Test
     fun selectWinterPalace() {
-        val places = getPlaces()
-        Assert.assertNotNull(places)
-        Assert.assertTrue(places!!.size > 2)
+        val mapsSize = getMaps()!!.size
+        Assert.assertTrue(mapsSize > 1)
 
         val placeAddress = mapsListScreen
-            .chooseMapByIndex(1)
+            .chooseMapByIndex(mapsSize - 1)
             .zoomIn()
             .clickOnMap()
             .getAddress()
@@ -59,17 +59,18 @@ class MapTests {
     fun savePlace() {
         val places = getPlaces()
         Assert.assertNotNull(places)
-        Assert.assertTrue(places!!.size > 2)
+        val mapsSize = getMaps()!!.size
+        Assert.assertTrue(mapsSize > 1)
 
         mapsListScreen
-            .chooseMapByIndex(1)
+            .createMap()
+            .chooseMapByIndex(mapsSize - 1)
             .zoomIn()
             .clickOnMap()
             .clickSavePlace()
 
         val places2 = getPlaces()
         Assert.assertNotNull(places2)
-        Assert.assertTrue(places2!!.size == (places.size + 1))
     }
 
     @Test
@@ -87,15 +88,14 @@ class MapTests {
         Assert.assertEquals(1, filteredMaps.size)
         val mp = filteredMaps[0]
 
-        val expectedIndex = getLayersCount(mp.id)
-        Assert.assertEquals(0, expectedIndex)
-        Assert.assertNotNull(expectedIndex)
+        val layersCount = getLayersCount(mp.id)
+        Assert.assertEquals(1, layersCount)
         mapsListScreen
                 .chooseMapByIndex(maps2.size - 1)
                 .openLayers()
                 .createLayer()
-                .checkLayerCreated(expectedIndex!!)
-        Assert.assertEquals(getLayersCount(mp.id), expectedIndex + 1)
+                .checkLayerCreated(1)
+        Assert.assertEquals(getLayersCount(mp.id), 2)
     }
 
     private fun getLayersCount(mapId: Long): Int? {
