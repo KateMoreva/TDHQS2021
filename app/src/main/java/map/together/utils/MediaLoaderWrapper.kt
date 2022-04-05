@@ -7,7 +7,6 @@ import android.provider.MediaStore
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.fragments.BaseFragment
 import map.together.fragments.MediaViewerWrapper
 import map.together.items.MediaItem
@@ -17,14 +16,14 @@ import okhttp3.RequestBody
 import java.io.File
 import kotlin.random.Random
 
-@InternalCoroutinesApi
+
 class MediaLoaderWrapper(
-    private val fragment: BaseFragment,
-    editContentBtn: FloatingActionButton,
-    removeContentBtn: FloatingActionButton,
-    var mediaItem: MediaItem?,
-    private val onRemoveCallback: () -> Unit,
-    private val onEditCallback: (localUrl: String) -> Unit
+        private val fragment: BaseFragment,
+        editContentBtn: FloatingActionButton,
+        removeContentBtn: FloatingActionButton,
+        var mediaItem: MediaItem?,
+        private val onRemoveCallback: () -> Unit,
+        private val onEditCallback: (localUrl: String) -> Unit
 ) {
 
     init {
@@ -73,8 +72,7 @@ class MediaLoaderWrapper(
         }
         cursor?.close()
         filePath?.let {
-            mediaItem =
-                MediaItem((Random.nextInt()).toString(), it, MediaItem.DisplayMode.FIT_CENTER)
+            mediaItem = MediaItem((Random.nextInt()).toString(), it, MediaItem.DisplayMode.FIT_CENTER)
             onEditCallback.invoke(it)
         }
     }
@@ -84,8 +82,7 @@ class MediaLoaderWrapper(
             if (imageUrl == null)
                 return null
             val file = File(imageUrl)
-            val requestFile: RequestBody =
-                RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
+            val requestFile: RequestBody = RequestBody.create("multipart/form-data".toMediaTypeOrNull(), file)
             return MultipartBody.Part.createFormData("image", file.name, requestFile)
         }
     }

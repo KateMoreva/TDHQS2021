@@ -14,9 +14,9 @@ import map.together.utils.logger.Logger
 import kotlin.reflect.KClass
 import kotlin.reflect.full.createInstance
 
-@InternalCoroutinesApi
 open class BaseFragmentActivity : AppbarActivity() {
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -30,8 +30,7 @@ open class BaseFragmentActivity : AppbarActivity() {
     private fun setSupportingFragment(clazz: KClass<out BaseFragment>) {
         val supportingFragment = clazz.createInstance()
         Logger.d(this, "Set fragment ${supportingFragment::class.simpleName}")
-        supportFragmentManager.beginTransaction().add(R.id.main_container, supportingFragment)
-            .commit()
+        supportFragmentManager.beginTransaction().add(R.id.main_container, supportingFragment).commit()
         supportFragmentManager.executePendingTransactions()
     }
 

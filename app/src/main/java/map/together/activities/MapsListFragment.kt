@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.fragment_maps_list.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import map.together.R
@@ -26,7 +25,6 @@ import map.together.viewholders.MapViewHolder
 import javax.net.ssl.HttpsURLConnection
 
 
-@InternalCoroutinesApi
 class MapsListFragment : BaseFragment() {
 
     private val mapsInfo = ItemsList<MapEntity>(mutableListOf())
@@ -51,15 +49,15 @@ class MapsListFragment : BaseFragment() {
             mapsInfo.setData(mapsList)
             maps_list.layoutManager = LinearLayoutManager(context)
             maps_list.adapter = MapsAdapter(
-                MapViewHolder::class,
-                R.layout.map_list_item,
-                mapsInfo,
-                { mapEntity ->
-                    (activity as BaseFragmentActivity).router?.showMainPage(mapEntity.id)
-                },
-                { mapEntity ->
-                    showDeletaAlertDialog(mapEntity)
-                }
+                    MapViewHolder::class,
+                    R.layout.map_list_item,
+                    mapsInfo,
+                    { mapEntity ->
+                        (activity as BaseFragmentActivity).router?.showMainPage(mapEntity.id)
+                    },
+                    { mapEntity ->
+                        showDeletaAlertDialog(mapEntity)
+                    }
             )
         }
 
@@ -88,26 +86,19 @@ class MapsListFragment : BaseFragment() {
         setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.createMap(getToken(), "Новая карта " + (mapsInfo.size() + 1)).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        requireContext(),
-                        HttpsURLConnection.HTTP_OK,
-                        HttpsURLConnection.HTTP_BAD_REQUEST
-                    ) { createdMap ->
-                        GlobalScope.launch(Dispatchers.IO) {
-                            val database = (activity as BaseFragmentActivity).database!!
-                            val mapEntity = createdMap?.toMapEntity()
-                            mapEntity?.let {
-                                mapEntity.id = database.mapDao().insert(mapEntity)
-                            }
-                            withContext(Dispatchers.Main) {
-                                callback.invoke(mapEntity!!)
-                                setLoading(false)
-                            }
+                {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_BAD_REQUEST) { createdMap ->
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val database = (activity as BaseFragmentActivity).database!!
+                        val mapEntity = createdMap?.toMapEntity()
+                        mapEntity?.let {
+                            mapEntity.id = database.mapDao().insert(mapEntity)
+                        }
+                        withContext(Dispatchers.Main) {
+                            callback.invoke(mapEntity!!)
+                            setLoading(false)
                         }
                     }
-                },
+                } },
                 {
                     ResponseActions.onFail(it, requireContext())
                     setLoading(false)
@@ -120,23 +111,16 @@ class MapsListFragment : BaseFragment() {
         setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.removeMap(getToken(), mapId).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        requireContext(),
-                        HttpsURLConnection.HTTP_OK,
-                        HttpsURLConnection.HTTP_UNAUTHORIZED
-                    ) { removedMap ->
-                        GlobalScope.launch(Dispatchers.IO) {
-                            val database = (activity as BaseFragmentActivity).database!!
-                            database.mapDao().getById(removedMap!!.id)
-                            withContext(Dispatchers.Main) {
-                                callback.invoke()
-                                setLoading(false)
-                            }
+                {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_UNAUTHORIZED) { removedMap ->
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val database = (activity as BaseFragmentActivity).database!!
+                        database.mapDao().getById(removedMap!!.id)
+                        withContext(Dispatchers.Main) {
+                            callback.invoke()
+                            setLoading(false)
                         }
                     }
-                },
+                } },
                 {
                     ResponseActions.onFail(it, requireContext())
                     setLoading(false)
@@ -149,23 +133,16 @@ class MapsListFragment : BaseFragment() {
         setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.leaveMap(getToken(), mapId).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        requireContext(),
-                        HttpsURLConnection.HTTP_OK,
-                        HttpsURLConnection.HTTP_FORBIDDEN
-                    ) { removedMap ->
-                        GlobalScope.launch(Dispatchers.IO) {
-                            val database = (activity as BaseFragmentActivity).database!!
-                            database.mapDao().getById(removedMap!!.id)
-                            withContext(Dispatchers.Main) {
-                                callback.invoke()
-                                setLoading(false)
-                            }
+                {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { removedMap ->
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val database = (activity as BaseFragmentActivity).database!!
+                        database.mapDao().getById(removedMap!!.id)
+                        withContext(Dispatchers.Main) {
+                            callback.invoke()
+                            setLoading(false)
                         }
                     }
-                },
+                } },
                 {
                     ResponseActions.onFail(it, requireContext())
                     setLoading(false)
@@ -178,34 +155,26 @@ class MapsListFragment : BaseFragment() {
         setLoading(true)
         (activity as BaseFragmentActivity).taskContainer.add(
             Api.getMyMaps(getToken(), "").subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        requireContext(),
-                        HttpsURLConnection.HTTP_OK,
-                        HttpsURLConnection.HTTP_FORBIDDEN
-                    ) { actualMaps ->
-                        GlobalScope.launch(Dispatchers.IO) {
-                            val database = (activity as BaseFragmentActivity).database!!
-                            var currentMaps = database.mapDao().getAll().toMutableList()
-                            actualMaps?.let {
-                                currentMaps.forEach { currentMap ->
-                                    database.mapDao().delete(currentMap)
-                                }
-                                currentMaps =
-                                    actualMaps.map { map -> map.toMapEntity() }.toMutableList()
-                                val ids = database.mapDao().insert(currentMaps)
-                                currentMaps.forEachIndexed { index, mapEntity ->
-                                    mapEntity.id = ids[index]
-                                }
+                {ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HttpsURLConnection.HTTP_FORBIDDEN) { actualMaps ->
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val database = (activity as BaseFragmentActivity).database!!
+                        var currentMaps = database.mapDao().getAll().toMutableList()
+                        actualMaps?.let {
+                            currentMaps.forEach { currentMap ->
+                                database.mapDao().delete(currentMap)
                             }
-                            withContext(Dispatchers.Main) {
-                                onLoaded.invoke(currentMaps)
-                                setLoading(false)
+                            currentMaps = actualMaps.map { map -> map.toMapEntity() }.toMutableList()
+                            val ids = database.mapDao().insert(currentMaps)
+                            currentMaps.forEachIndexed { index, mapEntity ->
+                                mapEntity.id = ids[index]
                             }
                         }
+                        withContext(Dispatchers.Main) {
+                            onLoaded.invoke(currentMaps)
+                            setLoading(false)
+                        }
                     }
-                },
+                } },
                 {
                     ResponseActions.onFail(it, requireContext())
                     setLoading(false)
@@ -216,29 +185,25 @@ class MapsListFragment : BaseFragment() {
 
     fun showDeletaAlertDialog(map: MapEntity) {
         if (map.canDelete) {
-            AlertDialog.Builder(requireContext()).setMessage(
-                getText(R.string.map_remove_alert).toString()
-                    .replace("%s", map.name)
-            )
+            AlertDialog.Builder(requireContext()).setMessage(getText(R.string.map_remove_alert).toString()
+                    .replace("%s", map.name))
                 .setPositiveButton(
                     R.string.remove,
                     { dialogInterface: DialogInterface, i: Int -> deleteMap(map) })
                 .setNegativeButton(
                     R.string.cancel,
-                    { dialogInterface: DialogInterface, i: Int -> dialogInterface.cancel() })
-                .create().show()
-        } else {
-            AlertDialog.Builder(requireContext()).setMessage(
-                getText(R.string.map_leave_alert).toString()
-                    .replace("%s", map.name)
-            )
+                    { dialogInterface: DialogInterface, i: Int -> dialogInterface.cancel() }).create().show()
+        }
+        else
+        {
+            AlertDialog.Builder(requireContext()).setMessage(getText(R.string.map_leave_alert).toString()
+                    .replace("%s", map.name))
                 .setPositiveButton(
                     R.string.remove,
                     { dialogInterface: DialogInterface, i: Int -> leaveMap(map) })
                 .setNegativeButton(
                     R.string.cancel,
-                    { dialogInterface: DialogInterface, i: Int -> dialogInterface.cancel() })
-                .create().show()
+                    { dialogInterface: DialogInterface, i: Int -> dialogInterface.cancel() }).create().show()
         }
     }
 

@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.PagerSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import io.reactivex.disposables.Disposable
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
 import map.together.items.ItemsList
@@ -22,7 +21,6 @@ import map.together.utils.recycler.adapters.LinearHorizontalSpacingDecoration
 import map.together.utils.recycler.adapters.MediaAdapter
 import map.together.viewholders.MediaViewHolder
 
-@InternalCoroutinesApi
 open class MediaViewerWrapper(
     activity: BaseActivity,
     mediaRecycler: RecyclerView,
@@ -35,24 +33,25 @@ open class MediaViewerWrapper(
     private val subscribe: Disposable
 
 
+
     companion object {
         private val REQUEST_EXTERNAL_STORAGE = 1
         private val PERMISSIONS_STORAGE = arrayOf(
-            Manifest.permission.READ_EXTERNAL_STORAGE
+                Manifest.permission.READ_EXTERNAL_STORAGE
         )
 
         fun verifyStoragePermissions(activity: Activity?) {
             // Check if we have write permission
             val permission = ActivityCompat.checkSelfPermission(
-                activity!!,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    activity!!,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
             )
             if (permission != PackageManager.PERMISSION_GRANTED) {
                 // We don't have permission so prompt the user
                 ActivityCompat.requestPermissions(
-                    activity,
-                    PERMISSIONS_STORAGE,
-                    REQUEST_EXTERNAL_STORAGE
+                        activity,
+                        PERMISSIONS_STORAGE,
+                        REQUEST_EXTERNAL_STORAGE
                 )
             }
         }

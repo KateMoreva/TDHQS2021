@@ -7,14 +7,12 @@ import android.provider.MediaStore
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
 import map.together.items.ItemsList
 import map.together.items.MediaItem
 import kotlin.random.Random
 
-@InternalCoroutinesApi
 class MediaLoaderWrapper(
     private val fragment: BaseActivity,
     private val mediaRecycler: RecyclerView,

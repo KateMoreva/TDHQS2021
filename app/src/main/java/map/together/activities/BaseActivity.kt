@@ -12,7 +12,6 @@ import map.together.lifecycle.Router
 import map.together.repository.CurrentUserRepository
 import map.together.utils.logger.Logger
 
-@InternalCoroutinesApi
 abstract class BaseActivity : AppCompatActivity() {
 
     var router: Router? = null
@@ -26,6 +25,7 @@ abstract class BaseActivity : AppCompatActivity() {
 
     val taskContainer: CompositeDisposable = CompositeDisposable()
 
+    @InternalCoroutinesApi
     @CallSuper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

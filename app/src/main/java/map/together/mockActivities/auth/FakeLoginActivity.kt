@@ -15,13 +15,14 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.api.Api
 import map.together.api.ApiUtils
 
-@InternalCoroutinesApi
+
 class FakeLoginActivity : BaseActivity() {
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         not_exist_acc_tv.setOnClickListener {
-            router?.showRegistrationPage()
+            router?.showFakeRegistrationPage()
         }
 
         confirm_button.setOnClickListener {
@@ -31,7 +32,7 @@ class FakeLoginActivity : BaseActivity() {
                 password_et.text.toString()
             )
             taskContainer.add(
-                Api.fakeLogin(token).subscribe(
+                Api.fakeLogin(token, email).subscribe(
                     { onResponse(it, token) },
                     { onFail(it) }
                 )
@@ -42,7 +43,7 @@ class FakeLoginActivity : BaseActivity() {
     private fun onResponse(response: Response<UserDto>, token: String) {
         when (response.code()) {
             HttpURLConnection.HTTP_OK -> {
-                AuthRepository.doOnLogin(
+                AuthRepository.doOnLoginFake(
                     this, token, true,
                     response.body()?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY
                 )

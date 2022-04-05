@@ -28,12 +28,12 @@ import retrofit2.Response
 import java.io.File
 import java.net.HttpURLConnection
 
-@InternalCoroutinesApi
 class RegistrationActivity : BaseActivity() {
     private val userIcons: ItemsList<MediaItem> = ItemsList(mutableListOf())
     private var mediaLoader: MediaLoaderWrapper? = null
 
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         cancel_button.setOnClickListener { finish() }
@@ -50,7 +50,7 @@ class RegistrationActivity : BaseActivity() {
         confirm_button.setOnClickListener {
             resetRequiredTips()
             val userSignUpInfo = UserSignUpInfo(
-                email_et.text.toString(),
+                email_et.text.toString().replace("\\s".toRegex(), ""),
                 password_et.text.toString(),
                 confirm_password_et.text.toString(),
                 user_name_et.text.toString(),
@@ -74,11 +74,10 @@ class RegistrationActivity : BaseActivity() {
                     ToastUtils.showShortToast(this, R.string.incorrect_first_name)
                 }
                 SignUpDataCorrectType.CORRECT -> taskContainer.add(
-                    Api.uploadImage(loadImage(mediaLoader!!.getLoadedData().firstOrNull()))
-                        .subscribe(
+                    Api.uploadImage(loadImage(mediaLoader!!.getLoadedData().firstOrNull())).subscribe(
                             { onImageLoaderResponse(it, userSignUpInfo) },
                             { onFail(it) }
-                        )
+                    )
 
                 )
             }
@@ -86,22 +85,20 @@ class RegistrationActivity : BaseActivity() {
     }
 
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         mediaLoader?.onActivityResult(requestCode, resultCode, data)
     }
 
-    private fun onImageLoaderResponse(
-        response: Response<ImageUrlDto>,
-        userSignUpInfo: UserSignUpInfo
-    ) {
+    private fun onImageLoaderResponse(response: Response<ImageUrlDto>, userSignUpInfo: UserSignUpInfo) {
         when (response.code()) {
             HttpURLConnection.HTTP_CREATED -> {
                 Logger.d(this, "img loaded successfully with code ${response.code()}")
                 userSignUpInfo.imageUrl = response.body()?.photoUrl
                 Api.createUser(userSignUpInfo.toUserSignUpDto()).subscribe(
-                    { onResponse(it) },
-                    { onFail(it) }
+                        { onResponse(it) },
+                        { onFail(it) }
                 )
             }
             HttpURLConnection.HTTP_BAD_REQUEST -> {

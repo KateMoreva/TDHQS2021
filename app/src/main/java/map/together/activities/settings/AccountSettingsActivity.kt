@@ -5,9 +5,9 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseFragmentActivity
 
-@InternalCoroutinesApi
 class AccountSettingsActivity : BaseFragmentActivity() {
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        router?.showAccountSettingsSubPage()

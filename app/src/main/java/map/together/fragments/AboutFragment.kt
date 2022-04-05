@@ -6,10 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_setting_about.*
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 
-@InternalCoroutinesApi
 class AboutFragment : BaseFragment() {
 
     private var about: TextView? = null

@@ -10,7 +10,6 @@ import kotlinx.android.synthetic.main.fragment_tags_list.*
 import kotlinx.android.synthetic.main.tag_list_item.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import map.together.R
@@ -33,7 +32,7 @@ import java.io.FileOutputStream
 import java.io.InputStreamReader
 import javax.net.ssl.HttpsURLConnection
 
-@InternalCoroutinesApi
+
 class PlacesFragment : BaseFragment() {
 
     private var places: MutableList<PlaceDto> = mutableListOf()

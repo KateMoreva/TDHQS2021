@@ -8,13 +8,13 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.AppbarActivity
 
-@InternalCoroutinesApi
 abstract class BaseSettingsActivity : AppbarActivity() {
 
     companion object {
         const val EMPTY_KEY = "KEY"
     }
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         println("On create 1")
         super.onCreate(savedInstanceState)
