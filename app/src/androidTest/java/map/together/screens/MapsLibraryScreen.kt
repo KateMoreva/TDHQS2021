@@ -18,6 +18,8 @@ class MapsLibraryScreen {
     }
 
     fun getList(): ViewInteraction {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         return Espresso.onView(ViewMatchers.withId(R.id.maps_list))
     }
 
@@ -26,8 +28,10 @@ class MapsLibraryScreen {
     }
 
     fun chooseMapByIndex(index: Int): MainScreen {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(ViewMatchers.withId(R.id.maps_list))
-                .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
+            .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
         return MainScreen()
     }
 
