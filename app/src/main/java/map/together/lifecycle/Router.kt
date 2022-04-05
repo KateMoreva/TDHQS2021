@@ -3,7 +3,6 @@ package map.together.lifecycle
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.activities.BaseFragmentActivity
 import map.together.lifecycle.Page.Companion.MAP_ID_KEY
 import map.together.lifecycle.Page.Companion.LAYERS_IDS
@@ -11,7 +10,6 @@ import map.together.lifecycle.Page.Companion.PAGE_KEY
 import map.together.utils.logger.Logger
 import kotlin.reflect.full.createInstance
 
-@InternalCoroutinesApi
 class Router(private val activity: Activity) {
 
     fun showLoginPage() {
@@ -25,9 +23,20 @@ class Router(private val activity: Activity) {
         showPage(Page.Activity.Main, bundle)
     }
 
+    fun showFakeMainPage(mapId: Long) {
+        val bundle = Bundle(1)
+        bundle.putLong(MAP_ID_KEY, mapId)
+        showPage(Page.Activity.FakeMain, bundle)
+    }
+
     fun showRegistrationPage() {
         showPage(Page.Activity.Registration)
     }
+
+    fun showFakeRegistrationPage() {
+        showPage(Page.Activity.FakeRegistration)
+    }
+
 
     fun showSettingsPage() {
         showPage(Page.Fragment.Settings)
@@ -54,6 +63,10 @@ class Router(private val activity: Activity) {
 
     fun showMapsLibraryPage() {
         showPage(Page.Fragment.MapsLibrary)
+    }
+
+    fun showFakeMapsLibraryPage() {
+        showPage(Page.Fragment.FakeMapsLibrary)
     }
 
 

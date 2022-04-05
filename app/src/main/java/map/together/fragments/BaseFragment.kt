@@ -6,14 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import io.reactivex.disposables.CompositeDisposable
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.AppbarActivity
 import map.together.activities.BaseActivity
 import map.together.db.AppDatabase
 import map.together.lifecycle.Router
 
-@InternalCoroutinesApi
 abstract class BaseFragment : Fragment() {
     protected var router: Router? = null
     protected val taskContainer: CompositeDisposable = CompositeDisposable()

@@ -19,7 +19,6 @@ import map.together.repository.AuthRepository
 import map.together.repository.CurrentUserRepository
 
 
-@InternalCoroutinesApi
 abstract class DrawerActivity : BaseActivity() {
 
     companion object {
@@ -31,6 +30,7 @@ abstract class DrawerActivity : BaseActivity() {
 
     private var drawerController: NavigationMenuController? = null
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 //        attachCurrentUserToSlider()

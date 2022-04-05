@@ -2,7 +2,6 @@ package map.together
 
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.activities.auth.LoginActivity
 import map.together.api.Api
 import map.together.api.ApiUtils
@@ -14,7 +13,6 @@ import org.junit.Test
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-@InternalCoroutinesApi
 @LargeTest
 class ProfileScreenTests {
 
@@ -33,14 +31,14 @@ class ProfileScreenTests {
 
         val newUserName = UUID.randomUUID().toString()
         loginScreen
-            .login(testUserEmail, testUserPassword)
-            .pressSettingsButton()
-            .pressProfileButton()
-            .isUsernameEqualsValue(usernameFromServer!!)
-            .pressChangeUsernameButton()
-            .enterValue(newUserName)
-            .pressPositiveButton()
-            .isUsernameEqualsValue(newUserName)
+                .login(testUserEmail, testUserPassword)
+                .pressSettingsButton()
+                .pressProfileButton()
+                .isUsernameEqualsValue(usernameFromServer!!)
+                .pressChangeUsernameButton()
+                .enterValue(newUserName)
+                .pressPositiveButton()
+                .isUsernameEqualsValue(newUserName)
 
         val usernameFromServer2 = getUsernameFromServer()
         Assert.assertNotNull(usernameFromServer2)
@@ -50,13 +48,12 @@ class ProfileScreenTests {
     private fun getUsernameFromServer(): String? {
         var usernameFromServer: String? = null
         val latch = CountDownLatch(1)
-        val token =
-            ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(testUserEmail, testUserPassword)
-        val disposable = Api.login(token).subscribe({ response ->
+        val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(testUserEmail, testUserPassword)
+        val disposable = Api.login(token).subscribe ({response ->
             val userDto = response.body()!!
             usernameFromServer = userDto.userName
             latch.countDown()
-        }, { error ->
+        }, {error ->
             Logger.e(error)
             latch.countDown()
         })

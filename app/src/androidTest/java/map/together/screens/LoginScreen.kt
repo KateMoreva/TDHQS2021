@@ -5,19 +5,22 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
+import map.together.utils.WaitForAction
 
 class LoginScreen {
 
     fun getMainLabel(): ViewInteraction {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         return Espresso.onView(ViewMatchers.withId(R.id.login_title_tv))
     }
 
     fun typeLogin(login: String): LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.email_et))
             .perform(
-                ViewActions.clearText(),
-                ViewActions.typeText(login),
-                ViewActions.closeSoftKeyboard()
+                    ViewActions.clearText(),
+                    ViewActions.typeText(login),
+                    ViewActions.closeSoftKeyboard()
             )
         return this
     }
@@ -25,17 +28,17 @@ class LoginScreen {
     fun typePassword(password: String): LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.password_et))
             .perform(
-                ViewActions.clearText(),
-                ViewActions.typeText(password),
-                ViewActions.closeSoftKeyboard()
+                    ViewActions.clearText(),
+                    ViewActions.typeText(password),
+                    ViewActions.closeSoftKeyboard()
             )
         return this
     }
 
     fun login(login: String, password: String): MapsLibraryScreen {
         return typeLogin(login)
-            .typePassword(password)
-            .pressConfirmButton()
+                .typePassword(password)
+                .pressConfirmButton()
     }
 
     fun fakeLogin(): MapsLibraryScreen {

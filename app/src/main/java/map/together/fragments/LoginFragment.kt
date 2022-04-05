@@ -9,10 +9,9 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import kotlinx.android.synthetic.main.fragment_login.*
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 
-@InternalCoroutinesApi
+
 class LoginFragment : BaseFragment() {
 
     private var imageView: ImageView? = null
@@ -22,11 +21,7 @@ class LoginFragment : BaseFragment() {
     private var notExistAccTextView: TextView? = null
     private var loginButton: Button? = null
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = super.onCreateView(inflater, container, savedInstanceState)
         emailEditText = email_et
         passwordEditText = password_et

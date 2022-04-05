@@ -16,9 +16,9 @@ import map.together.utils.logger.Logger
 import retrofit2.Response
 import java.net.HttpURLConnection
 
-@InternalCoroutinesApi
 class LoginActivity : BaseActivity() {
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         forgot_password_tv.visibility = View.INVISIBLE
@@ -73,7 +73,7 @@ class LoginActivity : BaseActivity() {
             HttpURLConnection.HTTP_BAD_REQUEST -> {
                 MaterialDialog(this).show {
                     title(R.string.cannot_login)
-                    message(text = response.errorBody()?.string())
+                    message(text=response.errorBody()?.string())
                     negativeButton(R.string.close) {
                         it.cancel()
                     }

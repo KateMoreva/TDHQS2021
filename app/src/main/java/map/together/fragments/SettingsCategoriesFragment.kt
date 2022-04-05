@@ -1,11 +1,11 @@
 package map.together.fragments
 
+
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.android.synthetic.main.fragment_setting_categories.*
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseFragmentActivity
 import map.together.api.Api
@@ -19,7 +19,6 @@ import map.together.viewholders.CategoryViewHolder
 import java.net.HttpURLConnection.HTTP_BAD_REQUEST
 import javax.net.ssl.HttpsURLConnection
 
-@InternalCoroutinesApi
 class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryDialogListener {
 
     override fun getFragmentLayoutId(): Int = R.layout.fragment_setting_categories
@@ -33,23 +32,16 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
         val token = CurrentUserRepository.getCurrentUserToken(requireContext())!!
 
         (activity as BaseFragmentActivity).taskContainer.add(
-            Api.getMyCategories(token).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        requireContext(),
-                        HttpsURLConnection.HTTP_OK,
-                        HTTP_BAD_REQUEST
-                    ) { categoriesDtos ->
-                        categories = categoriesDtos!!.map { dto ->
-                            CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
-                        }.toMutableList()
-                        categoriesList.setData(categories)
-                        checkCategoriesList(categoriesList)
-                    }
-                },
-                { ResponseActions.onFail(it, requireContext()) }
-            )
+                Api.getMyCategories(token).subscribe(
+                        { ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HTTP_BAD_REQUEST) { categoriesDtos ->
+                            categories = categoriesDtos!!.map {
+                                dto -> CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
+                            }.toMutableList()
+                            categoriesList.setData(categories)
+                            checkCategoriesList(categoriesList)
+                        } },
+                        { ResponseActions.onFail(it, requireContext()) }
+                )
         )
 
         val adapter = CategoriesAdapter(
@@ -63,18 +55,18 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
                 )
 
             },
-            onEdit = { category ->
-                print("Category $category onChange")
-                CategoryColorDialog(
-                    category, categories,
-                    this
-                ).show(requireActivity().supportFragmentManager, "CategoryColorDialog")
-            },
-            onRemove = { category ->
-                print("Category $category deleted")
-                categoriesList.remove(category)
-                checkCategoriesList(categoriesList)
-            },
+                onEdit = { category ->
+                    print("Category $category onChange")
+                    CategoryColorDialog(
+                        category, categories,
+                        this
+                    ).show(requireActivity().supportFragmentManager, "CategoryColorDialog")
+                },
+                onRemove = { category ->
+                    print("Category $category deleted")
+                    categoriesList.remove(category)
+                    checkCategoriesList(categoriesList)
+                },
         )
         categories_list.adapter = adapter
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)

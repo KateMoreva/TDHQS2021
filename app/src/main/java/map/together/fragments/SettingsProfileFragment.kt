@@ -1,5 +1,6 @@
 package map.together.fragments
 
+
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
@@ -7,7 +8,6 @@ import android.widget.ImageButton
 import com.bumptech.glide.Glide
 import com.google.android.material.card.MaterialCardView
 import kotlinx.android.synthetic.main.fragment_setting_profile.*
-import kotlinx.coroutines.InternalCoroutinesApi
 import map.together.R
 import map.together.activities.BaseActivity
 import map.together.activities.BaseFragmentActivity
@@ -26,7 +26,6 @@ import java.net.HttpURLConnection
 import java.net.HttpURLConnection.*
 import javax.net.ssl.HttpsURLConnection
 
-@InternalCoroutinesApi
 class SettingsProfileFragment : BaseFragment() {
 
     var mediaLoaderWrapper: MediaLoaderWrapper? = null
@@ -39,29 +38,20 @@ class SettingsProfileFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         setImage()
         val photoUri = getPhotoUri()
-        val mediaItem = if (photoUri == null) null else MediaItem(
-            "0",
-            photoUri,
-            MediaItem.DisplayMode.FIT_CENTER
-        )
+        val mediaItem = if (photoUri == null) null else MediaItem("0", photoUri, MediaItem.DisplayMode.FIT_CENTER)
         mediaLoaderWrapper = MediaLoaderWrapper(
-            this,
-            change_user_profile_pic_button_id,
-            remove_user_profile_pic_button_id,
-            mediaItem,
-            { changeUserPhoto("") },
-            { localUrl ->
-                (activity as BaseActivity).taskContainer.add(
-                    Api.uploadImage(loadImage(localUrl)).subscribe(
-                        {
-                            ResponseActions.onResponse(
-                                it,
-                                this.requireContext(),
-                                HttpsURLConnection.HTTP_CREATED,
-                                HttpsURLConnection.HTTP_BAD_REQUEST
-                            ) { imageUrlDto ->
-                                changeUserPhoto(imageUrlDto?.photoUrl ?: "")
-                            }
+                this,
+                change_user_profile_pic_button_id,
+                remove_user_profile_pic_button_id,
+                mediaItem,
+         { changeUserPhoto("") },
+        { localUrl ->
+            (activity as BaseActivity).taskContainer.add(
+                Api.uploadImage(loadImage(localUrl)).subscribe(
+                        { ResponseActions.onResponse(it, this.requireContext(), HttpsURLConnection.HTTP_CREATED, HttpsURLConnection.HTTP_BAD_REQUEST
+                        ) { imageUrlDto ->
+                            changeUserPhoto(imageUrlDto?.photoUrl ?: "")
+                        }
                         },
                         { ResponseActions.onFail(it, this.requireContext()) }
                     )
@@ -83,16 +73,9 @@ class SettingsProfileFragment : BaseFragment() {
                         val token = CurrentUserRepository.getCurrentUserToken(context)!!
                         (activity as BaseFragmentActivity).taskContainer.add(
                             Api.deactivateUser(token).subscribe(
-                                {
-                                    ResponseActions.onResponse(
-                                        it,
-                                        context,
-                                        HTTP_OK,
-                                        HTTP_FORBIDDEN
-                                    ) {
-                                        AuthRepository.doOnLogout(activity as BaseActivity)
-                                    }
-                                },
+                                { ResponseActions.onResponse(it, context, HTTP_OK, HTTP_FORBIDDEN) {
+                                    AuthRepository.doOnLogout(activity as BaseActivity)
+                                } },
                                 { ResponseActions.onFail(it, context) }
                             )
                         )
@@ -117,17 +100,9 @@ class SettingsProfileFragment : BaseFragment() {
 
                             val token = CurrentUserRepository.getCurrentUserToken(context)
                             (activity as BaseActivity).taskContainer.add(
-                                Api.changeUserData(token!!, resultName.toString(), null, null, null)
-                                    .subscribe(
-                                        {
-                                            ResponseActions.onResponse(
-                                                it,
-                                                context,
-                                                HTTP_OK,
-                                                HTTP_BAD_REQUEST,
-                                                { updateUser(it) })
-                                        },
-                                        { ResponseActions.onFail(it, context) }
+                                    Api.changeUserData(token!!, resultName.toString(), null, null, null).subscribe(
+                                            { ResponseActions.onResponse(it, context, HTTP_OK, HTTP_BAD_REQUEST, {updateUser(it)})},
+                                            { ResponseActions.onFail(it, context) }
                                     )
                             )
 
@@ -136,10 +111,8 @@ class SettingsProfileFragment : BaseFragment() {
                 )
             }
         }
-        user_name_text_field_id.text =
-            CurrentUserRepository.currentUser.value?.userName ?: "Username"
-        user_email_text_field_id.text =
-            CurrentUserRepository.currentUser.value?.email ?: "email@email.email"
+        user_name_text_field_id.text = CurrentUserRepository.currentUser.value?.userName ?: "Username"
+        user_email_text_field_id.text = CurrentUserRepository.currentUser.value?.email ?: "email@email.email"
 
     }
 
@@ -147,27 +120,16 @@ class SettingsProfileFragment : BaseFragment() {
         val token = CurrentUserRepository.getCurrentUserToken(this.requireContext())
         (activity as BaseActivity).taskContainer.add(
             Api.changeUserData(token!!, null, null, null, url).subscribe(
-                {
-                    ResponseActions.onResponse(
-                        it,
-                        this.requireContext(),
-                        HTTP_OK,
-                        HTTP_BAD_REQUEST,
-                        this::updateUser
-                    )
-                },
-                { ResponseActions.onFail(it, this.requireContext()) }
+                    { ResponseActions.onResponse(it, this.requireContext(), HTTP_OK, HTTP_BAD_REQUEST, this::updateUser)},
+                    { ResponseActions.onFail(it, this.requireContext()) }
             )
         )
     }
 
     private fun updateUser(userDto: UserDto?) {
         AuthRepository.doOnLogin(
-            this.activity as BaseActivity,
-            CurrentUserRepository.getCurrentUserToken(this.requireContext())!!,
-            false,
-            userDto?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY,
-            false
+                this.activity as BaseActivity, CurrentUserRepository.getCurrentUserToken(this.requireContext())!!, false,
+                userDto?.toUserInfo() ?: CurrentUserRepository.CURRENT_USER_EMPTY, false
         ) { setImage() }
     }
 
@@ -181,13 +143,13 @@ class SettingsProfileFragment : BaseFragment() {
 
     fun setImage() {
         Glide
-            .with(user_profile_picture_id)
-            .asBitmap()
-            .load(getPhotoUri())
-            .fitCenter()
-            .placeholder(R.drawable.ic_access_time_black_24dp)
-            .error(R.drawable.ic_outline_error_outline_24)
-            .into(user_profile_picture_id)
+                .with(user_profile_picture_id)
+                .asBitmap()
+                .load(getPhotoUri())
+                .fitCenter()
+                .placeholder(R.drawable.ic_access_time_black_24dp)
+                .error(R.drawable.ic_outline_error_outline_24)
+                .into(user_profile_picture_id)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

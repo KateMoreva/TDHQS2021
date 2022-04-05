@@ -9,9 +9,9 @@ import map.together.repository.CurrentUserRepository
 import map.together.utils.logger.Logger
 import java.net.HttpURLConnection
 
-@InternalCoroutinesApi
 class WelcomeActivity : BaseActivity() {
 
+    @InternalCoroutinesApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

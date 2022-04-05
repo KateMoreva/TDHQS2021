@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dimens_72dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/layer_background_btn"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        app:cardBackgroundColor="@color/white"
+        app:cardCornerRadius="@dimen/dimens_16dp"
+        app:cardElevation="0dp"
+        app:strokeColor="@color/black"
+        app:strokeWidth="1dp"
+        android:clickable="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/remove_layer"
+        android:layout_margin="@dimen/dimens_8dp"
+        android:theme="@style/AppTheme"
+        android:focusable="true">
+    </com.google.android.material.card.MaterialCardView>
+
+    <ImageView
+        android:id="@+id/visibility_img"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="@id/layer_background_btn"
+        app:layout_constraintEnd_toStartOf="@id/layer_title"
+        app:layout_constraintBottom_toBottomOf="@id/layer_background_btn"
+        app:layout_constraintTop_toTopOf="@id/layer_background_btn"
+        app:backgroundTint="@color/transparent"
+        app:fabCustomSize="28dp"
+        android:layout_margin="@dimen/dimens_8dp"
+        app:srcCompat="@drawable/ic_baseline_remove_red_eye_24"/>
+
+    <EditText
+        android:id="@+id/layer_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/text_size_20"
+        tools:text="Sample title"
+        app:layout_constraintEnd_toEndOf="@id/layer_background_btn"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/visibility_img"
+        android:layout_marginHorizontal="@dimen/dimens_8dp"
+        android:textColor="@color/black"
+        />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/remove_layer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@drawable/ic_baseline_close_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:fabSize="mini"
+        android:backgroundTint="@color/background"
+        android:layout_margin="12dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
