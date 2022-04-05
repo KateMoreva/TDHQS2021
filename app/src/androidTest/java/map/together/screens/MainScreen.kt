@@ -16,7 +16,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import map.together.R
 import map.together.utils.WaitForAction
-import map.together.utils.WithIndexMatcher.withIndex
+import map.together.utils.withViewAtPosition
 import org.hamcrest.Matcher
 
 
@@ -82,6 +82,8 @@ class MainScreen {
             .perform(ViewActions.click())
         onView(ViewMatchers.withId(R.id.category_on_tap_save_changes_id))
             .perform(ViewActions.click())
+        onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(3000L))
         return this
     }
 
@@ -94,20 +96,22 @@ class MainScreen {
     }
 
     fun createLayer(): MainScreen {
+        onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(1000L))
         onView(ViewMatchers.withId(R.id.resizable_layers_menu))
             .perform(ViewActions.click())
         onView(ViewMatchers.withId(R.id.add_layer_btn))
             .perform(ViewActions.click())
-        onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
         return this
     }
 
     fun checkLayerCreated(index: Int): MainScreen {
         onView(ViewMatchers.withId(R.id.layers_list))
-            .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
-        onView(withIndex(ViewMatchers.withId(R.id.layers_list), index))
-            .check(matches(isDisplayed()))
+                .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
+        onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.layers_list))
+                .check(matches(withViewAtPosition(index, isDisplayed())))
         return this
     }
 

@@ -2,17 +2,18 @@ package map.together.screens
 
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewInteraction
-import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
 import map.together.utils.WaitForAction
-import map.together.utils.WithIndexMatcher.withIndex
+import map.together.viewholders.MapViewHolder
 
 class MapsLibraryScreen {
 
     fun pressSettingsButton(): SettingsScreen {
         Espresso.onView(ViewMatchers.withId(R.id.settings_btn))
-            .perform(ViewActions.click())
+            .perform(click())
         return SettingsScreen()
     }
 
@@ -24,21 +25,15 @@ class MapsLibraryScreen {
         return Espresso.onView(ViewMatchers.withId(R.id.appbar_layout))
     }
 
-    fun chooseFirstMap(): MainScreen {
-        Espresso.onView(withIndex(ViewMatchers.withId(R.id.open_map_btn), 0))
-            .perform(ViewActions.click())
-        return MainScreen()
-    }
-
     fun chooseMapByIndex(index: Int): MainScreen {
-        Espresso.onView(withIndex(ViewMatchers.withId(R.id.map_name), index))
-                .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.withId(R.id.maps_list))
+                .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
         return MainScreen()
     }
 
     fun createMap(): MapsLibraryScreen {
         Espresso.onView(ViewMatchers.withId(R.id.imageView))
-                .perform(ViewActions.click())
+                .perform(click())
         Espresso.onView(ViewMatchers.isRoot())
                 .perform(WaitForAction.waitFor(2000L))
         return this
