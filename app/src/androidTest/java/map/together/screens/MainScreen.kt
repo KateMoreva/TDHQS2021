@@ -33,7 +33,7 @@ class MainScreen {
 
     fun clickOnMap(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(4000L))
+            .perform(WaitForAction.waitFor(1000L))
         onView(ViewMatchers.withId(R.id.mapview))
             .perform(ViewActions.click())
         return this
