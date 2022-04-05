@@ -38,7 +38,7 @@ class LoginActivityTests {
     }
 
     @Test
-    fun loginIsINCorrect() {
+    fun loginIsIncorrect() {
         loginScreen
             .typeLogin("Wrong")
             .tryPressConfirmButton()

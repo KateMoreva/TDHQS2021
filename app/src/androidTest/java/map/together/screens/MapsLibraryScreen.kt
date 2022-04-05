@@ -29,7 +29,7 @@ class MapsLibraryScreen {
 
     fun chooseMapByIndex(index: Int): MainScreen {
         Espresso.onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(2000L))
         Espresso.onView(ViewMatchers.withId(R.id.maps_list))
             .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
         return MainScreen()

@@ -44,9 +44,6 @@ class MapTests {
 
     @Test
     fun selectWinterPalace() {
-        val places = getPlaces()
-        Assert.assertNotNull(places)
-        Assert.assertTrue(places!!.size > 2)
         val mapsSize = getMaps()!!.size
         Assert.assertTrue(mapsSize > 1)
 
