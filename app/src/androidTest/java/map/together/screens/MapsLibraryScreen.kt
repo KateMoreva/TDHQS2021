@@ -12,6 +12,8 @@ import map.together.viewholders.MapViewHolder
 class MapsLibraryScreen {
 
     fun pressSettingsButton(): SettingsScreen {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         Espresso.onView(ViewMatchers.withId(R.id.settings_btn))
             .perform(click())
         return SettingsScreen()
