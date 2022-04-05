@@ -45,6 +45,16 @@ class ProfileScreenTests {
         Assert.assertEquals(usernameFromServer2, newUserName)
     }
 
+    @Test
+    fun userCanLogout() {
+        loginScreen
+                .login(testUserEmail, testUserPassword)
+                .pressSettingsButton()
+                .pressProfileButton()
+                .pressLogoutButton()
+                .isLogoVisible()
+    }
+
     private fun getUsernameFromServer(): String? {
         var usernameFromServer: String? = null
         val latch = CountDownLatch(1)

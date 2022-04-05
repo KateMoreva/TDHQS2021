@@ -36,9 +36,14 @@ class MapTests {
     fun openMap() {
         val maps1 = getMaps()
         Assert.assertNotNull(maps1)
+        val mapAndIndex = createMapManually()
 
-        mapsListScreen
-            .chooseMapByIndex(1)
+        try {
+            mapsListScreen
+                    .chooseMapByIndex(mapAndIndex.second)
+        } finally {
+            removeMap(mapAndIndex.first.id)
+        }
     }
 
     @Test
@@ -46,35 +51,75 @@ class MapTests {
         val places = getPlaces()
         Assert.assertNotNull(places)
         Assert.assertTrue(places!!.size > 2)
+        val mapAndIndex = createMapManually()
 
-        val placeAddress = mapsListScreen
-            .chooseMapByIndex(1)
-            .zoomIn()
-            .clickOnMap()
-            .getAddress()
-        Assert.assertTrue(placeAddress == "Дворцовая площадь, 2" || placeAddress == "Palace Square, 2")
+        try {
+            val placeAddress = mapsListScreen
+                    .chooseMapByIndex(mapAndIndex.second)
+                    .zoomIn()
+                    .clickOnMap()
+                    .getAddress()
+            Assert.assertTrue(placeAddress == "Дворцовая площадь, 2" || placeAddress == "Palace Square, 2")
+        } finally {
+            removeMap(mapAndIndex.first.id)
+        }
     }
 
     @Test
     fun savePlace() {
         val places = getPlaces()
         Assert.assertNotNull(places)
-        val mapsSize = getMaps()!!.size
+        val mapAndIndex = createMapManually()
 
-        mapsListScreen
-            .createMap()
-            .chooseMapByIndex(mapsSize)
-            .zoomIn()
-            .clickOnMap()
-            .clickSavePlace()
+        try {
+            mapsListScreen
+                    .chooseMapByIndex(mapAndIndex.second)
+                    .zoomIn()
+                    .clickOnMap()
+                    .clickSavePlace()
 
-        val places2 = getPlaces()
-        Assert.assertNotNull(places2)
-        Assert.assertTrue(places2!!.size == (places!!.size + 1))
+            val places2 = getPlaces()
+            Assert.assertNotNull(places2)
+            Assert.assertTrue(places2!!.size == (places!!.size + 1))
+        } finally {
+            removeMap(mapAndIndex.first.id)
+        }
     }
 
     @Test
     fun createLayer() {
+        val mapAndIndex = createMapManually()
+        try {
+            val layersCount = getLayersCount(mapAndIndex.first.id)
+            Assert.assertEquals(1, layersCount)
+            mapsListScreen
+                    .chooseMapByIndex(mapAndIndex.second)
+                    .openLayers()
+                    .createLayer()
+                    .checkLayerCreated(1)
+            Assert.assertEquals(getLayersCount(mapAndIndex.first.id), 2)
+        } finally {
+            removeMap(mapAndIndex.first.id)
+        }
+    }
+
+    @Test
+    fun removeLayer() {
+        val mapAndIndex = createMapManually()
+        try {
+            mapsListScreen
+                    .chooseMapByIndex(mapAndIndex.second)
+                    .openLayers()
+                    .checkLayerCreated(0)
+                    .removeLayer(0)
+                    .isLayersListEmpty()
+            Assert.assertEquals(0, getLayersCount(mapAndIndex.first.id))
+        } finally {
+            removeMap(mapAndIndex.first.id)
+        }
+    }
+
+    private fun createMapManually(): Pair<MapDto, Int> {
         val maps1 = getMaps()
         Assert.assertNotNull(maps1)
 
@@ -86,16 +131,7 @@ class MapTests {
         val filteredMaps = maps2!!.filter { mp2 -> maps1!!.find { mp1 -> mp1.id == mp2.id } == null }
         Assert.assertNotNull(filteredMaps)
         Assert.assertEquals(1, filteredMaps.size)
-        val mp = filteredMaps[0]
-
-        val layersCount = getLayersCount(mp.id)
-        Assert.assertEquals(1, layersCount)
-        mapsListScreen
-                .chooseMapByIndex(maps2.size - 1)
-                .openLayers()
-                .createLayer()
-                .checkLayerCreated(1)
-        Assert.assertEquals(getLayersCount(mp.id), 2)
+        return Pair(filteredMaps[0], maps2.size - 1)
     }
 
     private fun getLayersCount(mapId: Long): Int? {
@@ -130,6 +166,19 @@ class MapTests {
         latch.await()
         disposable.dispose()
         return mapsListFromServer
+    }
+
+    private fun removeMap(mapId: Long) {
+        val latch = CountDownLatch(1)
+        val token = ApiUtils.encodeEmailAndPasswordToAuthorizationHeader(email, password)
+        val disposable = Api.removeMap(token, mapId).subscribe ({ response ->
+            latch.countDown()
+        }, { error ->
+            Logger.e(error)
+            latch.countDown()
+        })
+        latch.await()
+        disposable.dispose()
     }
 
     private fun getPlaces(): List<PlaceDto>? {
