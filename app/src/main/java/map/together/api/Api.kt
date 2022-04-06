@@ -378,4 +378,10 @@ object Api {
         api.getMyCategories(token)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+
+    fun createCategory(token: String, categoryName: String): Single<Response<CategoryDto>> {
+        return api.createCategory(token, categoryName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+    }
 }

@@ -59,8 +59,10 @@ interface ApiInterface {
     fun createMap(@Header("Authorization") token: String,
                   @Field("mapName") mapName: String): Single<Response<MapDto>>
 
+    @FormUrlEncoded
     @POST("/api/owner/categories/create")
-    fun createCategory(categoryName: String): Single<Response<CategoryDto>>
+    fun createCategory(@Header("Authorization") token: String,
+                       @Field("categoryName") categoryName: String): Single<Response<CategoryDto>>
 
     @FormUrlEncoded
     @POST("/api/owner/categories/change")

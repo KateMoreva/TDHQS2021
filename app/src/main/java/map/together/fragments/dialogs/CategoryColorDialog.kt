@@ -40,7 +40,7 @@ class CategoryColorDialog(
         )
     }
 
-    var selectedColor: Int = 0
+    var selectedColor: Int = item.colorRecourse
     var drawableColor: ImageView? = null
     var categoryName: String = ""
 
