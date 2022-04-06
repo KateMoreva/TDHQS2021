@@ -15,8 +15,11 @@ import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import map.together.R
+import map.together.utils.RecyclerViewItemCountAssertion
 import map.together.utils.WaitForAction
+import map.together.utils.WithViewInsideHolder
 import map.together.utils.withViewAtPosition
+import map.together.viewholders.LayerViewHolder
 import org.hamcrest.Matcher
 
 
@@ -132,5 +135,20 @@ class MainScreen {
             }
         })
         return stringHolder[0]
+    }
+
+    fun removeLayer(index: Int): MainScreen {
+        onView(ViewMatchers.withId(R.id.layers_list))
+                .perform(RecyclerViewActions.actionOnItemAtPosition<LayerViewHolder>(index,
+                        WithViewInsideHolder.clickChildViewWithId(R.id.remove_layer)))
+        onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
+        return this
+    }
+
+    fun isLayersListEmpty(): MainScreen {
+        onView(ViewMatchers.withId(R.id.layers_list))
+                .check(RecyclerViewItemCountAssertion(0));
+        return this
     }
 }
