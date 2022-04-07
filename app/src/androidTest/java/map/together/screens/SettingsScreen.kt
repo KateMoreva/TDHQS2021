@@ -13,4 +13,10 @@ class SettingsScreen {
         return ProfileScreen()
     }
 
+    fun pressCategoriesButton(): CategoriesScreen {
+        Espresso.onView(ViewMatchers.withId(R.id.change_category_button_id))
+            .perform(ViewActions.click())
+        return CategoriesScreen()
+    }
+
 }
