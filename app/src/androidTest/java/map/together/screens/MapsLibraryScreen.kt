@@ -32,10 +32,12 @@ class MapsLibraryScreen {
     }
 
     fun createMap(): MapsLibraryScreen {
-        Espresso.onView(ViewMatchers.withId(R.id.imageView))
-                .perform(click())
         Espresso.onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(2000L))
+            .perform(WaitForAction.waitFor(2500L))
+        Espresso.onView(ViewMatchers.withId(R.id.imageView))
+            .perform(click())
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         return this
     }
 }

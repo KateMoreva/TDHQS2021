@@ -20,6 +20,7 @@ import map.together.utils.WaitForAction
 import map.together.utils.WithViewInsideHolder
 import map.together.utils.withViewAtPosition
 import map.together.viewholders.LayerViewHolder
+import map.together.viewholders.MapViewHolder
 import org.hamcrest.Matcher
 
 
@@ -66,6 +67,16 @@ class MainScreen {
         return getText(ViewMatchers.withId(R.id.category_on_tap_place_name_id)).toString()
     }
 
+
+    fun typeUserPlaceName(name: String): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.category_on_tap_place_name_id))
+            .perform(ViewActions.replaceText(name))
+        return this
+    }
+
+
     fun getUserAdditionalPlaceData(): String {
         onView(ViewMatchers.isRoot())
             .perform(WaitForAction.waitFor(1000L))
@@ -81,12 +92,23 @@ class MainScreen {
     fun clickSavePlace(): MainScreen {
         onView(ViewMatchers.isRoot())
             .perform(WaitForAction.waitFor(1000L))
-        onView(ViewMatchers.withId(R.id.category_on_tap_adress_id))
-            .perform(ViewActions.click())
         onView(ViewMatchers.withId(R.id.category_on_tap_save_changes_id))
             .perform(ViewActions.click())
         onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(3000L))
+            .perform(WaitForAction.waitFor(3000L))
+        return this
+    }
+
+    fun getSavePlaceButton(): ViewInteraction {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        return onView(ViewMatchers.withId(R.id.category_on_tap_save_changes_id))
+    }
+
+    fun clickDrawing(): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.line_point)).perform(ViewActions.click())
         return this
     }
 
@@ -98,9 +120,59 @@ class MainScreen {
         return this
     }
 
+    fun activateSearch(): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.search_button_id))
+            .perform(ViewActions.click())
+        return this
+    }
+
+    fun clearSearch(): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.search_text_clear))
+            .perform(ViewActions.click())
+        return this
+    }
+
+    fun typeSearchRequest(search: String): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.search_text_field))
+            .perform(
+                ViewActions.clearText(),
+                ViewActions.replaceText(search),
+                ViewActions.closeSoftKeyboard()
+            )
+            .perform(ViewActions.click())
+        return this
+    }
+
+    fun selectSearchResult(index: Int): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.search_res_list))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<MapViewHolder>(
+                    index,
+                    ViewActions.click()
+                )
+            )
+        return this
+    }
+
+    fun openUsers(): MainScreen {
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.open_users))
+            .perform(ViewActions.click())
+        return this
+    }
+
     fun createLayer(): MainScreen {
         onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(1000L))
         onView(ViewMatchers.withId(R.id.resizable_layers_menu))
             .perform(ViewActions.click())
         onView(ViewMatchers.withId(R.id.add_layer_btn))
@@ -110,11 +182,21 @@ class MainScreen {
 
     fun checkLayerCreated(index: Int): MainScreen {
         onView(ViewMatchers.withId(R.id.layers_list))
-                .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
+            .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
         onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(1000L))
         onView(ViewMatchers.withId(R.id.layers_list))
-                .check(matches(withViewAtPosition(index, isDisplayed())))
+            .check(matches(withViewAtPosition(index, isDisplayed())))
+        return this
+    }
+
+    fun checkUserPresented(index: Int): MainScreen {
+        onView(ViewMatchers.withId(R.id.users_list))
+            .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
+        onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        onView(ViewMatchers.withId(R.id.users_list))
+            .check(matches(withViewAtPosition(index, isDisplayed())))
         return this
     }
 
@@ -139,16 +221,27 @@ class MainScreen {
 
     fun removeLayer(index: Int): MainScreen {
         onView(ViewMatchers.withId(R.id.layers_list))
-                .perform(RecyclerViewActions.actionOnItemAtPosition<LayerViewHolder>(index,
-                        WithViewInsideHolder.clickChildViewWithId(R.id.remove_layer)))
+            .perform(
+                RecyclerViewActions.actionOnItemAtPosition<LayerViewHolder>(
+                    index,
+                    WithViewInsideHolder.clickChildViewWithId(R.id.remove_layer)
+                )
+            )
         onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(2000L))
+            .perform(WaitForAction.waitFor(2000L))
+        return this
+    }
+
+    fun searchListIsEmpty(): MainScreen {
+        //теневой элемент,
+        onView(ViewMatchers.withId(R.id.layers_list))
+            .check(RecyclerViewItemCountAssertion(1));
         return this
     }
 
     fun isLayersListEmpty(): MainScreen {
         onView(ViewMatchers.withId(R.id.layers_list))
-                .check(RecyclerViewItemCountAssertion(0));
+            .check(RecyclerViewItemCountAssertion(0));
         return this
     }
 }

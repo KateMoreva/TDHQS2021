@@ -104,19 +104,34 @@ object Api {
                     .observeOn(AndroidSchedulers.mainThread())
 
     fun removeLayer(token: String, mapId: Long, layerId: Long): Single<Response<LayerDto>> =
-            api.removeLayerByMap(token, mapId, layerId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+        api.removeLayerByMap(token, mapId, layerId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
-    fun removePlace(token: String, mapId: Long, layerId: Long, placeId: Long): Single<Response<PlaceDto>> =
-            api.removePlaceByLayerAndMap(token, mapId, layerId, placeId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+    fun removePlace(
+        token: String,
+        mapId: Long,
+        layerId: Long,
+        placeId: Long
+    ): Single<Response<PlaceDto>> =
+        api.removePlaceByLayerAndMap(token, mapId, layerId, placeId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+
+    fun removeAllPlaces(token: String): Single<Response<List<Long>>> =
+        api.removeMyPlaces(token, 1)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+
+    fun removeAllLayers(token: String): Single<Response<List<Long>>> =
+        api.removeMyLayers(token, 1)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     fun leaveMap(token: String, mapId: Long): Single<Response<MapDto>> =
-            api.leaveMap(token, mapId)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
+        api.leaveMap(token, mapId)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
 
     fun getMapInfo(token: String, mapId: Long): Single<Response<MapInfoDto>> =
         api.getMapinfo(token, mapId)
