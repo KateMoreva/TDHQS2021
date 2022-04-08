@@ -31,11 +31,11 @@ interface ApiInterface {
     @FormUrlEncoded
     @POST("/api/auth/profile/change")
     fun changeUserData(
-            @Header("Authorization") token: String,
-            @Field("userName") userName: String?,
-            @Field("passwordHash") passwordHash: String?,
-            @Field("oldPasswordHash") oldPasswordHash: String?,
-            @Field("imageUrl") imageUrl: String?
+        @Header("Authorization") token: String,
+        @Field("userName") userName: String?,
+        @Field("passwordHash") passwordHash: String?,
+        @Field("oldPasswordHash") oldPasswordHash: String?,
+        @Field("imageUrl") imageUrl: String?
     ): Single<Response<UserDto>>
 
     @GET("/api/owner/places")
@@ -44,6 +44,20 @@ interface ApiInterface {
         @Query("search") search: String?
     ): Single<Response<List<PlaceDto>>>
 
+    @FormUrlEncoded
+    @POST("/api/owner/places/remove")
+    fun removeMyPlaces(
+        @Header("Authorization") token: String,
+        @Field("mapId") mapId: Long
+    ): Single<Response<List<Long>>>
+
+    @FormUrlEncoded
+    @POST("/api/owner/layers/remove")
+    fun removeMyLayers(
+        @Header("Authorization") token: String,
+        @Field("mapId") mapId: Long
+    ): Single<Response<List<Long>>>
+
     @GET("/api/owner/categories/list")
     fun getMyCategories(@Header("Authorization") token: String): Single<Response<List<CategoryDto>>>
 
@@ -51,16 +65,20 @@ interface ApiInterface {
     fun getMyLayers(search: String?): Single<Response<List<LayerDto>>>
 
     @GET("/api/owner/maps")
-    fun getMyMaps(@Header("Authorization") token: String,
-                  @Query("search") search: String?): Single<Response<List<MapDto>>>
+    fun getMyMaps(
+        @Header("Authorization") token: String,
+        @Query("search") search: String?
+    ): Single<Response<List<MapDto>>>
 
     @FormUrlEncoded
     @POST("/api/owner/maps/create")
     fun createMap(@Header("Authorization") token: String,
                   @Field("mapName") mapName: String): Single<Response<MapDto>>
 
+    @FormUrlEncoded
     @POST("/api/owner/categories/create")
-    fun createCategory(categoryName: String): Single<Response<CategoryDto>>
+    fun createCategory(@Header("Authorization") token: String,
+                       @Field("categoryName") categoryName: String): Single<Response<CategoryDto>>
 
     @FormUrlEncoded
     @POST("/api/owner/categories/change")

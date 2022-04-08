@@ -3,6 +3,7 @@ package map.together.screens
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
+import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
 import map.together.utils.WaitForAction
@@ -36,9 +37,12 @@ class LoginScreen {
     }
 
     fun login(login: String, password: String): MapsLibraryScreen {
-        return typeLogin(login)
+        val mapsLibraryScreen = typeLogin(login)
                 .typePassword(password)
                 .pressConfirmButton()
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
+        return mapsLibraryScreen
     }
 
     fun fakeLogin(): MapsLibraryScreen {
@@ -48,6 +52,8 @@ class LoginScreen {
     fun pressConfirmButton(): MapsLibraryScreen {
         Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
             .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(3000L))
         return MapsLibraryScreen()
     }
 
@@ -61,5 +67,10 @@ class LoginScreen {
         Espresso.onView(ViewMatchers.withId(R.id.not_exist_acc_tv))
             .perform(ViewActions.click())
         return RegistrationScreen()
+    }
+
+    fun isLogoVisible() {
+        Espresso.onView(ViewMatchers.withId(R.id.icon))
+                .check(ViewAssertions.matches(ViewMatchers.isDisplayed()));
     }
 }

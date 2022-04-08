@@ -9,7 +9,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitApiUtils {
 
-    const val IVANSON_SERVER_URL = "http://1550-95-55-86-98.ngrok.io/"
+    const val IVANSON_SERVER_URL = "https://a5b0-31-134-188-195.ngrok.io"
 //    const val IVANSON_SERVER_URL = "http://e1ea-31-134-188-195.ngrok.io/"
 
     @JvmStatic
