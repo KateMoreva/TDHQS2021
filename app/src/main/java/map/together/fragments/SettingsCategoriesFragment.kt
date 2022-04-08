@@ -25,14 +25,16 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
     var categories = mutableListOf<CategoryItem>()
     val categoriesList = ItemsList(categories)
 
+    var token: String? = null
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // TODO: load categories from the server or get them from the local DB
-        val token = CurrentUserRepository.getCurrentUserToken(requireContext())!!
+        token = CurrentUserRepository.getCurrentUserToken(requireContext())!!
 
         (activity as BaseFragmentActivity).taskContainer.add(
-                Api.getMyCategories(token).subscribe(
+                Api.getMyCategories(token!!).subscribe(
                         { ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HTTP_BAD_REQUEST) { categoriesDtos ->
                             categories = categoriesDtos!!.map {
                                 dto -> CategoryItem(dto.id.toString(), dto.name, dto.color, dto.ownerId)
@@ -72,20 +74,28 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
         val layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
         categories_list.layoutManager = layoutManager
 
-
         add_category_btn.setOnClickListener {
-            val newCategory = CategoryItem(
-                categoriesList.size().toString(),
-                "Новая категория " + categoriesList.size(), R.color.grey
+            val categoryName = "Новая категория " + categoriesList.size()
+            (activity as BaseFragmentActivity).taskContainer.add(
+                    Api.createCategory(token!!, categoryName).subscribe(
+                            { ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HTTP_BAD_REQUEST) { categoryDto ->
+                                val newCategory = CategoryItem(
+                                        categoryDto!!.id.toString(),
+                                        categoryDto.name, categoryDto.color
+                                )
+                                CategoryColorDialog(newCategory, categories, this).show(
+                                        requireActivity().supportFragmentManager,
+                                        "CategoryColorDialog"
+                                )
+                                categoriesList.addLast(newCategory)
+                                categories_list.smoothScrollToPosition(categoriesList.size() - 1)
+                                checkCategoriesList(categoriesList)
+                            } },
+                            { ResponseActions.onFail(it, requireContext()) }
+                    )
             )
-            CategoryColorDialog(newCategory, categories, this).show(
-                requireActivity().supportFragmentManager,
-                "CategoryColorDialog"
-            )
-            categoriesList.addLast(newCategory)
-            categories_list.smoothScrollToPosition(categoriesList.size() - 1)
-            checkCategoriesList(categoriesList)
         }
+
     }
 
     private fun checkCategoriesList(categoriesList: ItemsList<CategoryItem>) {
@@ -101,15 +111,22 @@ class SettingsCategoriesFragment : BaseFragment(), CategoryColorDialog.CategoryD
     override fun getAppbarTitle(): Int = R.string.change_categories
 
     override fun onSaveParameterClick(item: CategoryItem) {
-        println(item.toString())
-        categoriesList.let {
-            val indexOf = it.indexOf(item)
-            if (indexOf == -1) {
-                it.addLast(item)
-            } else {
-                it.update(indexOf, item)
-            }
-        }
+        (activity as BaseFragmentActivity).taskContainer.add(
+                Api.changeCategory(token!!, item.id.toLong(), item.name, item.colorRecourse).subscribe(
+                        { ResponseActions.onResponse(it, requireContext(), HttpsURLConnection.HTTP_OK, HTTP_BAD_REQUEST) { categoriesDtos ->
+                            println(item.toString())
+                            categoriesList.let {
+                                val indexOf = it.indexOf(item)
+                                if (indexOf == -1) {
+                                    it.addLast(item)
+                                } else {
+                                    it.update(indexOf, item)
+                                }
+                            }
+                        } },
+                        { ResponseActions.onFail(it, requireContext()) }
+                )
+        )
     }
 
 }

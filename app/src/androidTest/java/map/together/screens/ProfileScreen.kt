@@ -20,4 +20,10 @@ class ProfileScreen {
         return this
     }
 
+    fun pressLogoutButton(): LoginScreen {
+        Espresso.onView(ViewMatchers.withId(R.id.logout_button_id))
+                .perform(ViewActions.click())
+        return LoginScreen()
+    }
+
 }

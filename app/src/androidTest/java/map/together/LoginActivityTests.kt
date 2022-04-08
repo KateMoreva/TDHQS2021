@@ -1,11 +1,13 @@
 package map.together
 
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.LargeTest
 import map.together.activities.auth.LoginActivity
 import map.together.screens.LoginScreen
+import map.together.utils.WaitForAction
 import org.hamcrest.core.AllOf
 import org.junit.Rule
 import org.junit.Test
@@ -34,9 +36,11 @@ class LoginActivityTests {
 
     @Test
     fun loginIsCorrect() {
-        loginScreen
-            .pressConfirmButton()
-            .getList()
+        val mainScreen = loginScreen.pressConfirmButton()
+
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
+        mainScreen.getList()
             .check(
                 ViewAssertions.matches(
                     AllOf.allOf(
@@ -50,17 +54,12 @@ class LoginActivityTests {
     @Test
     fun loginIsINCorrect() {
         loginScreen
-            .typePassword("Wrong")
-            .pressConfirmButton()
-            .getList()
-            .check(
-                ViewAssertions.matches(
-                    AllOf.allOf(
-                        ViewMatchers.isDisplayed()
-                    )
-                )
-            )
-
+            .typeLogin("Wrong")
+            .tryPressConfirmButton()
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
+        Espresso.onView(ViewMatchers.withText(R.string.cannot_login))
+            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
     }
 
 }

@@ -5,6 +5,7 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
+import map.together.utils.WaitForAction
 
 class EditTextDialogScreen<T>(private val parentScreen: T) {
 
@@ -17,10 +18,28 @@ class EditTextDialogScreen<T>(private val parentScreen: T) {
                 )
         return this
     }
+    fun enterValueCategory(value: String): EditTextDialogScreen<T> {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
+        Espresso.onView(ViewMatchers.withId(R.id.category_name))
+            .perform(
+                ViewActions.replaceText(value),
+                ViewActions.closeSoftKeyboard()
+            )
+        return this
+    }
 
     fun pressPositiveButton(): T {
         Espresso.onView(ViewMatchers.withId(R.id.md_button_positive))
                 .perform(ViewActions.click())
+        return parentScreen
+    }
+
+    fun pressPositiveButtonCategory(): T {
+        Espresso.onView(ViewMatchers.withId(R.id.save_category))
+            .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
         return parentScreen
     }
 
