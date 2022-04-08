@@ -7,9 +7,11 @@ import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
 
 import androidx.test.espresso.contrib.RecyclerViewActions
+import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 
 import map.together.R
+import map.together.utils.WaitForAction
 import map.together.viewholders.MapViewHolder
 import org.hamcrest.CoreMatchers.*
 
@@ -17,10 +19,14 @@ import org.hamcrest.CoreMatchers.*
 class CategoriesScreen {
 
     fun getList(): ViewInteraction {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
         return Espresso.onView(withId(R.id.categories_list))
     }
 
-    fun pressChangeCategoryButton(): EditTextDialogScreen<CategoriesScreen>{
+    fun pressChangeCategoryButton(): EditTextDialogScreen<CategoriesScreen> {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(withId(R.id.categories_list))
             .perform(RecyclerViewActions.actionOnItemAtPosition<MapViewHolder>(0, click()))
 
@@ -29,11 +35,15 @@ class CategoriesScreen {
     }
 
     fun isCategoryNameEqualsValue(value: String): CategoriesScreen {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(withText(value)).check(matches(isDisplayed()))
         return this
     }
 
-    fun pressAddCategoryButton():EditTextDialogScreen<CategoriesScreen>{
+    fun pressAddCategoryButton():EditTextDialogScreen<CategoriesScreen> {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(withId(R.id.add_category_btn))
             .perform(click())
         return EditTextDialogScreen(this)
