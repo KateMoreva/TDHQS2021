@@ -33,4 +33,10 @@ class CategoriesScreen {
         return this
     }
 
+    fun pressAddCategoryButton():EditTextDialogScreen<CategoriesScreen>{
+        Espresso.onView(withId(R.id.add_category_btn))
+            .perform(click())
+        return EditTextDialogScreen(this)
+    }
+
 }

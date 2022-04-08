@@ -20,7 +20,6 @@ class EditTextDialogScreen<T>(private val parentScreen: T) {
     fun enterValueCategory(value: String): EditTextDialogScreen<T> {
         Espresso.onView(ViewMatchers.withId(R.id.category_name))
             .perform(
-//                ViewActions.clearText(),
                 ViewActions.replaceText(value),
                 ViewActions.closeSoftKeyboard()
             )
