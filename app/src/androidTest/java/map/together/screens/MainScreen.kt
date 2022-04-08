@@ -26,10 +26,13 @@ import org.hamcrest.Matcher
 
 
 class MainScreen {
+    
+    private val WAITING_TIMEOUT = 3000L;
+    
     fun zoomIn(): MainScreen {
         for (i in (0..8)) {
             onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(1000L))
+                .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
             onView(ViewMatchers.withId(R.id.zoom_in_id))
                 .perform(ViewActions.click())
         }
@@ -38,7 +41,7 @@ class MainScreen {
 
     fun clickOnMap(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.mapview))
             .perform(ViewActions.click())
         return this
@@ -52,26 +55,26 @@ class MainScreen {
 
     fun getAddress(): String {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return getText(ViewMatchers.withId(R.id.category_on_tap_adress_id)).toString()
     }
 
     fun getCategoryName(): String {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return getText(ViewMatchers.withId(R.id.category_on_tap_name_id)).toString()
     }
 
     fun getUserPlaceName(): String {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return getText(ViewMatchers.withId(R.id.category_on_tap_place_name_id)).toString()
     }
 
 
     fun typeUserPlaceName(name: String): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.category_on_tap_place_name_id))
             .perform(ViewActions.replaceText(name))
         return this
@@ -80,42 +83,42 @@ class MainScreen {
 
     fun getUserAdditionalPlaceData(): String {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return getText(ViewMatchers.withId(R.id.category_on_tap_place_description_id)).toString()
     }
 
     fun getUserName(): String {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return getText(ViewMatchers.withId(R.id.category_on_tap_user_name_id)).toString()
     }
 
     fun clickSavePlace(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.category_on_tap_save_changes_id))
             .perform(ViewActions.click())
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(3000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return this
     }
 
     fun getSavePlaceButton(): ViewInteraction {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         return onView(ViewMatchers.withId(R.id.category_on_tap_save_changes_id))
     }
 
     fun clickDrawing(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.line_point)).perform(ViewActions.click())
         return this
     }
 
     fun openLayers(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.layers_btn))
             .perform(ViewActions.click())
         return this
@@ -123,7 +126,7 @@ class MainScreen {
 
     fun activateSearch(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.search_button_id))
             .perform(ViewActions.click())
         return this
@@ -131,7 +134,7 @@ class MainScreen {
 
     fun clearSearch(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.search_text_clear))
             .perform(ViewActions.click())
         return this
@@ -139,7 +142,7 @@ class MainScreen {
 
     fun typeSearchRequest(search: String): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.search_text_field))
             .perform(
                 ViewActions.replaceText(search),
@@ -152,7 +155,7 @@ class MainScreen {
 
     fun selectSearchResult(index: Int): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.search_res_list))
             .perform(
                 RecyclerViewActions.actionOnItemAtPosition<MapViewHolder>(
@@ -165,7 +168,7 @@ class MainScreen {
 
     fun openUsers(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.open_users))
             .perform(ViewActions.click())
         return this
@@ -173,7 +176,7 @@ class MainScreen {
 
     fun createLayer(): MainScreen {
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.resizable_layers_menu))
             .perform(ViewActions.click())
         onView(ViewMatchers.withId(R.id.add_layer_btn))
@@ -185,7 +188,7 @@ class MainScreen {
         onView(ViewMatchers.withId(R.id.layers_list))
             .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.layers_list))
             .check(matches(withViewAtPosition(index, isDisplayed())))
         return this
@@ -195,7 +198,7 @@ class MainScreen {
         onView(ViewMatchers.withId(R.id.users_list))
             .perform(RecyclerViewActions.scrollToPosition<RecyclerView.ViewHolder>(index))
         onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(1000L))
+            .perform(WaitForAction.waitFor(WAITING_TIMEOUT))
         onView(ViewMatchers.withId(R.id.users_list))
             .check(matches(withViewAtPosition(index, isDisplayed())))
         return this

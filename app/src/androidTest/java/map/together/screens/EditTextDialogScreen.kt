@@ -38,6 +38,8 @@ class EditTextDialogScreen<T>(private val parentScreen: T) {
     fun pressPositiveButtonCategory(): T {
         Espresso.onView(ViewMatchers.withId(R.id.save_category))
             .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
         return parentScreen
     }
 

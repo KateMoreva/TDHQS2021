@@ -29,7 +29,8 @@ class CategoriesScreen {
             .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(withId(R.id.categories_list))
             .perform(RecyclerViewActions.actionOnItemAtPosition<MapViewHolder>(0, click()))
-
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(1000L))
         return EditTextDialogScreen(this)
 
     }
@@ -46,6 +47,8 @@ class CategoriesScreen {
             .perform(WaitForAction.waitFor(1000L))
         Espresso.onView(withId(R.id.add_category_btn))
             .perform(click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
         return EditTextDialogScreen(this)
     }
 
