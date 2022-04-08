@@ -18,7 +18,7 @@ class CategoriesTest {
 
 
     @get:Rule
-    val activityRule = ActivityScenarioRule(FakeLoginActivity::class.java)
+    val activityRule = ActivityScenarioRule(LoginActivity::class.java)
 
     private val loginScreen = LoginScreen()
 
