@@ -14,6 +14,7 @@ import androidx.test.espresso.contrib.RecyclerViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import com.yandex.mapkit.transport.masstransit.Wait
 import map.together.R
 import map.together.utils.RecyclerViewItemCountAssertion
 import map.together.utils.WaitForAction
@@ -141,11 +142,11 @@ class MainScreen {
             .perform(WaitForAction.waitFor(1000L))
         onView(ViewMatchers.withId(R.id.search_text_field))
             .perform(
-                ViewActions.clearText(),
                 ViewActions.replaceText(search),
-                ViewActions.closeSoftKeyboard()
+                ViewActions.clearText(),
+                ViewActions.typeText(search),
+                ViewActions.closeSoftKeyboard(),
             )
-            .perform(ViewActions.click())
         return this
     }
 

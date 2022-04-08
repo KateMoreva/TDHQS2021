@@ -92,8 +92,10 @@ class MapTests {
                 .clickOnMap()
                 .getAddress()
             Assert.assertTrue(
-                placeAddress == "Дворцовая площадь, 2" || placeAddress == "Palace Square, 2"
-                        || placeAddress == "Dvortsovaya Embankment, 38" || placeAddress == "Дворцовая набережная, 38"
+                placeAddress == "Дворцовая площадь, 2"
+                        || placeAddress == "Palace Square, 2"
+                        || placeAddress == "Dvortsovaya Embankment, 38"
+                        || placeAddress == "Дворцовая набережная, 38"
             )
         } finally {
             removeMap(mapAndIndex.first.id)
@@ -170,7 +172,7 @@ class MapTests {
             mapsListScreen
                 .chooseMapByIndex(mapAndIndex.second)
                 .activateSearch()
-                .typeSearchRequest("Дворцовая")
+                .typeSearchRequest("Winter")
                 .selectSearchResult(0)
         } finally {
             removeMap(mapAndIndex.first.id)
@@ -200,8 +202,8 @@ class MapTests {
             mapsListScreen
                 .chooseMapByIndex(mapAndIndex.second)
                 .activateSearch()
-                .typeSearchRequest("Мариинский")
-                .selectSearchResult(1)
+                .typeSearchRequest("Winter")
+                .selectSearchResult(0)
                 .clickSavePlace()
             val places2 = getPlaces()
             Assert.assertNotNull(places2)
