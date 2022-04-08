@@ -52,6 +52,8 @@ class LoginScreen {
     fun pressConfirmButton(): MapsLibraryScreen {
         Espresso.onView(ViewMatchers.withId(R.id.confirm_button))
             .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(3000L))
         return MapsLibraryScreen()
     }
 

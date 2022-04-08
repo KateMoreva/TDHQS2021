@@ -5,6 +5,7 @@ import androidx.test.espresso.ViewInteraction
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.matcher.ViewMatchers
 import map.together.R
+import map.together.utils.WaitForAction
 
 class EditTextDialogScreen<T>(private val parentScreen: T) {
 
@@ -35,6 +36,8 @@ class EditTextDialogScreen<T>(private val parentScreen: T) {
     fun pressPositiveButtonCategory(): T {
         Espresso.onView(ViewMatchers.withId(R.id.save_category))
             .perform(ViewActions.click())
+        Espresso.onView(ViewMatchers.isRoot())
+                .perform(WaitForAction.waitFor(2000L))
         return parentScreen
     }
 
