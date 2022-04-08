@@ -16,8 +16,6 @@ class MapsLibraryScreen {
             .perform(WaitForAction.waitFor(2000L))
         Espresso.onView(ViewMatchers.withId(R.id.settings_btn))
             .perform(click())
-        Espresso.onView(ViewMatchers.isRoot())
-                .perform(WaitForAction.waitFor(3000L))
         return SettingsScreen()
     }
 
@@ -32,18 +30,18 @@ class MapsLibraryScreen {
     }
 
     fun chooseMapByIndex(index: Int): MainScreen {
+        Espresso.onView(ViewMatchers.isRoot())
+            .perform(WaitForAction.waitFor(2000L))
         Espresso.onView(ViewMatchers.withId(R.id.maps_list))
-                .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
+            .perform(actionOnItemAtPosition<MapViewHolder>(index, click()))
         return MainScreen()
     }
 
     fun createMap(): MapsLibraryScreen {
-        Espresso.onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(2500L))
         Espresso.onView(ViewMatchers.withId(R.id.imageView))
-            .perform(click())
+                .perform(click())
         Espresso.onView(ViewMatchers.isRoot())
-            .perform(WaitForAction.waitFor(2000L))
+                .perform(WaitForAction.waitFor(2000L))
         return this
     }
 }

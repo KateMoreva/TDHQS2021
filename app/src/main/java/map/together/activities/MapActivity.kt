@@ -681,7 +681,6 @@ class MapActivity : AppbarActivity(), GeoObjectTapListener, InputListener, Sessi
             println("new layer $newLayer")
             layersList.addLast(newLayer)
         }
-        println(layersList.items)
         if (layersList.items.isNotEmpty() && currentLayerId == -1L) {
             clickOnLayer(layersList.items[0])
         } else if (layersList.items.isEmpty()) {
